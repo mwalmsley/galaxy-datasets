@@ -51,8 +51,12 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
         if catalog is None:
             logging.info('Loading GZ2 dataset with default (unsplit) catalog')
             # catalog = pd.read_parquet(os.path.join(data_dir, 'catalog.parquet'))  # TODO override for now
-            catalog = pd.read_parquet(
-                '/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
+            if os.path.isdir('/share/nas2'):
+                catalog = pd.read_parquet(
+                    '/share/nas2/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
+            else:
+                catalog = pd.read_parquet(
+                    '/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
             catalog['file_loc'] = catalog['filename'].apply(
                 lambda x: os.path.join(self.image_dir, x))
         else:
