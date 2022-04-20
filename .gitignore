@@ -127,3 +127,17 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# was accidentally included in the GZ2 Zenodo upload by another researcher
+*/__MACOSX
+*._images
+results_public.txt
+results.txt
+z
+
+# datasets, will grind git to a halt if not excluded
+*.zip
+*.gz
+*.jpg
+*.jpeg
+*.png
