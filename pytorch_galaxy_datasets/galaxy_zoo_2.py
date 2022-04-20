@@ -6,8 +6,7 @@ import pandas as pd
 from urllib.error import URLError
 from torchvision.datasets.utils import download_and_extract_archive
 
-import galaxy_datamodule
-import galaxy_dataset
+from pytorch_galaxy_datasets import galaxy_datamodule, galaxy_dataset
 
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata

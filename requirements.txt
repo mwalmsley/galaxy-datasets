@@ -1,0 +1,6 @@
+torch >= 1.10
+torchvision
+simplejpeg
+albumentations
+numpy
+pandas
