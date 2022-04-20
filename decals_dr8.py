@@ -1,7 +1,8 @@
 
 import logging
 
-import galaxy_datamodule, galaxy_dataset
+import galaxy_datamodule
+import galaxy_dataset
 
 
 class DECALSDR8DataModule(galaxy_datamodule.GalaxyDataModule):
@@ -15,9 +16,9 @@ class DECALSDR8DataModule(galaxy_datamodule.GalaxyDataModule):
         """
         super().__init__(*args, **kwargs)
 
-
     def prepare_data(self):
-        logging.warning('DR8 is too large to download dynamically - you had better already have it prepared!')
+        logging.warning(
+            'DR8 is too large to download dynamically - you had better already have it prepared!')
         # TODO include some basic checks?
 
 
@@ -25,7 +26,6 @@ class DECALSDR8Dataset(galaxy_dataset.GalaxyDataset):
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
-
 
 
 """

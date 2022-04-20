@@ -35,7 +35,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         num_workers=4,
         prefetch_factor=4,
         seed=42
-        ):
+    ):
         super().__init__()
 
         if catalog is not None:  # catalog provided, should not also provide explicit split catalogs
@@ -48,7 +48,8 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert test_catalog is not None
 
         self.dataset_class = dataset_class
-        self.data_dir = data_dir  # where the images are on disk. dr8 will ignore this as hardcoded 
+        # where the images are on disk. dr8 will ignore this as hardcoded
+        self.data_dir = data_dir
         self.label_cols = label_cols
 
         self.catalog = catalog
@@ -85,15 +86,16 @@ class GalaxyDataModule(pl.LightningDataModule):
         logging.info('Num workers: {}'.format(self.num_workers))
         logging.info('Prefetch factor: {}'.format(self.prefetch_factor))
 
-
     def transform_with_torchvision(self):
 
         # assume input is 0-255 uint8 tensor
 
-        transforms_to_apply = [transforms.ConvertImageDtype(torch.float)]  # automatically normalises from 0-255 int to 0-1 float
-    
+        # automatically normalises from 0-255 int to 0-1 float
+        transforms_to_apply = [transforms.ConvertImageDtype(torch.float)]
+
         if self.greyscale:
-            transforms_to_apply += [GrayscaleUnweighted()]    # transforms.Grayscale() adds perceptual weighting to rgb channels
+            # transforms.Grayscale() adds perceptual weighting to rgb channels
+            transforms_to_apply += [GrayscaleUnweighted()]
 
         transforms_to_apply += [
             transforms.RandomResizedCrop(
@@ -102,30 +104,33 @@ class GalaxyDataModule(pl.LightningDataModule):
                 ratio=self.crop_ratio_bounds,  # crop aspect ratio
                 interpolation=transforms.InterpolationMode.BILINEAR),  # new aspect ratio
             transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
+            transforms.RandomRotation(
+                degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
         ]
 
         self.transform = transforms.Compose(transforms_to_apply)
 
-
     def transform_with_album(self):
 
         if self.greyscale:
-            transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(reduce_channels=True), always_apply=True)]
+            transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
+                reduce_channels=True), always_apply=True)]
         else:
             transforms_to_apply = []
 
             transforms_to_apply += [
                 A.ToFloat(),
-                A.Rotate(limit=180, interpolation=1, always_apply=True, border_mode=0, value=0), # anything outside of the original image is set to 0.
+                # anything outside of the original image is set to 0.
+                A.Rotate(limit=180, interpolation=1,
+                         always_apply=True, border_mode=0, value=0),
                 A.RandomResizedCrop(
-                    height=self.resize_size, # after crop resize
+                    height=self.resize_size,  # after crop resize
                     width=self.resize_size,
-                    scale=self.crop_scale_bounds, # crop factor
-                    ratio=self.crop_ratio_bounds, # crop aspect ratio
-                    interpolation=1, # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
+                    scale=self.crop_scale_bounds,  # crop factor
+                    ratio=self.crop_ratio_bounds,  # crop aspect ratio
+                    interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
                     always_apply=True
-                ), # new aspect ratio
+                ),  # new aspect ratio
                 A.VerticalFlip(p=0.5),
                 ToTensorV2()
             ]
@@ -136,8 +141,8 @@ class GalaxyDataModule(pl.LightningDataModule):
     def prepare_data(self):
         pass   # could include some basic checks
 
-
     # called on every gpu
+
     def setup(self, stage: Optional[str] = None):
 
         if self.catalog is not None:
@@ -168,15 +173,14 @@ class GalaxyDataModule(pl.LightningDataModule):
                 data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
-
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers>0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
     def val_dataloader(self):
-        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers>0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
+        return DataLoader(self.val_dataset, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
     def test_dataloader(self):
-        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers>0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
+        return DataLoader(self.test_dataset, batch_size=self.batch_size, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
 
 # torchvision
@@ -203,7 +207,6 @@ class GrayscaleUnweighted(torch.nn.Module):
         return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
 
 
-
 # albumentations versuib of GrayscaleUnweighted
 class ToGray():
 
@@ -211,7 +214,8 @@ class ToGray():
         if reduce_channels:
             self.mean = lambda arr: arr.mean(axis=2, keepdims=True)
         else:
-            self.mean = lambda arr: arr.mean(axis=2, keepdims=True).repeat(3, axis=2)
+            self.mean = lambda arr: arr.mean(
+                axis=2, keepdims=True).repeat(3, axis=2)
 
     def __call__(self, image, **kwargs):
         return self.mean(image)

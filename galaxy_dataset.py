@@ -26,7 +26,7 @@ class GalaxyDataset(Dataset):
         # image = read_image(img_path) # PIL under the hood: Returns CHW Tensor.
         # option B - tiny bit faster when CPU-limited
         with open(galaxy['file_loc'], 'rb') as f:
-            image = torch.from_numpy(decode_jpeg(f.read()).transpose(2,0,1))
+            image = torch.from_numpy(decode_jpeg(f.read()).transpose(2, 0, 1))
         label = get_galaxy_label(galaxy, self.label_cols)
 
         # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
@@ -35,12 +35,14 @@ class GalaxyDataset(Dataset):
             # TODO eww an extra if
             if self.album:
                 # album wants HWC np.array
-                image = np.asarray(image).transpose(1,2,0)  # send it back to np from tensor...
+                # send it back to np from tensor...
+                image = np.asarray(image).transpose(1, 2, 0)
                 # Returns torch.tensor CHW for torch using ToTensorV2() as last transform
                 # e.g.: https://albumentations.ai/docs/examples/pytorch_classification/
                 image = self.transform(image=image)['image']
-            else:   
-                image = self.transform(image)  # already a CHW tensor, which torchvision wants
+            else:
+                # already a CHW tensor, which torchvision wants
+                image = self.transform(image)
 
         if self.target_transform:
             label = self.target_transform(label)
@@ -52,6 +54,7 @@ class GalaxyDataset(Dataset):
 def load_encoded_jpeg(loc):
     with open(loc, "rb") as f:
         return f.read()  # bytes, not yet decoded
+
 
 def decode_jpeg(encoded_bytes):
     return simplejpeg.decode_jpeg(encoded_bytes, fastdct=True, fastupsample=True)
