@@ -17,7 +17,8 @@ class GalaxyDataModule(pl.LightningDataModule):
     def __init__(
         self,
         dataset_class,
-        schema,
+        data_dir,
+        label_cols=None,  # will use the default label cols of dataset_class if not provided
         # provide full catalog for automatic split, or...
         catalog=None,
         # provide train/val/test catalogs for your own previous split
@@ -47,7 +48,8 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert test_catalog is not None
 
         self.dataset_class = dataset_class
-        self.schema = schema
+        self.data_dir = data_dir  # where the images are on disk. dr8 will ignore this as hardcoded 
+        self.label_cols = label_cols
 
         self.catalog = catalog
         self.train_catalog = train_catalog
@@ -154,16 +156,16 @@ class GalaxyDataModule(pl.LightningDataModule):
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             self.train_dataset = self.dataset_class(
-                catalog=self.train_catalog, schema=self.schema, album=self.album, transform=self.transform
+                data_dir=self.data_dir, catalog=self.train_catalog, label_cols=self.label_cols, album=self.album, transform=self.transform
             )
             self.val_dataset = self.dataset_class(
-                catalog=self.val_catalog, schema=self.schema, album=self.album, transform=self.transform
+                data_dir=self.data_dir, catalog=self.val_catalog, label_cols=self.label_cols, album=self.album, transform=self.transform
             )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
             self.test_dataset = self.dataset_class(
-                catalog=self.test_catalog, schema=self.schema, transform=self.transform
+                data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
 

@@ -1,8 +1,10 @@
+from nis import cat
 import os
+import logging
 
 import pandas as pd
 from urllib.error import URLError
-from torchvision.datasets.utils import download_and_extract_archive, check_integrity
+from torchvision.datasets.utils import download_and_extract_archive
 
 import galaxy_datamodule, galaxy_dataset
 
@@ -19,14 +21,13 @@ class GZ2DataModule(galaxy_datamodule.GalaxyDataModule):
 
 
     def prepare_data(self):
-        # return super().prepare_data()
         GZ2Dataset(self.data_dir, download=True)
 
 
 # https://pytorch.org/vision/stable/_modules/torchvision/datasets/mnist.html for download process inspiration
 class GZ2Dataset(galaxy_dataset.GalaxyDataset):
 
-    def __init__(self, data_dir, download=False, transform=None, target_transform=None) -> None:
+    def __init__(self, data_dir, catalog=None, label_cols=None, download=False, transform=None, target_transform=None, album=True) -> None:
 
         # can use target_transform to turn counts into regression or even classification
         # will need another step to drop rows, in DataModule probably
@@ -47,11 +48,25 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
             raise RuntimeError("Dataset not found. You can use download=True to download it")
 
 
-        # catalog = pd.read_parquet(os.path.join(data_dir, 'catalog.parquet'))  # TODO override for now
-        catalog = pd.read_parquet('/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
-        catalog['file_loc'] = catalog['filename'].apply(lambda x: os.path.join(self.image_dir, x))
-        label_cols = label_metadata.gz2_label_cols
-        super().__init__(catalog=catalog, label_cols=label_cols, transform=transform, target_transform=target_transform)
+        if catalog is None:
+            logging.info('Loading GZ2 dataset with default (unsplit) catalog')
+            # catalog = pd.read_parquet(os.path.join(data_dir, 'catalog.parquet'))  # TODO override for now
+            catalog = pd.read_parquet('/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
+            catalog['file_loc'] = catalog['filename'].apply(lambda x: os.path.join(self.image_dir, x))
+        else:
+            logging.info('Overriding GZ2 default catalog with user-provided catalog (length {})'.format(len(catalog)))
+            assert isinstance(catalog, pd.DataFrame)
+            assert 'file_loc' in catalog.columns.values  # will always check label_cols as well, below
+
+        if label_cols is None:
+            logging.info('Loading GZ2 dataset with default label columns')
+            label_cols = label_metadata.gz2_label_cols
+        else:
+            logging.warning('User provided GZ2 dataset with custom label cols - be careful!')
+        assert all([col in catalog.columns.values for col in label_cols])
+
+        super().__init__(catalog=catalog, label_cols=label_cols, transform=transform, target_transform=target_transform, album=album)
+        
 
     
     def download(self) -> None:
@@ -83,6 +98,7 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
         return all([
             os.path.isdir(self.image_dir),
             os.path.isfile(os.path.join(self.image_dir, '100097.jpg'))  # TODO should check first and last and a few others
+            # TODO add catalog
         ])
 
 
@@ -95,4 +111,22 @@ if __name__ == '__main__':
 
     for image, label in dataset:
         print(image.shape, label)
+        break
+
+
+    data_dir = '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/gz2_root'
+    catalog = pd.read_parquet('/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
+    catalog['file_loc'] = catalog['filename'].apply(lambda x: os.path.join(data_dir, 'images', x))
+
+    datamodule = GZ2DataModule(
+        dataset_class=GZ2Dataset,
+        data_dir=data_dir,
+        catalog=catalog,
+    )
+
+    datamodule.prepare_data()
+    datamodule.setup()
+
+    for images, labels in datamodule.train_dataloader():
+        print(images.shape, labels.shape)
         break
