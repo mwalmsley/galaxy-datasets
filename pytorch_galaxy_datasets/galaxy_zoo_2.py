@@ -4,7 +4,7 @@ import logging
 
 import pandas as pd
 from urllib.error import URLError
-from torchvision.datasets.utils import download_and_extract_archive
+from torchvision.datasets.utils import download_and_extract_archive, check_integrity
 
 from pytorch_galaxy_datasets import galaxy_datamodule, galaxy_dataset
 
@@ -100,15 +100,23 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
         else:
             raise RuntimeError(f"Error downloading {filename}")
 
+
     def _check_exists(self) -> bool:
 
-        return all([
-            os.path.isfile(os.path.join(self.data_dir, 'gz2_downloadable_catalog.parquet.gz')),
+        # takes a few seconds for the image .zip
+        resources_downloaded = all([
+            check_integrity(
+                os.path.join(self.data_dir, os.path.basename(res)),
+                md5
+            )
+            for res, md5 in self.resources])
+
+        images_unpacked = all([
             os.path.isdir(self.image_dir),
             os.path.isfile(os.path.join(self.image_dir, '100097.jpg')),
-            # os.path.isfile(os.path.join(self.image_dir, '26603.jpg'))  # TODO should check first and last and a few others
         ])
 
+        return resources_downloaded & images_unpacked
 
 if __name__ == '__main__':
 
