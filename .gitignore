@@ -141,3 +141,5 @@ z
 *.jpg
 *.jpeg
 *.png
+*.parquet
+*.csv

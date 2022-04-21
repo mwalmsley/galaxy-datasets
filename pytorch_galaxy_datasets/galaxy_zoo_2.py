@@ -1,4 +1,4 @@
-from nis import cat
+import torch
 import os
 import logging
 
@@ -18,7 +18,7 @@ class GZ2DataModule(galaxy_datamodule.GalaxyDataModule):
         """
         Currently identical to GalaxyDataModule - see that description
         """
-        super().__init__(*args, **kwargs)
+        super().__init__(*args, dataset_class=GZ2Dataset, **kwargs)
 
     def prepare_data(self):
         GZ2Dataset(self.data_dir, download=True)
@@ -36,9 +36,8 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
         self.image_dir = os.path.join(self.data_dir, 'images')
 
         self.resources = [
-            # ('https://drive.google.com/uc?export=download&id=1pz3Tyfd6snLhcRonMh6V6qjZ7gjozJbO', '9d73da0d58f48e44e1ac13dce0232c98'),  # the catalog
-            ('https://zenodo.org/record/3565489/files/images_gz2.zip',
-             'bc647032d31e50c798770cf4430525c7')  # the images
+            ('https://dl.dropboxusercontent.com/s/fhp3o4jsdvx8r7y/gz2_downloadable_catalog.parquet.gz', 'e0d74efc0a8a2f99c789817015f8e688'),  # the catalog
+            ('https://zenodo.org/record/3565489/files/images_gz2.zip', 'bc647032d31e50c798770cf4430525c7')  # the images
         ]
 
         if download:
@@ -104,10 +103,10 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
     def _check_exists(self) -> bool:
 
         return all([
+            os.path.isfile(os.path.join(self.data_dir, 'gz2_downloadable_catalog.parquet.gz')),
             os.path.isdir(self.image_dir),
             os.path.isfile(os.path.join(self.image_dir, '100097.jpg')),
             # os.path.isfile(os.path.join(self.image_dir, '26603.jpg'))  # TODO should check first and last and a few others
-            # TODO add catalog
         ])
 
 
@@ -129,7 +128,6 @@ if __name__ == '__main__':
         lambda x: os.path.join(data_dir, 'images', x))
 
     datamodule = GZ2DataModule(
-        dataset_class=GZ2Dataset,
         data_dir=data_dir,
         catalog=catalog,
     )

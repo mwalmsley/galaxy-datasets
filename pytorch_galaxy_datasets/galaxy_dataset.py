@@ -61,4 +61,4 @@ def decode_jpeg(encoded_bytes):
 
 
 def get_galaxy_label(galaxy, label_cols):
-    return galaxy[label_cols].values.astype(int)
+    return galaxy[label_cols].values.astype(np.int64).squeeze()  # squeeze for if there's one label_col
