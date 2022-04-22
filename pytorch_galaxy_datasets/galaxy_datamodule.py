@@ -170,7 +170,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
             self.test_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
+                data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, album=self.album, transform=self.transform
             )
 
     def train_dataloader(self):
