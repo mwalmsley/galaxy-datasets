@@ -27,7 +27,7 @@ class GZ2DataModule(galaxy_datamodule.GalaxyDataModule):
 # https://pytorch.org/vision/stable/_modules/torchvision/datasets/mnist.html for download process inspiration
 class GZ2Dataset(galaxy_dataset.GalaxyDataset):
 
-    def __init__(self, data_dir, catalog=None, label_cols=None, download=False, transform=None, target_transform=None, album=True) -> None:
+    def __init__(self, data_dir, catalog=None, label_cols=None, download=False, transform=None, target_transform=None) -> None:
 
         # can use target_transform to turn counts into regression or even classification
         # will need another step to drop rows, in DataModule probably
@@ -49,13 +49,7 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
 
         if catalog is None:
             logging.info('Loading GZ2 dataset with default (unsplit) catalog')
-            # catalog = pd.read_parquet(os.path.join(data_dir, 'catalog.parquet'))  # TODO override for now
-            if os.path.isdir('/share/nas2'):
-                catalog = pd.read_parquet(
-                    '/share/nas2/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
-            else:
-                catalog = pd.read_parquet(
-                    '/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
+            catalog = pd.read_parquet(os.path.join(data_dir, 'gz2_downloadable_catalog.parquet'))
             catalog['file_loc'] = catalog['filename'].apply(
                 lambda x: os.path.join(self.image_dir, x))
         else:
@@ -74,7 +68,7 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
         assert all([col in catalog.columns.values for col in label_cols])
 
         super().__init__(catalog=catalog, label_cols=label_cols,
-                         transform=transform, target_transform=target_transform, album=album)
+                         transform=transform, target_transform=target_transform)
 
     def download(self) -> None:
         """Download the data if it doesn't exist already."""
@@ -94,9 +88,6 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
             except URLError as error:
                 print(f"Failed to download (trying next):\n{error}")
                 continue
-            finally:
-                print()  # not sure what this achieves, copied from mnist.py
-            break
         else:
             raise RuntimeError(f"Error downloading {filename}")
 

@@ -7,11 +7,11 @@ import simplejpeg
 
 # https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
 class GalaxyDataset(Dataset):
-    def __init__(self, catalog: pd.DataFrame, label_cols, album=False, transform=None, target_transform=None):
+    def __init__(self, catalog: pd.DataFrame, label_cols, transform=None, target_transform=None):
+        # if transform is from albumentations, datamodule should know about the transform including 
         # catalog should be split already
         # should have correct image locations under file_loc
         self.catalog = catalog
-        self.album = album
         self.label_cols = label_cols
         self.transform = transform
         self.target_transform = target_transform
@@ -32,17 +32,8 @@ class GalaxyDataset(Dataset):
         # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
 
         if self.transform:
-            # TODO eww an extra if
-            if self.album:
-                # album wants HWC np.array
-                # send it back to np from tensor...
-                image = np.asarray(image).transpose(1, 2, 0)
-                # Returns torch.tensor CHW for torch using ToTensorV2() as last transform
-                # e.g.: https://albumentations.ai/docs/examples/pytorch_classification/
-                image = self.transform(image=image)['image']
-            else:
-                # already a CHW tensor, which torchvision wants
-                image = self.transform(image)
+            # a CHW tensor, which torchvision wants. May change to PIL image.
+            image = self.transform(image)
 
         if self.target_transform:
             label = self.target_transform(label)

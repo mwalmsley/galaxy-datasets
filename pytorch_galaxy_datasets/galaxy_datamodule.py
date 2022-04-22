@@ -144,7 +144,11 @@ class GalaxyDataModule(pl.LightningDataModule):
                 ToTensorV2()
             ]
 
-        self.transform = A.Compose(transforms_to_apply)  # TODO more
+        albumentations_transform = A.Compose(transforms_to_apply)
+
+        # warning - might need a transpose check
+        self.transform = lambda img: albumentations_transform(image=np.array(img))["image"]
+
 
     # only called on main process
     def prepare_data(self):
