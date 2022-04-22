@@ -2,6 +2,7 @@
 from typing import Optional
 import logging
 
+import numpy as np
 from sklearn.model_selection import train_test_split
 import torch
 from torch.utils.data import DataLoader
@@ -34,6 +35,9 @@ class GalaxyDataModule(pl.LightningDataModule):
         use_memory=False,
         num_workers=4,
         prefetch_factor=4,
+        train_fraction=0.7,
+        val_fraction=0.1,
+        test_fraction=0.2,
         seed=42
     ):
         super().__init__()
@@ -69,6 +73,11 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         self.num_workers = num_workers
         self.seed = seed
+
+        assert np.isclose(train_fraction + val_fraction + test_fraction, 1.)
+        self.train_fraction = train_fraction
+        self.val_fraction = val_fraction
+        self.test_fraction = test_fraction
 
         self.greyscale = greyscale
         self.album = album
@@ -147,10 +156,10 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         if self.catalog is not None:
             self.train_catalog, hidden_catalog = train_test_split(
-                self.catalog, train_size=0.7, random_state=self.seed
+                self.catalog, train_size=self.train_fraction, random_state=self.seed
             )
             self.val_catalog, self.test_catalog = train_test_split(
-                hidden_catalog, train_size=1./3., random_state=self.seed
+                hidden_catalog, train_size=self.val_fraction/(self.val_fraction + self.test_fraction), random_state=self.seed
             )
             del hidden_catalog
         else:
