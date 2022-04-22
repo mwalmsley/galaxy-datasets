@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-# from PIL import Image
+from PIL import Image
 import simplejpeg
 
 
@@ -27,8 +27,8 @@ class GalaxyDataset(Dataset):
         # image = read_image(img_path) # PIL under the hood: Returns CHW Tensor.
         # option B - tiny bit faster when CPU-limited
         with open(galaxy['file_loc'], 'rb') as f:
-            image = torch.from_numpy(decode_jpeg(f.read()).transpose(2, 0, 1))  # CHW tensor
-            # image = Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
+            # image = torch.from_numpy(decode_jpeg(f.read()).transpose(2, 0, 1))  # CHW tensor
+            image = Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
         label = get_galaxy_label(galaxy, self.label_cols)
 
         # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
