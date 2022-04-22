@@ -2,6 +2,7 @@ import torch
 import os
 import logging
 
+import numpy as np
 import pandas as pd
 from urllib.error import URLError
 from torchvision.datasets.utils import download_and_extract_archive, check_integrity
@@ -63,8 +64,8 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
             logging.info('Loading GZ2 dataset with default label columns')
             label_cols = label_metadata.gz2_label_cols
         else:
-            logging.warning(
-                'User provided GZ2 dataset with custom label cols - be careful!')
+            logging.info(
+                'User provided GZ2 dataset with custom label cols {}'.format(label_cols))
         assert all([col in catalog.columns.values for col in label_cols])
 
         super().__init__(catalog=catalog, label_cols=label_cols,

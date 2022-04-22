@@ -174,16 +174,16 @@ class GalaxyDataModule(pl.LightningDataModule):
         # Assign train/val datasets for use in dataloaders
         if stage == "fit" or stage is None:
             self.train_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.train_catalog, label_cols=self.label_cols, album=self.album, transform=self.transform
+                data_dir=self.data_dir, catalog=self.train_catalog, label_cols=self.label_cols, transform=self.transform
             )
             self.val_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.val_catalog, label_cols=self.label_cols, album=self.album, transform=self.transform
+                data_dir=self.data_dir, catalog=self.val_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
             self.test_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, album=self.album, transform=self.transform
+                data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
     def train_dataloader(self):
