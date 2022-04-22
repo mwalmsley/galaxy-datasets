@@ -90,7 +90,7 @@ class GalaxyDataModule(pl.LightningDataModule):
             self.transform_with_torchvision()
 
         self.prefetch_factor = prefetch_factor
-        self.dataloader_timeout = 120  # seconds
+        self.dataloader_timeout = 240  # seconds
 
         logging.info('Num workers: {}'.format(self.num_workers))
         logging.info('Prefetch factor: {}'.format(self.prefetch_factor))
