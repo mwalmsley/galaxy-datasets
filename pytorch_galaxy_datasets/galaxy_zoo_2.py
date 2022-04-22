@@ -88,8 +88,6 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
             except URLError as error:
                 print(f"Failed to download (trying next):\n{error}")
                 continue
-        else:
-            raise RuntimeError(f"Error downloading {filename}")
 
 
     def _check_exists(self) -> bool:
