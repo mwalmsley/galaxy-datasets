@@ -64,9 +64,11 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
             logging.info('Loading GZ2 dataset with default label columns')
             label_cols = label_metadata.gz2_label_cols
         else:
-            logging.info(
-                'User provided GZ2 dataset with custom label cols {}'.format(label_cols))
-        assert all([col in catalog.columns.values for col in label_cols])
+            logging.info('User provided GZ2 dataset with custom label cols {}'.format(label_cols))
+                # label_cols_present = [col in catalog.columns.values for col in label_cols]
+            missing_label_cols = set(label_cols) - set(catalog.columns.values)
+            if len(missing_label_cols) > 0:
+                raise KeyError(f'User asked for label columns not present in catalog:\n{missing_label_cols} not in \n{catalog.columns.values}')
 
         super().__init__(catalog=catalog, label_cols=label_cols,
                          transform=transform, target_transform=target_transform)
