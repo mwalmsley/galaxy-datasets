@@ -100,7 +100,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         # assume input is 0-255 uint8 tensor
 
         # automatically normalises from 0-255 int to 0-1 float
-        transforms_to_apply = [transforms.ConvertImageDtype(torch.float)]
+        transforms_to_apply = [transforms.ToTensor()]  # dataset gives PIL image currently
 
         if self.greyscale:
             # transforms.Grayscale() adds perceptual weighting to rgb channels
@@ -147,6 +147,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         albumentations_transform = A.Compose(transforms_to_apply)
 
         # warning - might need a transpose check
+        # albumentations expects np array, and returns dict keyed by "image"
         self.transform = lambda img: albumentations_transform(image=np.array(img))["image"]
 
 
