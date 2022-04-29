@@ -12,32 +12,37 @@ from torchvision import transforms
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
+from pytorch_galaxy_datasets import galaxy_dataset
+
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
 class GalaxyDataModule(pl.LightningDataModule):
+    # takes generic catalogs (which are already downloaded and happy),
+    # splits if needed, and creates generic datasets->dataloaders etc
+    # easy to make dataset-specific default transforms if desired
     def __init__(
         self,
-        dataset_class,
-        data_dir,
-        label_cols=None,  # will use the default label cols of dataset_class if not provided
+        label_cols,
         # provide full catalog for automatic split, or...
         catalog=None,
+        train_fraction=0.7,
+        val_fraction=0.1,
+        test_fraction=0.2,
         # provide train/val/test catalogs for your own previous split
         train_catalog=None,
         val_catalog=None,
         test_catalog=None,
+        # augmentation params (sensible supervised defaults)
         greyscale=True,
         album=False,
-        batch_size=256,
         resize_size=224,
         crop_scale_bounds=(0.7, 0.8),
         crop_ratio_bounds=(0.9, 1.1),
-        use_memory=False,
+        # hardware params
+        batch_size=256,  # careful - will affect final performance
+        use_memory=False,  # deprecated
         num_workers=4,
         prefetch_factor=4,
-        train_fraction=0.7,
-        val_fraction=0.1,
-        test_fraction=0.2,
         seed=42
     ):
         super().__init__()
@@ -51,9 +56,6 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert val_catalog is not None
             assert test_catalog is not None
 
-        self.dataset_class = dataset_class
-        # where the images are on disk. dr8 will ignore this as hardcoded
-        self.data_dir = data_dir
         self.label_cols = label_cols
 
         self.catalog = catalog
@@ -173,18 +175,19 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert self.test_catalog is not None
 
         # Assign train/val datasets for use in dataloaders
+        # assumes dataset_class has these standard args
         if stage == "fit" or stage is None:
-            self.train_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.train_catalog, label_cols=self.label_cols, transform=self.transform
+            self.train_dataset = galaxy_dataset.GalaxyDataset(
+                catalog=self.train_catalog, label_cols=self.label_cols, transform=self.transform
             )
-            self.val_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.val_catalog, label_cols=self.label_cols, transform=self.transform
+            self.val_dataset = galaxy_dataset.GalaxyDataset(
+                catalog=self.val_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
-            self.test_dataset = self.dataset_class(
-                data_dir=self.data_dir, catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
+            self.test_dataset = galaxy_dataset.GalaxyDataset(
+                catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
     def train_dataloader(self):
