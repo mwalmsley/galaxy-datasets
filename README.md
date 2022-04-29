@@ -16,6 +16,12 @@ You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy
 
 For each dataset, you must cite/acknowledge the GZ data release paper and the original telescope survey from which the images were derived.
 
+### Installation
+
+For local development (e.g. adding a new dataset), you can install this by cloning from github, then running `pip install -e .` in the cloned repo root. 
+
+It will also be installed by default as a dependency of `zoobot` if you specify the pytorch version of `zoobot` - but this is slightly trickier if you'd like to make changes as it'll be installed under your `sitepackages`.
+
 ### Usage
 
 You can load each prepared dataset as a pytorch Dataset like so:
