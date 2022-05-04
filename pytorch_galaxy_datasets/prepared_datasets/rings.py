@@ -11,22 +11,22 @@ from zoobot.shared import label_metadata
 
 class DecalsDR5Dataset(galaxy_dataset.GalaxyDataset):
     
-    def __init__(self, data_dir, train=True, download=False, transform=None, target_transform=None):
+    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
-        label_cols, catalog = decals_dr5_setup(data_dir, train, download)
+        label_cols, catalog = decals_dr5_setup(root, train, download)
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-def decals_dr5_setup(data_dir, train, download):
+def decals_dr5_setup(root, train, download):
     resources = [
-        (internal_urls.rings_train_catalog, '6224fed8fbe10489d8060060acac09e4'),  # train catalog
-        (internal_urls.rings_test_catalog, 'af3c86e2bc56c1d6a079a4e9d3d0f190'),  # test catalog
+        (internal_urls.rings_train_catalog, 'fdc96a200189d64085edd5e191cbd683'),  # train catalog
+        (internal_urls.rings_test_catalog, '8929dea0c25d8e8afbd3870e50e9dca8'),  # test catalog
         (internal_urls.rings_images, '')  # the images
     ]
     images_to_spotcheck = []
 
-    downloader = download_utils.DatasetDownloader(data_dir, resources, images_to_spotcheck)
+    downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck)
     if download is True:
         downloader.download()
 
@@ -34,13 +34,13 @@ def decals_dr5_setup(data_dir, train, download):
 
     useful_columns = label_cols + ['subfolder', 'filename']
     if train:
-        train_catalog_loc = os.path.join(data_dir, 'rings_train_catalog.parquet')
+        train_catalog_loc = os.path.join(root, 'rings_train_catalog.parquet')
         catalog = pd.read_parquet(train_catalog_loc, columns=useful_columns)
     else:
-        test_catalog_loc = os.path.join(data_dir, 'rings_test_catalog.parquet')
+        test_catalog_loc = os.path.join(root, 'rings_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(data_dir, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
     catalog = _temp_adjust_catalog_dtypes(catalog, label_cols)
     return label_cols,catalog
@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     dr5_dataset = DecalsDR5Dataset(
-        data_dir='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/dr5_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/dr5_root',
         train=True,
         download=False
     )

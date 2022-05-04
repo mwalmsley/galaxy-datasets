@@ -73,27 +73,27 @@ def get_galaxy_label(galaxy, label_cols):
 # # https://pytorch.org/vision/stable/_modules/torchvision/datasets/mnist.html for download process inspiration
 # class GalaxyDatasetFactory():
 
-#     def __init__(self, data_dir, catalog=None, label_cols=None,  transform=None, target_transform=None) -> None:
+#     def __init__(self, root, catalog=None, label_cols=None,  transform=None, target_transform=None) -> None:
 
 #         # can use target_transform to turn counts into regression or even classification
 #         # will need another step to drop rows, in DataModule probably
 
-#         self.data_dir = data_dir
+#         self.root = root
 
-#         catalog, label_cols = self.adjust_catalog_and_labels(data_dir, catalog, label_cols)
+#         catalog, label_cols = self.adjust_catalog_and_labels(root, catalog, label_cols)
 
 #         super().__init__(catalog=catalog, label_cols=label_cols,
 #                          transform=transform, target_transform=target_transform)
 
 
-#     def adjust_catalog_and_labels(self, data_dir, catalog, label_cols):
+#     def adjust_catalog_and_labels(self, root, catalog, label_cols):
 #         if not self._check_exists():
 #             raise RuntimeError(
 #                 "Dataset not found. You can use download=True to download it")
 
 #         if catalog is None:
 #             logging.info('Loading dataset with default (unsplit) catalog')
-#             catalog = pd.read_parquet(os.path.join(data_dir, self.default_catalog_loc))
+#             catalog = pd.read_parquet(os.path.join(root, self.default_catalog_loc))
 #             catalog['file_loc'] = catalog['filename'].apply(
 #                 lambda x: os.path.join(self.image_dir, x))
 #         else:

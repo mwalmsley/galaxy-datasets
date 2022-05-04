@@ -8,9 +8,9 @@ class DatasetDownloader():
     # responsible for downloading a prespecified set of images/catalogs to a directory
     # supports GalaxyDataset via composition
 
-    def __init__(self, data_dir, resources, images_to_spotcheck=None):
-        self.data_dir = data_dir
-        self.image_dir = os.path.join(self.data_dir, 'images')
+    def __init__(self, root, resources, images_to_spotcheck=None):
+        self.root = root
+        self.image_dir = os.path.join(self.root, 'images')
         self.resources = resources
         self.images_to_spotcheck = images_to_spotcheck
 
@@ -20,7 +20,7 @@ class DatasetDownloader():
         if self._check_exists():
             return
 
-        os.makedirs(self.data_dir, exist_ok=True)
+        os.makedirs(self.root, exist_ok=True)
 
         # download files
         for url, md5 in self.resources:
@@ -28,7 +28,7 @@ class DatasetDownloader():
             try:
                 print(f"Downloading {url}")
                 download_and_extract_archive(
-                    url, download_root=self.data_dir, filename=filename, md5=md5)
+                    url, download_root=self.root, filename=filename, md5=md5)
             except URLError as error:
                 print(f"Failed to download (trying next):\n{error}")
                 continue
@@ -38,7 +38,7 @@ class DatasetDownloader():
         # takes a few seconds for the image .zip
         resources_downloaded = all([
             check_integrity(
-                os.path.join(self.data_dir, os.path.basename(res)),
+                os.path.join(self.root, os.path.basename(res)),
                 md5
             )
             for res, md5 in self.resources])
