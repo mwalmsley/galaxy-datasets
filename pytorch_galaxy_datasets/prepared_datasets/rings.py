@@ -9,16 +9,16 @@ from pytorch_galaxy_datasets.prepared_datasets import internal_urls
 from zoobot.shared import label_metadata
 
 
-class DecalsDR5Dataset(galaxy_dataset.GalaxyDataset):
+class RingsDataset(galaxy_dataset.GalaxyDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
-        label_cols, catalog = decals_dr5_setup(root, train, download)
+        label_cols, catalog = rings_setup(root, train, download)
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-def decals_dr5_setup(root, train, download):
+def rings_setup(root, train, download):
     resources = [
         (internal_urls.rings_train_catalog, 'fdc96a200189d64085edd5e191cbd683'),  # train catalog
         (internal_urls.rings_test_catalog, '8929dea0c25d8e8afbd3870e50e9dca8'),  # test catalog
@@ -57,18 +57,18 @@ def _temp_adjust_catalog_dtypes(catalog, label_cols):
 if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    dr5_dataset = DecalsDR5Dataset(
+    rings_datset = RingsDataset(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/dr5_root',
         train=True,
         download=False
     )
-    dr5_catalog = dr5_dataset.catalog
-    adjusted_catalog = dr5_catalog.sample(1000)
+    rings_catalog = rings_datset.catalog
+    adjusted_catalog = rings_catalog.sample(1000)
 
     # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
     # (which makes its own generic datasets internally)
     datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=label_metadata.decals_dr5_ortho_label_cols,
+        label_cols=['ring_fraction'],  # counts and totals also available
         catalog=adjusted_catalog
     )
 
