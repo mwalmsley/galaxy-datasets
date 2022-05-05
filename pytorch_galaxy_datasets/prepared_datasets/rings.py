@@ -22,7 +22,7 @@ def rings_setup(root, train, download):
     resources = [
         (internal_urls.rings_train_catalog, 'fdc96a200189d64085edd5e191cbd683'),  # train catalog
         (internal_urls.rings_test_catalog, '8929dea0c25d8e8afbd3870e50e9dca8'),  # test catalog
-        (internal_urls.rings_images, '')  # the images
+        (internal_urls.rings_images, '4dad52b1f9819059eb9793eef8cb320c')  # the images
     ]
     images_to_spotcheck = []
 
