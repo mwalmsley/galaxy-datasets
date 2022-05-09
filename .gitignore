@@ -146,3 +146,6 @@ z
 
 # for auto-downloads of unpublished data
 internal_urls.py  
+
+# candels table with urls
+hidden_data/*

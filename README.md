@@ -1,20 +1,21 @@
 # pytorch-galaxy-datasets
 PyTorch Datasets and PyTorch Lightning Datamodules for loading images and labels from Galaxy Zoo citizen science campaigns.
 
-| Name      | Class | Published | Downloadable
-| ----------- | ----------- | --- | ---- |
-| Galaxy Zoo 2 | GZ2 | &#x2611; | &#x2611;
-| GZ DECaLS GZD-5   | DecalsDR5 | &#x2611; | &#x2611; |
-| Galaxy Zoo Rings | Rings | &#x2612; | &#x2611; |
-| GZ Legacy Survey  | Legs | &#x2612; | &#x2612; |
+| Name      | Class | Published | Downloadable | Galaxies
+| ----------- | ----------- | --- | ---- | ---- |
+| Galaxy Zoo 2 | GZ2 | &#x2611; | &#x2611; | ~250k |
+| GZ CANDELS   | Candels | &#x2611; | &#x2611; | ~50k |
+| GZ DECaLS GZD-5   | DecalsDR5 | &#x2611; | &#x2611; |~230k |
+| Galaxy Zoo Rings | Rings | &#x2612; | &#x2611; | ~93k |
+| GZ Legacy Survey  | Legs | &#x2612; | &#x2612; | ~375k + 8.3m unlabelled |
 
-Any datasets marked as downloadable are only downloadable internally until published.
+Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).
 
 If a dataset is published but not marked as downloadable (none currently), it means I haven't yet got around to making the download automatic. You can still download it via the paper instructions.
 
 You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy_mnist) as a simple dataset for teaching/debugging.
 
-For each dataset, you must cite/acknowledge the GZ data release paper and the original telescope survey from which the images were derived.
+For each dataset, you must cite/acknowledge the GZ data release paper and the original telescope survey from which the images were derived. See [data.galaxyzoo.org](data.galaxyzoo.org) for the data release paper citations to use.
 
 ### Installation
 
