@@ -3,9 +3,9 @@ PyTorch Datasets and PyTorch Lightning Datamodules for loading images and labels
 
 | Name      | Class | Published | Downloadable | Galaxies
 | ----------- | ----------- | --- | ---- | ---- |
-| Galaxy Zoo 2 | GZ2 | &#x2611; | &#x2611; | ~250k |
+| Galaxy Zoo 2 | GZ2 | &#x2611; | &#x2611; | ~210k (main sample) |
 | GZ CANDELS   | Candels | &#x2611; | &#x2611; | ~50k |
-| GZ DECaLS GZD-5   | DecalsDR5 | &#x2611; | &#x2611; |~230k |
+| GZ DECaLS GZD-5   | DecalsDR5 | &#x2611; | &#x2611; | ~230k |
 | Galaxy Zoo Rings | Rings | &#x2612; | &#x2611; | ~93k |
 | GZ Legacy Survey  | Legs | &#x2612; | &#x2612; | ~375k + 8.3m unlabelled |
 | CFHT Tidal* | Tidal | &#x2611; | &#x2611; | 1760 (expert) |

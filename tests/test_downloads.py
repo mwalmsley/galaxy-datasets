@@ -50,6 +50,7 @@ def test_download_gz2_dataset(tmp_path):
 def test_download_rings_dataset(tmp_path):
 
     dataset = rings.RingsDataset(
+        # root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/rings_root/temp',
         root=tmp_path,
         download=True
     )

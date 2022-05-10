@@ -20,8 +20,8 @@ class CandelsDataset(galaxy_dataset.GalaxyDataset):
 
 def candels_setup(root, train, download):
     resources = [
-        ('https://dl.dropboxusercontent.com/s/cnjvdinnhh1r1md/candels_ortho_train_catalog.parquet', 'eb01ec63e552be19fae6bb44532e1252'),  # train catalog
-        ('https://dl.dropboxusercontent.com/s/y83v1gktw72hs0f/candels_ortho_test_catalog.parquet', '1cb1a222908299b03bd0b645dad58355'),  # test catalog
+        ('https://dl.dropboxusercontent.com/s/cnjvdinnhh1r1md/candels_ortho_train_catalog.parquet', '1861cedb8d2eb1ebd6e3fe562ae84f93'),  # train catalog
+        ('https://dl.dropboxusercontent.com/s/y83v1gktw72hs0f/candels_ortho_test_catalog.parquet', '793cd18874aaa48b5884b564d19dade5'),  # test catalog
         ('https://dl.dropboxusercontent.com/s/d67we9xsn8vyr5k/candels_images.tar.gz', 'b621ee4e650cf084a1a0c1fe5c9d0a21')  # the images
     ]
     images_to_spotcheck = ['COS_9933.jpg', 'UDS_21986.jpg', 'GDS_9405.jpg']

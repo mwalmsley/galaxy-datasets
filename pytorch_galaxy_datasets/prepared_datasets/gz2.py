@@ -10,29 +10,37 @@ from zoobot.shared import label_metadata
 # TODO add train flag? currently full dataset
 class GZ2Dataset(galaxy_dataset.GalaxyDataset):
     
-    def __init__(self, root, download=False, transform=None, target_transform=None):
+    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
-        catalog, label_cols = gz2_setup(root, download)  # no train arg
+        catalog, label_cols = gz2_setup(root, train, download)  # no train arg
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-def gz2_setup(root, download):
+def gz2_setup(root, train, download):
     resources = [
-        ('https://dl.dropboxusercontent.com/s/fhp3o4jsdvx8r7y/gz2_downloadable_catalog.parquet.gz', 'e0d74efc0a8a2f99c789817015f8e688'),  # the catalog
+        ('https://dl.dropboxusercontent.com/s/vu77e3sh2s5c250/gz2_train_catalog.parquet', '326533a775cf417bf426ef839b5088af'),  # the train catalog
+        ('https://dl.dropboxusercontent.com/s/8eh6f3oupndpl3/gz2_test_catalog.parquet', '629d0aa43f4451ba79a259ded2431b4e'),  # the test catalog
         ('https://zenodo.org/record/3565489/files/images_gz2.zip', 'bc647032d31e50c798770cf4430525c7')  # the images
     ]
-    images_to_spotcheck = ['100097.jpg']  # TODO could be programatic of course
+    images_to_spotcheck = ['100097.jpg']
 
     downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck)
     if download is True:
         downloader.download()
-    
-    catalog = pd.read_parquet(os.path.join(root, 'gz2_downloadable_catalog.parquet'))
+
+    useful_columns = label_cols + ['filename']
+    if train:
+        train_catalog_loc = os.path.join(root, 'gz2_train_catalog.parquet')
+        catalog = pd.read_parquet(train_catalog_loc, columns=useful_columns)
+    else:
+        test_catalog_loc = os.path.join(root, 'gz2_test_catalog.parquet')
+        catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
+
     catalog['file_loc'] = catalog['filename'].apply(
         lambda x: os.path.join(downloader.image_dir, x))
 
-    label_cols = label_metadata.gz2_label_cols
+    label_cols = label_metadata.gz2_label_cols   # TODO ortho label cols
     return catalog, label_cols
 
 

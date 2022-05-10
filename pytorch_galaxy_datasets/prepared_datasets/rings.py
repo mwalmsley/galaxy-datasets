@@ -20,9 +20,9 @@ class RingsDataset(galaxy_dataset.GalaxyDataset):
 
 def rings_setup(root, train, download):
     resources = [
-        (internal_urls.rings_train_catalog, 'bb60b494ce580b607481cc276fc49261'),  # train catalog
-        (internal_urls.rings_test_catalog, '8f21cbbc0a68a662b763c98737aa06c7'),  # test catalog
-        (internal_urls.rings_images, 'a468f727547e0d43b3475f630b19790a')  # the images
+        (internal_urls.rings_train_catalog, 'e2fb6b2bca45cd7f1c58f5b4089a5976'),  # train catalog
+        (internal_urls.rings_test_catalog, '6e3f362a6e19ecd02675eaa48f6727f0'),  # test catalog
+        (internal_urls.rings_images, 'd0950250436a05ce88de747e6af825b6')  # the images
     ]
     images_to_spotcheck = []
 
