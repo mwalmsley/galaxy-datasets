@@ -8,6 +8,7 @@ PyTorch Datasets and PyTorch Lightning Datamodules for loading images and labels
 | GZ DECaLS GZD-5   | DecalsDR5 | &#x2611; | &#x2611; |~230k |
 | Galaxy Zoo Rings | Rings | &#x2612; | &#x2611; | ~93k |
 | GZ Legacy Survey  | Legs | &#x2612; | &#x2612; | ~375k + 8.3m unlabelled |
+| CFHT Tidal* | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
 
 Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).
 
@@ -16,6 +17,10 @@ If a dataset is published but not marked as downloadable (none currently), it me
 You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy_mnist) as a simple dataset for teaching/debugging.
 
 For each dataset, you must cite/acknowledge the GZ data release paper and the original telescope survey from which the images were derived. See [data.galaxyzoo.org](data.galaxyzoo.org) for the data release paper citations to use.
+
+*CFHT Tidal is not a Galaxy Zoo dataset, but rather a small expert-labelled dataset of tidal features from [Atkinson 2013](https://doi.org/10.1088/0004-637X/765/1/28).
+MW reproduced and modified the images in [Walmsley 2019](https://doi.org/10.1093/mnras/sty3232).
+We include it here as a challenging fine-grained morphology classification task with little labelled data.
 
 ### Installation
 
