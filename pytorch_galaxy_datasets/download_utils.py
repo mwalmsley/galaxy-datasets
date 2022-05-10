@@ -1,7 +1,8 @@
 import os
+import logging
 
 from urllib.error import URLError
-from torchvision.datasets.utils import download_and_extract_archive, check_integrity
+from torchvision.datasets.utils import download_and_extract_archive, download_url, check_integrity
 
 
 class DatasetDownloader():
@@ -26,11 +27,14 @@ class DatasetDownloader():
         for url, md5 in self.resources:
             filename = os.path.basename(url)
             try:
-                print(f"Downloading {url}")
-                download_and_extract_archive(
-                    url, download_root=self.root, filename=filename, md5=md5)
+                logging.info(f"Downloading {url}")
+                if url.endswith('.tar.gz') or url.endswith('.zip'):
+                    download_and_extract_archive(
+                        url, download_root=self.root, filename=filename, md5=md5)
+                else:  # don't try to extract archive, just download
+                    download_url(url, root=self.root, filename=filename, md5=md5)
             except URLError as error:
-                print(f"Failed to download (trying next):\n{error}")
+                logging.info(f"Failed to download (trying next):\n{error}")
                 continue
 
 
@@ -44,7 +48,7 @@ class DatasetDownloader():
             for res, md5 in self.resources])
 
         images_unpacked = all([
-            os.path.isfile(os.path.join(self.image_dir, image_loc) for image_loc in self.images_to_spotcheck),
+            os.path.isfile(os.path.join(self.image_dir, image_loc)) for image_loc in self.images_to_spotcheck
         ])
 
         return resources_downloaded & images_unpacked

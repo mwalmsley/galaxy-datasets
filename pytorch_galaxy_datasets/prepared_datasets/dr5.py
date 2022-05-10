@@ -58,7 +58,7 @@ if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     dr5_dataset = DecalsDR5Dataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/dr5_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/dr5_root',
         train=True,
         download=False
     )

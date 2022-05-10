@@ -35,7 +35,7 @@ You can load each prepared dataset as a pytorch Dataset like so:
     from pytorch_galaxy_datasets.prepared_datasets import GZ2Dataset
 
     gz2_dataset = GZ2Dataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/gz2_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2_root',
         download=False
     )
     image, label = gz2_dataset[0]
@@ -46,7 +46,7 @@ You will probably want to customise the dataset, selecting a subset of galaxies 
     from pytorch_galaxy_datasets.prepared_datasets import gz2_setup
 
     catalog, label_cols = gz2_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/gz2_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2_root',
         download=False
     )
     adjusted_catalog = gz2_catalog.sample(1000)

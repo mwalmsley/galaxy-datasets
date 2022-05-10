@@ -54,7 +54,7 @@ if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     label_cols, tidal_catalog = tidal_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/tidal_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/tidal_root',
         train=True,
         download=False,
     )

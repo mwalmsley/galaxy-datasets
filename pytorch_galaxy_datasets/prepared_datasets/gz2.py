@@ -40,7 +40,7 @@ if __name__ == '__main__':
 
     # can use this directly, e.g. to visualise the dataset
     gz2_dataset = GZ2Dataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/gz2_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2_root',
         download=False
     )
     gz2_catalog = gz2_dataset.catalog  # and can get the catalog/cols for tweaking
@@ -48,7 +48,7 @@ if __name__ == '__main__':
 
     # or, can use the setup method directly
     catalog, label_cols = gz2_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/gz2_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2_root',
         download=False
     )
     adjusted_catalog = gz2_catalog.sample(1000)

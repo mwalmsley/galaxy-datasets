@@ -20,9 +20,9 @@ class RingsDataset(galaxy_dataset.GalaxyDataset):
 
 def rings_setup(root, train, download):
     resources = [
-        (internal_urls.rings_train_catalog, 'fdc96a200189d64085edd5e191cbd683'),  # train catalog
-        (internal_urls.rings_test_catalog, '8929dea0c25d8e8afbd3870e50e9dca8'),  # test catalog
-        (internal_urls.rings_images, '4dad52b1f9819059eb9793eef8cb320c')  # the images
+        (internal_urls.rings_train_catalog, 'bb60b494ce580b607481cc276fc49261'),  # train catalog
+        (internal_urls.rings_test_catalog, '8f21cbbc0a68a662b763c98737aa06c7'),  # test catalog
+        (internal_urls.rings_images, 'a468f727547e0d43b3475f630b19790a')  # the images
     ]
     images_to_spotcheck = []
 
@@ -42,23 +42,14 @@ def rings_setup(root, train, download):
 
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
-    catalog = _temp_adjust_catalog_dtypes(catalog, label_cols)
     return label_cols,catalog
-
-
-
-def _temp_adjust_catalog_dtypes(catalog, label_cols):
-    # enforce datatypes
-    for answer_col in label_cols:
-        catalog[answer_col] = catalog[answer_col].astype(int)
-    return catalog
 
 
 if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     rings_datset = RingsDataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/dr5_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/dr5_root',
         train=True,
         download=False
     )

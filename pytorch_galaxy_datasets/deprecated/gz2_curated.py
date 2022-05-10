@@ -10,7 +10,7 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
 
-    root = '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/tests/gz2_root'
+    root = '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2_root'
     catalog = pd.read_parquet('/nvme1/scratch/walml/repos/curation-datasets/gz2_downloadable_catalog.parquet')
     catalog['file_loc'] = catalog['filename'].apply(lambda x: os.path.join(root, 'images', x))
 
