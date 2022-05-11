@@ -20,7 +20,7 @@ class GZ2Dataset(galaxy_dataset.GalaxyDataset):
 def gz2_setup(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/vu77e3sh2s5c250/gz2_train_catalog.parquet', 'f489c9ec7dcf8d99f728bd00ee00b1d0'),  # the train catalog
-        ('https://dl.dropboxusercontent.com/s/8eh6f3oupndpl3/gz2_test_catalog.parquet', '8b2d74c93d35f86cc34f1d058b3b220b'),  # the test catalog
+        ('https://dl.dropboxusercontent.com/s/t8eh6f3oupndpl3/gz2_test_catalog.parquet', '8b2d74c93d35f86cc34f1d058b3b220b'),  # the test catalog
         ('https://zenodo.org/record/3565489/files/images_gz2.zip', 'bc647032d31e50c798770cf4430525c7')  # the images
     ]
     images_to_spotcheck = ['100097.jpg']
