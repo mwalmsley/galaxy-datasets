@@ -1,4 +1,5 @@
 import logging
+import os
 
 import pandas as pd
 from pytorch_galaxy_datasets import galaxy_datamodule, galaxy_dataset, download_utils
@@ -14,7 +15,7 @@ class LegsDataset(galaxy_dataset.GalaxyDataset):
     def __init__(self, root=None, split='train', download=False, transform=None, target_transform=None, train=None):
         # train=None is just an exception-raising parameter to avoid confused users using the train=False api
 
-        label_cols, catalog = legs_setup(root, split, download, train)
+        catalog, label_cols = legs_setup(root, split, download, train)
 
         # paths are not adjusted as cannot be downloaded
         # catalog = _temp_adjust_catalog_paths(catalog)
@@ -50,9 +51,9 @@ def legs_setup(root, split, download, train=None):
 
     usecols = label_cols + ['file_loc']
 
-    train_catalog_loc = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs/legs_all_campaigns_ortho_dr8_only_train_catalog.parquet'
-    test_catalog_loc = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs/legs_all_campaigns_ortho_dr8_only_test_catalog.parquet'
-    unlabelled_catalog_loc = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs/legs_all_campaigns_ortho_dr8_only_unlabelled_catalog.parquet'  # values in label_cols are all 0
+    train_catalog_loc = os.path.join(hardcoded_catalog_root, 'legs_all_campaigns_ortho_dr8_only_train_catalog.parquet')
+    test_catalog_loc = os.path.join(hardcoded_catalog_root, 'legs_all_campaigns_ortho_dr8_only_test_catalog.parquet')
+    unlabelled_catalog_loc = os.path.join(hardcoded_catalog_root, 'legs_all_campaigns_ortho_dr8_only_unlabelled_catalog.parquet')  # values in label_cols are all 0
 
     catalogs = []
 
@@ -68,7 +69,7 @@ def legs_setup(root, split, download, train=None):
     catalog = pd.concat(catalogs, axis=0)
     catalog = catalog.sample(len(catalog)).reset_index(drop=True)
 
-    return label_cols, catalog
+    return catalog, label_cols
 
 
 

@@ -29,8 +29,9 @@ def gz2_setup(root, train, download):
     if download is True:
         downloader.download()
 
-    label_cols = label_metadata.gz2_ortho_label_cols
-    useful_columns = label_cols + ['filename']
+
+    # useful_columns = label_cols + ['filename']
+    useful_columns = None  # quite a variety of possiblities - load all of them
     if train:
         train_catalog_loc = os.path.join(root, 'gz2_train_catalog.parquet')
         catalog = pd.read_parquet(train_catalog_loc, columns=useful_columns)
@@ -41,7 +42,7 @@ def gz2_setup(root, train, download):
     catalog['file_loc'] = catalog['filename'].apply(
         lambda x: os.path.join(downloader.image_dir, x))
 
-
+    label_cols = label_metadata.gz2_ortho_label_cols  # default, but you can ignore
     return catalog, label_cols
 
 

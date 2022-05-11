@@ -11,7 +11,7 @@ class TidalDataset(galaxy_dataset.GalaxyDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None, label_mode='coarse'):
 
-        label_cols, catalog = tidal_setup(root, train, download, label_mode=label_mode)
+        catalog, label_cols = tidal_setup(root, train, download, label_mode=label_mode)
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
@@ -44,7 +44,7 @@ def tidal_setup(root, train, download, label_mode='coarse'):
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['filename']), axis=1)
 
 
-    return label_cols, catalog
+    return catalog, label_cols
 
 # defined outside for use elsewhere
 coarse_tidal_label_cols = ['coarse_tidal_label']
@@ -53,7 +53,7 @@ finegrained_tidal_label_cols = ['finegrained_tidal_label']
 if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    label_cols, tidal_catalog = tidal_setup(
+    tidal_catalog, label_cols = tidal_setup(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/tidal',
         train=True,
         download=False,

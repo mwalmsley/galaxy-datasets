@@ -13,7 +13,7 @@ class RingsDataset(galaxy_dataset.GalaxyDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
-        label_cols, catalog = rings_setup(root, train, download)
+        catalog, label_cols = rings_setup(root, train, download)
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
@@ -42,7 +42,7 @@ def rings_setup(root, train, download):
 
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
-    return label_cols,catalog
+    return catalog, label_cols
 
 
 if __name__ == '__main__':

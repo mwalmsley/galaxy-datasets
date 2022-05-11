@@ -13,7 +13,7 @@ class CandelsDataset(galaxy_dataset.GalaxyDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
-        label_cols, catalog = candels_setup(root, train, download)
+        catalog, label_cols = candels_setup(root, train, download)
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
@@ -42,7 +42,7 @@ def candels_setup(root, train, download):
 
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['filename']), axis=1)  # no subfolder
 
-    return label_cols, catalog
+    return catalog, label_cols
 
 # TODO may change features to featured-or-disk
 candels_pairs = {

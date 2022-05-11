@@ -17,7 +17,7 @@ import pandas as pd
 # https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
 class GalaxyDataset(Dataset):
     def __init__(self, catalog: pd.DataFrame, label_cols, transform=None, target_transform=None):
-        # downloaded dataset where everything is all prepared, created by GalaxyDatasetFactory
+        # downloaded dataset where everything is all prepared, e.g. from prepared_datasets.gz2.gz2_setup()
         # reads a catalog of jpeg images, assumed of galaxies
         # if transform is from albumentations, datamodule should know about the transform including 
         # catalog should be split already
