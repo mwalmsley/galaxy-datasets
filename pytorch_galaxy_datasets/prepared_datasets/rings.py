@@ -49,7 +49,7 @@ if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     rings_datset = RingsDataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/dr5_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/decals_dr5',
         train=True,
         download=False
     )

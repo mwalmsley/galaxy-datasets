@@ -93,7 +93,7 @@ if __name__ == '__main__':
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     candels_label_cols, candels_catalog = candels_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/candels_root',
+        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/candels',
         train=True,
         download=False
     )

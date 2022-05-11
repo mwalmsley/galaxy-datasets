@@ -5,12 +5,21 @@ import os
 from pytorch_galaxy_datasets import galaxy_datamodule
 from pytorch_galaxy_datasets.prepared_datasets import candels, dr5, gz2, legs, rings, tidal
 
+pytest.fixture
+def base_root_dir():
+    if os.path.isdir('/nvme1/scratch'):
+        return '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots'
+    elif os.path.isdir('/share/nas2'):
+        return '/share/nas2/walml/repos/_data'
+    else:
+        raise FileNotFoundError
+
 
 def test_tidal_datamodule():
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     label_cols, catalog = tidal.tidal_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/tidal_root',
+        root=os.path.join(base_root_dir, 'tidal'),
         train=True,
         download=False
     )
@@ -32,7 +41,7 @@ def test_rings_datamodule():
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     label_cols, catalog = rings.rings_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/rings_root',
+        root=os.path.join(base_root_dir, 'rings'),
         train=True,
         download=False
     )
@@ -53,7 +62,7 @@ def test_candels_datamodule():
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     label_cols, catalog = candels.candels_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/candels_root',
+        root=os.path.join(base_root_dir, 'candels'),
         train=True,
         download=False
     )
@@ -74,7 +83,7 @@ def test_dr5_datamodule():
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     label_cols, catalog = dr5.decals_dr5_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/dr5_root',
+        root=os.path.join(base_root_dir, 'decals_dr5'),
         train=True,
         download=False
     )
@@ -96,7 +105,7 @@ def test_legs_datamodule():
 
     # first download is basically just a convenient way to get the images and canonical catalogs
     label_cols, catalog = legs.legs_setup(
-        # root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/legs_root',
+        # root=os.path.join(base_root_dir, '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/legs',
         train=True,
         download=False
     )
