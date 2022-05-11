@@ -13,4 +13,5 @@ REPO_DIR=/share/nas2/walml/repos/pytorch-galaxy-datasets
 PYTHON=/share/nas2/walml/miniconda3/envs/zoobot/bin/python
 
 # will download every dataset and hence be really slow
-$PYTHON -m pytest
+# https://docs.pytest.org/en/6.2.x/tmpdir.html#base-temporary-directory as no access to /tmp
+$PYTHON -m pytest --basetemp=/share/nas2/walml/pytest_tmp_dir
