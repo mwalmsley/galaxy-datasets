@@ -24,7 +24,7 @@ class LegsDataset(galaxy_dataset.GalaxyDataset):
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-def legs_setup(root, split, download, train=None):
+def legs_setup(root=None, split='train', download=False, train=None):
 
     if train is not None:
         raise ValueError("This dataset has unlabelled data: use split='train', 'test', 'unlabelled' or 'train+unlabelled' rather than train=False etc")
