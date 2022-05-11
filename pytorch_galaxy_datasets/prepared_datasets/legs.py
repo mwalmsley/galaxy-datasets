@@ -14,7 +14,7 @@ class LegsDataset(galaxy_dataset.GalaxyDataset):
     def __init__(self, root=None, split='train', download=False, transform=None, target_transform=None, train=None):
         # train=None is just an exception-raising parameter to avoid confused users using the train=False api
 
-        label_cols, catalog = self.legs_setup(root, split, download, train)
+        label_cols, catalog = legs_setup(root, split, download, train)
 
         # paths are not adjusted as cannot be downloaded
         # catalog = _temp_adjust_catalog_paths(catalog)
