@@ -47,9 +47,9 @@ def legs_setup(root, split, download, train=None):
         logging.warning('Only downloading catalogs - images are too large to download')
         downloader.download()
 
-    label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
 
-    useful_columns = label_cols + ['file_loc']
+
+    # useful_columns = label_cols + ['file_loc']
 
     train_catalog_loc = os.path.join(hardcoded_catalog_root, 'legs_all_campaigns_ortho_dr8_only_train_catalog.parquet')
     test_catalog_loc = os.path.join(hardcoded_catalog_root, 'legs_all_campaigns_ortho_dr8_only_test_catalog.parquet')
@@ -58,17 +58,18 @@ def legs_setup(root, split, download, train=None):
     catalogs = []
 
     if 'train' in split:
-        catalogs += [pd.read_parquet(train_catalog_loc, columns=useful_columns)]
+        catalogs += [pd.read_parquet(train_catalog_loc)]
 
     if 'test' in split:  # test+unlabelled not supported, but could add if needed
-        catalogs += [pd.read_parquet(test_catalog_loc, columns=useful_columns)]
+        catalogs += [pd.read_parquet(test_catalog_loc)]
 
     if 'unlabelled' in split:
-        catalogs += [pd.read_parquet(unlabelled_catalog_loc, columns=useful_columns)]
+        catalogs += [pd.read_parquet(unlabelled_catalog_loc)]
 
     catalog = pd.concat(catalogs, axis=0)
     catalog = catalog.sample(len(catalog)).reset_index(drop=True)
 
+    label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
     return catalog, label_cols
 
 
