@@ -30,19 +30,20 @@ def decals_dr5_setup(root, train, download):
     if download is True:
         downloader.download()
 
-    label_cols = label_metadata.decals_dr5_ortho_label_cols
+    
 
-    useful_columns = label_cols + ['subfolder', 'filename']
+    # useful_columns = label_cols + ['subfolder', 'filename']
     if train:
         train_catalog_loc = os.path.join(root, 'decals_dr5_ortho_train_catalog.parquet')
-        catalog = pd.read_parquet(train_catalog_loc, columns=useful_columns)
+        catalog = pd.read_parquet(train_catalog_loc)
     else:
         test_catalog_loc = os.path.join(root, 'decals_dr5_ortho_test_catalog.parquet')
-        catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
+        catalog = pd.read_parquet(test_catalog_loc)
 
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
-    # catalog = _temp_adjust_catalog_dtypes(catalog, label_cols)
+    # default, but not actually used here
+    label_cols = label_metadata.decals_dr5_ortho_label_cols
     return catalog, label_cols
 
 
