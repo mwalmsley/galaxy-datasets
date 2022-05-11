@@ -39,10 +39,11 @@ def legs_setup(root, split, download, train=None):
         internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8',
         internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'
     )
-    downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck=[])
+    # downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck=[])
     if download is True:
-        logging.warning('Only downloading catalogs - images are too large to download')
-        downloader.download()
+        raise NotImplementedError
+        # logging.warning('Only downloading catalogs - images are too large to download')
+        # downloader.download()
 
     label_cols = label_metadata.decals_all_campaigns_ortho_pairs
 
