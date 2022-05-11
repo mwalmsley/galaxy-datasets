@@ -36,9 +36,9 @@ def legs_setup(root, split, download, train=None):
         # TODO update for non-manchester users with a manual copy?
 
     resources = (
-        internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473',
-        internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8',
-        internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'
+        (internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473'),
+        (internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8'),
+        (internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca')
     )
 
     hardcoded_catalog_root = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs'
