@@ -58,13 +58,13 @@ def legs_setup(root, split, download, train=None):
     catalogs = []
 
     if 'train' in split:
-        catalogs += pd.read_parquet(train_catalog_loc, columns=useful_columns)
+        catalogs += [pd.read_parquet(train_catalog_loc, columns=useful_columns)]
 
     if 'test' in split:  # test+unlabelled not supported, but could add if needed
-        catalogs += pd.read_parquet(test_catalog_loc, columns=useful_columns)
+        catalogs += [pd.read_parquet(test_catalog_loc, columns=useful_columns)]
 
     if 'unlabelled' in split:
-        catalogs += pd.read_parquet(unlabelled_catalog_loc, columns=useful_columns)
+        catalogs += [pd.read_parquet(unlabelled_catalog_loc, columns=useful_columns)]
 
     catalog = pd.concat(catalogs, axis=0)
     catalog = catalog.sample(len(catalog)).reset_index(drop=True)
