@@ -34,16 +34,17 @@ def legs_setup(root, split, download, train=None):
         'Legacy Survey cannot be downloaded - ignoring root {}'.format(root)
         # TODO update for non-manchester users with a manual copy?
 
-    # resources = (
-    #     internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473',
-    #     internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8',
-    #     internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'
-    # )
-    # downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck=[])
+    resources = (
+        internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473',
+        internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8',
+        internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'
+    )
+
+    hardcoded_catalog_root = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs'
+    downloader = download_utils.DatasetDownloader(hardcoded_catalog_root, resources, images_to_spotcheck=[])
     if download is True:
-        raise NotImplementedError
-        # logging.warning('Only downloading catalogs - images are too large to download')
-        # downloader.download()
+        logging.warning('Only downloading catalogs - images are too large to download')
+        downloader.download()
 
     label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
 
