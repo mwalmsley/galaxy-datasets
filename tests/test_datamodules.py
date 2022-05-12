@@ -5,7 +5,7 @@ import os
 from pytorch_galaxy_datasets import galaxy_datamodule
 from pytorch_galaxy_datasets.prepared_datasets import candels, dr5, gz2, legs, rings, tidal
 
-pytest.fixture
+@pytest.fixture
 def base_root_dir():
     if os.path.isdir('/nvme1/scratch'):
         return '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots'
@@ -15,10 +15,10 @@ def base_root_dir():
         raise FileNotFoundError
 
 
-def test_tidal_datamodule():
+def test_tidal_datamodule(base_root_dir):
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    label_cols, catalog = tidal.tidal_setup(
+    catalog, label_cols = tidal.tidal_setup(
         root=os.path.join(base_root_dir, 'tidal'),
         train=True,
         download=False
@@ -37,10 +37,10 @@ def test_tidal_datamodule():
         
 
 
-def test_rings_datamodule():
+def test_rings_datamodule(base_root_dir):
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    label_cols, catalog = rings.rings_setup(
+    catalog, label_cols = rings.rings_setup(
         root=os.path.join(base_root_dir, 'rings'),
         train=True,
         download=False
@@ -58,10 +58,10 @@ def test_rings_datamodule():
         break
         
 
-def test_candels_datamodule():
+def test_candels_datamodule(base_root_dir):
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    label_cols, catalog = candels.candels_setup(
+    catalog, label_cols = candels.candels_setup(
         root=os.path.join(base_root_dir, 'candels'),
         train=True,
         download=False
@@ -79,10 +79,10 @@ def test_candels_datamodule():
         break
         
 
-def test_dr5_datamodule():
+def test_dr5_datamodule(base_root_dir):
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    label_cols, catalog = dr5.decals_dr5_setup(
+    catalog, label_cols = dr5.decals_dr5_setup(
         root=os.path.join(base_root_dir, 'decals_dr5'),
         train=True,
         download=False
@@ -104,7 +104,7 @@ def test_dr5_datamodule():
 def test_legs_datamodule():
 
     # first download is basically just a convenient way to get the images and canonical catalogs
-    label_cols, catalog = legs.legs_setup(
+    catalog, label_cols = legs.legs_setup(
         # root=os.path.join(base_root_dir, '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/legs',
         train=True,
         download=False
