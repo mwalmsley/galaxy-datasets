@@ -29,7 +29,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
     if train is not None:
         raise ValueError("This dataset has unlabelled data: use split='train', 'test', 'unlabelled' or 'train+unlabelled' rather than train=False etc")
 
-    assert split in ['train', 'test', 'unlabelled', 'train+unlabelled']
+    assert split in ['train', 'test', 'labelled', 'unlabelled', 'train+unlabelled']
 
     if root is not None:
         'Legacy Survey cannot be downloaded - ignoring root {}'.format(root)
@@ -41,13 +41,14 @@ def legs_setup(root=None, split='train', download=False, train=None):
         (internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca')
     )
 
-    hardcoded_catalog_root = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs'
+    if os.path.isdir('/share/nas2'):
+        hardcoded_catalog_root = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs'
+    else:
+        hardcoded_catalog_root = '/home/walml/repos/pytorch-galaxy-datasets/roots/legs'  # catalogs only
     downloader = download_utils.DatasetDownloader(hardcoded_catalog_root, resources, images_to_spotcheck=[])
     if download is True:
         logging.warning('Only downloading catalogs - images are too large to download')
         downloader.download()
-
-
 
     # useful_columns = label_cols + ['file_loc']
 
@@ -57,10 +58,10 @@ def legs_setup(root=None, split='train', download=False, train=None):
 
     catalogs = []
 
-    if 'train' in split:
+    if 'train' in split or ('labelled' in split and 'un' not in split):
         catalogs += [pd.read_parquet(train_catalog_loc)]
 
-    if 'test' in split:  # test+unlabelled not supported, but could add if needed
+    if 'test' in split or ('labelled' in split and 'un' not in split):
         catalogs += [pd.read_parquet(test_catalog_loc)]
 
     if 'unlabelled' in split:
