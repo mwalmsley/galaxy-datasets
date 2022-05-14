@@ -14,7 +14,7 @@ if __name__ == '__main__':
 
     print(df['file_loc'][0])
 
-    all_files = list(df['file_loc'])
+    all_files = list(df['file_loc'])[:10]
     print(all_files[:3])
 
     all_files_path = '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt'
