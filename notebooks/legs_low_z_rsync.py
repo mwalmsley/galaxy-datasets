@@ -13,8 +13,9 @@ if __name__ == '__main__':
     df['file_loc'] = df['brickid'] + '/' + df['id_str'] + '.jpg'
 
     print(df['file_loc'][0])
+    print('Galaxies: {}'.format(len(df)))
 
-    all_files = list(df['file_loc'])[:10]
+    all_files = list(df['file_loc'])
     print(all_files[:3])
 
     all_files_path = '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt'
@@ -23,3 +24,5 @@ if __name__ == '__main__':
         f.write('\n'.join(all_files))
 
     print(f'rsync --dry-run --files-from {all_files_path} walml@galahad.ast.man.ac.uk:/share/nas2/walml/galaxy_zoo/decals/dr8/jpg  /home/walml/repos/pytorch-galaxy-datasets/derived_data/legs_z_below_0p1_to_upload')
+
+    print(f'rsync -v --files-from {all_files_path} walml@galahad.ast.man.ac.uk:/share/nas2/walml/galaxy_zoo/decals/dr8/jpg  /home/walml/repos/pytorch-galaxy-datasets/derived_data/legs_z_below_0p1_to_upload')
