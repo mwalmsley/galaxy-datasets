@@ -4,7 +4,7 @@ import pandas as pd
 if __name__ == '__main__':
 
     # note - the low z (z<0.1) catalog!
-    df = pd.read_parquet('/home/walml/repos/decals-rings/results/rings_megacatalog_z_below_0p1.parquet', columns=['dr8_id', 'brickid', 'objid', 'iauname', 'redshift'])
+    df = pd.read_parquet('/home/walml/repos/decals-rings/results/rings_megacatalog_z_below_0p1.parquet', columns=['dr8_id', 'iauname', 'redshift'])
 
 
     df['brickid'] = df['id_str'].apply(lambda x: x.split('_')[0])
