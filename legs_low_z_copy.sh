@@ -55,6 +55,7 @@ xargs --version
 
 
 # from jpg dir
+cd /share/nas2/walml/galaxy_zoo/decals/dr8/jpg
 
 # split main file into 200k chunks, named like temp/low_z_jpg_* where * is an int
 split -d -l 200000 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt temp/low_z_jpg_
