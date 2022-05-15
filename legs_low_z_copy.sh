@@ -13,8 +13,8 @@ pwd; hostname; date
 
 # srun head -n 10 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt | xargs -I X -n 1 -P 24 -t -d " " rsync --relative /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/./X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg
 
-rsync --version
-xargs --version
+# rsync --version
+# xargs --version
 
 # xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 -t rsync --relative /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/./X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg
 
@@ -61,4 +61,4 @@ cd /share/nas2/walml/galaxy_zoo/decals/dr8/jpg
 split -d -l 200000 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt temp/low_z_jpg_
 
 # get the paths to those files (temp/...), and then use xargs to start 24 processes, each using tar to read the paths in a chunkfile (-T) and save to path.tar.gz
-# ls temp/low_z_jpg_* | xargs -n 1 -P 24 -i tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/{}.tar.gz -T {} 
+ls temp/low_z_jpg_* | xargs -n 1 -P 24 -i tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/{}.tar.gz -T {} 
