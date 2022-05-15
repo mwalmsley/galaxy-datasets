@@ -61,4 +61,4 @@ cd /share/nas2/walml/galaxy_zoo/decals/dr8/jpg
 split -d -l 200000 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt temp/low_z_jpg_chunk_
 
 # get the paths to those files (temp/...), and then use xargs to start 24 processes, each using tar to read the paths in a chunkfile (-T) and save to path.tar.gz
-ls temp/low_z_jpg_chunk_* | xargs -n 1 -P 24 -i tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/{}_archive.tar.gz -T {} 
+ls temp/low_z_jpg_chunk_* | xargs -n 1 -P 24 -i tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/{}_archive.tar.gz -T {} 
