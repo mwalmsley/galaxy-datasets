@@ -19,4 +19,45 @@ xargs --version
 # xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 -t rsync --relative /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/./X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg
 
 # xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 mkdir -p /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg/X
-xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 cp /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg/X
+# xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 cp /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg/X
+
+# xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 cp /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg/X
+
+# timestamp() {
+#   "%T" # current time
+# }
+
+# xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -n 50000 -P 1 -t -i tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/archive_{timestamp}.tar.gz {}
+
+# tar -cf -a --files-from /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt /share/nas2/walml/galaxy_zoo/decals/dr8/archive_test.tar.gz
+
+# head -n 10 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt | tar -cvf --auto-compress  /share/nas2/walml/galaxy_zoo/decals/dr8/archive_test.tar.gz 
+
+# tar -cvfz --directory /share/nas2/walml/galaxy_zoo/decals/dr8/jpg /share/nas2/walml/galaxy_zoo/decals/dr8/archive_test.tar.gz 42832/42832_4476.jpg
+
+
+# tar -cvfz /share/nas2/walml/galaxy_zoo/decals/dr8/archive_test.tar.gz /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/42832/42832_4476.jpg
+
+# tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/archive_test.tar.gz jpg/42832/42832_4476.jpg jpg/42832/42832_4476.jpg
+
+# tar -czvf /share/nas2/walml/checks_debug.tar.gz checks_old/100000_100499.parquet checks_old/6452500_6452999.parquet
+
+# random not re-triggered
+# head -n 10 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt | xargs -n 2 -P 1 -t -I @ tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/archive_$RANDOM.tar.gz @
+
+# head -n 10 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt | split -l 2
+
+# ls low_z_jpg_* | xargs -P 1 -t -i tar -czvf -T {} /share/nas2/walml/galaxy_zoo/decals/dr8/{}.tar.gz
+
+# tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg_00.tar.gz
+# tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/temp/debug.tar.gz -T temp/low_z_jpg_00 
+
+
+
+# from jpg dir
+
+# split main file into 200k chunks, named like temp/low_z_jpg_* where * is an int
+split -d -l 200000 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt temp/low_z_jpg_
+
+# get the paths to those files (temp/...), and then use xargs to start 24 processes, each using tar to read the paths in a chunkfile (-T) and save to path.tar.gz
+# ls temp/low_z_jpg_* | xargs -n 1 -P 24 -i tar -czvf /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/{}.tar.gz -T {} 
