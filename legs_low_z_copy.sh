@@ -14,6 +14,7 @@ pwd; hostname; date
 # srun head -n 10 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt | xargs -I X -n 1 -P 24 -t -d " " rsync --relative /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/./X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg
 
 rsync --version
+xargs --version
 
-srun xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 -t rsync --relative /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/./X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg
+xargs -a /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt -I X -n 1 -P 24 -t rsync --relative /share/nas2/walml/galaxy_zoo/decals/dr8/jpg/./X /share/nas2/walml/galaxy_zoo/decals/dr8/low_z_jpg
 
