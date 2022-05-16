@@ -143,6 +143,7 @@ z
 *.png
 *.parquet
 *.csv
+*.txt
 
 # for auto-downloads of unpublished data
 internal_urls.py  
