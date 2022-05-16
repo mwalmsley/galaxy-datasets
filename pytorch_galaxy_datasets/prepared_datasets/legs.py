@@ -29,7 +29,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
     if train is not None:
         raise ValueError("This dataset has unlabelled data: use split='train', 'test', 'unlabelled' or 'train+unlabelled' rather than train=False etc")
 
-    assert split in ['train', 'test', 'labelled', 'unlabelled', 'train+unlabelled']
+    assert split in ['train', 'test', 'labelled', 'unlabelled', 'train+unlabelled', 'all']
 
     if root is not None:
         'Legacy Survey cannot be downloaded - ignoring root {}'.format(root)
@@ -58,13 +58,13 @@ def legs_setup(root=None, split='train', download=False, train=None):
 
     catalogs = []
 
-    if 'train' in split or ('labelled' in split and 'un' not in split):
+    if 'all' in split or 'train' in split or ('labelled' in split and 'un' not in split):
         catalogs += [pd.read_parquet(train_catalog_loc)]
 
-    if 'test' in split or ('labelled' in split and 'un' not in split):
+    if 'all' in split or 'test' in split or ('labelled' in split and 'un' not in split):
         catalogs += [pd.read_parquet(test_catalog_loc)]
 
-    if 'unlabelled' in split:
+    if 'all' in split or 'unlabelled' in split:
         catalogs += [pd.read_parquet(unlabelled_catalog_loc)]
 
     catalog = pd.concat(catalogs, axis=0)
