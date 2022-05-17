@@ -35,18 +35,32 @@ def legs_setup(root=None, split='train', download=False, train=None):
         # 'Legacy Survey cannot be downloaded - ignoring root {}'.format(root)
         # TODO update for non-manchester users with a manual copy?
 
+    # resources = (
+    #     (internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473'),
+    #     (internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8'),
+    #     (internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'),
+    #     # and the images, split into 8gb chunks
+    #     (internal_urls.legs_chunk_00, 'd6ca1051b3dd48cfc5c7f0535b403b2d'),
+    #     (internal_urls.legs_chunk_01, 'f258ab647cee076ca66288e25f4a778d'),
+    #     (internal_urls.legs_chunk_02, '7340e212d5eb38d54ea4d89fff93be81'),
+    #     (internal_urls.legs_chunk_03, '33578326983830e2ea5a694757203ae8'),
+    #     (internal_urls.legs_chunk_04, '577150bd970ef802a20cd3cce15f656a'),
+    #     (internal_urls.legs_chunk_05, '1d88458bf9987c7bf5f21301707c9dd8'),
+    #     (internal_urls.legs_chunk_06, '24cf944542e40335f86d7e43468723c0'),
+    #     (internal_urls.legs_chunk_07, '583d92b917bd70670d7860e3836cb4a4')
+    # )
     resources = (
         (internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473'),
-        (internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8'),
-        (internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'),
+        (internal_urls.legs_test_catalog, None),
+        (internal_urls.legs_unlabelled_catalog, None),
         # and the images, split into 8gb chunks
-        (internal_urls.legs_chunk_00, 'd6ca1051b3dd48cfc5c7f0535b403b2d'),
-        (internal_urls.legs_chunk_01, 'f258ab647cee076ca66288e25f4a778d'),
-        (internal_urls.legs_chunk_02, '7340e212d5eb38d54ea4d89fff93be81'),
-        (internal_urls.legs_chunk_03, '33578326983830e2ea5a694757203ae8'),
-        (internal_urls.legs_chunk_04, '577150bd970ef802a20cd3cce15f656a'),
-        (internal_urls.legs_chunk_05, '1d88458bf9987c7bf5f21301707c9dd8'),
-        (internal_urls.legs_chunk_06, '24cf944542e40335f86d7e43468723c0'),
+        (internal_urls.legs_chunk_00, None),
+        (internal_urls.legs_chunk_01, None),
+        (internal_urls.legs_chunk_02, None),
+        (internal_urls.legs_chunk_03, None),
+        (internal_urls.legs_chunk_04, None),
+        (internal_urls.legs_chunk_05, None),
+        (internal_urls.legs_chunk_06, None),
         (internal_urls.legs_chunk_07, '583d92b917bd70670d7860e3836cb4a4')
     )
 

@@ -40,6 +40,7 @@ class DatasetDownloader():
 
     def _check_exists(self) -> bool:
         # takes a few seconds for the image .zip
+        logging.info('Checking integrity of resources')
         resources_downloaded = all([
             check_integrity(
                 os.path.join(self.root, os.path.basename(res)),
