@@ -68,7 +68,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
         catalogs += [pd.read_parquet(unlabelled_catalog_loc)]
 
     catalog = pd.concat(catalogs, axis=0)
-    catalog = catalog.sample(len(catalog)).reset_index(drop=True)
+    catalog = catalog.sample(len(catalog), random_state=42).reset_index(drop=True)
 
     label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
     return catalog, label_cols
