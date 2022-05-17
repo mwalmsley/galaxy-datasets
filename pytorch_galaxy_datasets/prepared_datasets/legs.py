@@ -56,7 +56,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
     else:
         hardcoded_catalog_root = '/home/walml/repos/pytorch-galaxy-datasets/roots/legs'  # catalogs only
         root = hardcoded_catalog_root
-    downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck=[])
+    downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck=['338503/338503_3840.jpg'])
     if download is True:
         logging.warning('Only downloading catalogs - images are too large to download')
         downloader.download()
