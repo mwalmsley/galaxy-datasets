@@ -81,7 +81,10 @@ def legs_setup(root=None, split='train', download=False, train=None):
     catalog = pd.concat(catalogs, axis=0)
     catalog = catalog.sample(len(catalog), random_state=42).reset_index(drop=True)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, str(x['brickid']) + '_' + str(x['objid']), x['filename']), axis=1)
+    catalog['subfolder'] = catalog['brickid'].astype(str)
+    catalog['filename'] = catalog['dr8_id'].astype(str)
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
+    logging.info(catalog['file_loc'].iloc[0])
 
     label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
     return catalog, label_cols
