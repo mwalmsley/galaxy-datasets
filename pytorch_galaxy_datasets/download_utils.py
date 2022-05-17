@@ -9,9 +9,9 @@ class DatasetDownloader():
     # responsible for downloading a prespecified set of images/catalogs to a directory
     # supports GalaxyDataset via composition
 
-    def __init__(self, root, resources, images_to_spotcheck=None):
+    def __init__(self, root, resources, images_to_spotcheck=None, image_dirname='images'):
         self.root = root
-        self.image_dir = os.path.join(self.root, 'images')
+        self.image_dir = os.path.join(self.root, image_dirname)
         self.resources = resources
         self.images_to_spotcheck = images_to_spotcheck
 
@@ -46,10 +46,13 @@ class DatasetDownloader():
                 md5
             )
             for res, md5 in self.resources])
+        logging.info('Resources downloaded: {}'.format(resources_downloaded))
 
         images_unpacked = all([
             os.path.isfile(os.path.join(self.image_dir, image_loc)) for image_loc in self.images_to_spotcheck
         ])
+
+        logging.info('Images unpacked: {} ({}, {})'.format(images_unpacked, self.image_dir, self.images_to_spotcheck))
 
         return resources_downloaded & images_unpacked
 
