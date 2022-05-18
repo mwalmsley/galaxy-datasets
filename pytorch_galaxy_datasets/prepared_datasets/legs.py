@@ -75,7 +75,8 @@ def legs_setup(root=None, split='train', download=False, train=None):
         logging.warning('Only downloading catalogs - images are too large to download')
         downloader.download()
 
-    # useful_columns = label_cols + ['file_loc']
+    label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
+    useful_columns = label_cols + ['id_str', 'dr8_id', 'brickid', 'objid', 'redshift']
 
     train_catalog_loc = os.path.join(root, 'legs_all_campaigns_ortho_dr8_only_train_catalog.parquet')
     test_catalog_loc = os.path.join(root, 'legs_all_campaigns_ortho_dr8_only_test_catalog.parquet')
@@ -84,13 +85,13 @@ def legs_setup(root=None, split='train', download=False, train=None):
     catalogs = []
 
     if 'all' in split or 'train' in split or ('labelled' in split and 'un' not in split):
-        catalogs += [pd.read_parquet(train_catalog_loc)]
+        catalogs += [pd.read_parquet(train_catalog_loc, columns=useful_columns)]
 
     if 'all' in split or 'test' in split or ('labelled' in split and 'un' not in split):
-        catalogs += [pd.read_parquet(test_catalog_loc)]
+        catalogs += [pd.read_parquet(test_catalog_loc, columns=useful_columns)]
 
     if 'all' in split or 'unlabelled' in split:
-        catalogs += [pd.read_parquet(unlabelled_catalog_loc)]
+        catalogs += [pd.read_parquet(unlabelled_catalog_loc, columns=useful_columns)]
 
     catalog = pd.concat(catalogs, axis=0)
     catalog = catalog.sample(len(catalog), random_state=42).reset_index(drop=True)
@@ -100,7 +101,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
     logging.info(catalog['file_loc'].iloc[0])
 
-    label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
+
     return catalog, label_cols
 
 
