@@ -22,16 +22,25 @@ class GalaxyDataset(Dataset):
         # if transform is from albumentations, datamodule should know about the transform including 
         # catalog should be split already
         # should have correct image locations under file_loc
-        self.catalog = catalog
+
+        # internal catalog has id_str as index for query speed
+        # (dataset.catalog still returns the int-indexed catalog via the catalog method below)
+        self._catalog = catalog.copy().set_index('id_str', verify_integrity=True)
+        
         self.label_cols = label_cols
         self.transform = transform
         self.target_transform = target_transform
 
     def __len__(self):
-        return len(self.catalog)
+        return len(self._catalog)
+
+    @property
+    def catalog(self):
+        return self._catalog.reset_index(drop=False)
 
     def __getitem__(self, idx):
-        galaxy = self.catalog.iloc[idx]
+        #the index is id_str so can use that for quick search on 1M+ catalo
+        galaxy = self._catalog.loc[idx]
         # option A
         # img_path = galaxy['file_loc']
         # image = read_image(img_path) # PIL under the hood: Returns CHW Tensor.
