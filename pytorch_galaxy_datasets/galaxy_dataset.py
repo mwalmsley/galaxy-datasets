@@ -25,7 +25,8 @@ class GalaxyDataset(Dataset):
 
         # internal catalog has id_str as index for query speed
         # (dataset.catalog still returns the int-indexed catalog via the catalog method below)
-        self._catalog = catalog.copy().set_index('id_str', verify_integrity=True)
+        # self._catalog = catalog.copy().set_index('id_str', verify_integrity=True)
+        self.catalog = catalog
         
         self.label_cols = label_cols
         self.transform = transform
@@ -34,13 +35,14 @@ class GalaxyDataset(Dataset):
     def __len__(self):
         return len(self._catalog)
 
-    @property
-    def catalog(self):
-        return self._catalog.reset_index(drop=False)
+    # @property
+    # def catalog(self):
+    #     return self._catalog.reset_index(drop=False)
 
     def __getitem__(self, idx):
         #the index is id_str so can use that for quick search on 1M+ catalo
-        galaxy = self._catalog.loc[idx]
+        # galaxy = self._catalog.loc[idx]
+        galaxy = self.catalog.iloc[idx]
         # option A
         # img_path = galaxy['file_loc']
         # image = read_image(img_path) # PIL under the hood: Returns CHW Tensor.
