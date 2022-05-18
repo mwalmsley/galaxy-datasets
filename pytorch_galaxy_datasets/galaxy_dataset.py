@@ -33,7 +33,7 @@ class GalaxyDataset(Dataset):
         self.target_transform = target_transform
 
     def __len__(self):
-        return len(self._catalog)
+        return len(self.catalog)
 
     # @property
     # def catalog(self):
