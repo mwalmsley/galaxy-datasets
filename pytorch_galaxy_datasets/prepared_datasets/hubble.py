@@ -83,7 +83,7 @@ hubble_ortho_dependencies = {
     'galaxy-symmetrical-hubble': 'clumpy-appearance-hubble_yes',
     'clumps-embedded-larger-object-hubble': 'clumpy-appearance-hubble_yes',
     'disk-edge-on-hubble': 'clumpy-appearance-hubble_no',
-    'bulge-shape-hubble': 'disk-edge-on-hubble-yes',
+    'bulge-shape-hubble': 'disk-edge-on-hubble_yes',
     'edge-on-bulge-hubble': 'disk-edge-on-hubble_yes',
     'bar-hubble': 'disk-edge-on-hubble_no',
     'has-spiral-arms-hubble': 'disk-edge-on-hubble_no',
