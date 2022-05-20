@@ -4,10 +4,11 @@ PyTorch Datasets and PyTorch Lightning Datamodules for loading images and labels
 | Name      | Class | Published | Downloadable | Galaxies
 | ----------- | ----------- | --- | ---- | ---- |
 | Galaxy Zoo 2 | GZ2 | &#x2611; | &#x2611; | ~210k (main sample) |
+| GZ Hubble   | Hubble | &#x2611; | &#x2611; | ~106k (main sample) |
 | GZ CANDELS   | Candels | &#x2611; | &#x2611; | ~50k |
 | GZ DECaLS GZD-5   | DecalsDR5 | &#x2611; | &#x2611; | ~230k |
 | Galaxy Zoo Rings | Rings | &#x2612; | &#x2611; | ~93k |
-| GZ Legacy Survey  | Legs | &#x2612; | &#x2612; | ~375k + 8.3m unlabelled |
+| GZ Legacy Survey  | Legs | &#x2612; | z < 0.1 only | ~375k + 8.3m unlabelled |
 | CFHT Tidal* | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
 
 Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).
@@ -36,6 +37,7 @@ You can load each prepared dataset as a pytorch Dataset like so:
 
     gz2_dataset = GZ2Dataset(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2',
+        train=True,
         download=False
     )
     image, label = gz2_dataset[0]
@@ -47,11 +49,22 @@ You will probably want to customise the dataset, selecting a subset of galaxies 
 
     catalog, label_cols = gz2_setup(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2',
+        train=True,
         download=False
     )
     adjusted_catalog = gz2_catalog.sample(1000)
 
-You can then customise the catalog and labels before creating a generic GalaxyDataModule, which has default transforms for supervised learning.
+You can then customise the catalog and labels before creating a generic GalaxyDataset, which can be used with your own transforms etc. like any other pytorch dataset
+
+    from pytorch_galaxy_datasets.galaxy_dataset import GalaxyDataset
+
+    dataset = GalaxyDataset(
+        label_cols=['smooth-or-featured_smooth'],
+        catalog=adjusted_catalog,
+        transforms=some_torchvision_transforms_if_you_like
+    )
+
+For training models, I recommend using Pytorch Lightning and GalaxyDataModule, which has default transforms for supervised learning.
 
     from pytorch_galaxy_datasets.galaxy_datamodule import GalaxyDataModule
 

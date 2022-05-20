@@ -30,7 +30,8 @@ def candels_setup(root, train, download):
     if download is True:
         downloader.download()
 
-    label_cols = [question + answer for question, answers in candels_ortho_pairs.items() for answer in answers]  # defined below, globally in this script (for imports elsewhere)
+    # label_cols = [question + answer for question, answers in candels_ortho_pairs.items() for answer in answers]  # defined below, globally in this script (for imports elsewhere)
+    label_cols = candels_ortho_label_cols  # see below
 
     useful_columns = label_cols + ['filename']
     if train:
@@ -88,6 +89,9 @@ candels_ortho_dependencies = {
     'bulge-size-candels': 'disk-edge-on-candels_no',
     'merging-candels': None
 }
+
+candels_ortho_questions, candels_ortho_label_cols = label_metadata.extract_questions_and_label_cols(candels_ortho_pairs)
+
 
 if __name__ == '__main__':
 
