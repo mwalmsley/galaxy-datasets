@@ -20,8 +20,8 @@ class HubbleDataset(galaxy_dataset.GalaxyDataset):
 
 def hubble_setup(root, train, download):
     resources = [
-        ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'd086ac17c3ed9e3b80744ce4c88bee82'),  # train catalog
-        ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '129b0b7fc6ade54e1139f2c0794352bf'),  # test catalog
+        ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'a5ac6774f6f934731a6f66376f18631b'),  # train catalog
+        ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '75b2a5b1c45fb6e94a2c85bdfff1dba9'),  # test catalog
         ('https://dl.dropboxusercontent.com/s/k9xco1mtp8bw60v/hubble_images.tar.gz', 'b6fed2463bb2d17ddb8302f6b060534a')  # the images
     ]
     images_to_spotcheck = ['10000325.jpg', '20163083.jpg']
