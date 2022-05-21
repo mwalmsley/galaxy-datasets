@@ -49,7 +49,11 @@ class GalaxyDataset(Dataset):
         # option B - tiny bit faster when CPU-limited
         with open(galaxy['file_loc'], 'rb') as f:
             # image = torch.from_numpy(decode_jpeg(f.read()).transpose(2, 0, 1))  # CHW tensor
-            image = Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
+            try:
+                image = Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
+            except Exception as e:
+                logging.critical('Cannot load {}'.format(galaxy['file_loc']))
+                raise e
         label = get_galaxy_label(galaxy, self.label_cols)
 
         # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
