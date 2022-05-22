@@ -41,6 +41,7 @@ def tidal_setup(root, train, download, label_mode='coarse'):
         test_catalog_loc = os.path.join(root, 'tidal_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
 
+    catalog['id_str'] = catalog['filename'] # usually I have included these in the catalog itself TODO
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['filename']), axis=1)
 
 
