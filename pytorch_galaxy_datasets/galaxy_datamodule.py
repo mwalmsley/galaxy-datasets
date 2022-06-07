@@ -99,27 +99,10 @@ class GalaxyDataModule(pl.LightningDataModule):
 
     def transform_with_torchvision(self):
 
-        # assume input is 0-255 uint8 tensor
-
-        # automatically normalises from 0-255 int to 0-1 float
-        transforms_to_apply = [transforms.ToTensor()]  # dataset gives PIL image currently
-
-        if self.greyscale:
-            # transforms.Grayscale() adds perceptual weighting to rgb channels
-            transforms_to_apply += [GrayscaleUnweighted()]
-
-        transforms_to_apply += [
-            transforms.RandomResizedCrop(
-                size=self.resize_size,  # assumed square
-                scale=self.crop_scale_bounds,  # crop factor
-                ratio=self.crop_ratio_bounds,  # crop aspect ratio
-                interpolation=transforms.InterpolationMode.BILINEAR),  # new aspect ratio
-            transforms.RandomHorizontalFlip(),
-            transforms.RandomRotation(
-                degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
-        ]
+        transforms_to_apply = default_torchvision_transforms(self.greyscale, self.resize_size, self.crop_scale_bounds, self.crop_ratio_bounds)
 
         self.transform = transforms.Compose(transforms_to_apply)
+
 
     def transform_with_album(self):
 
@@ -199,6 +182,33 @@ class GalaxyDataModule(pl.LightningDataModule):
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
+    # def predict_dataloader(self, )
+
+
+
+def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
+    # refactored out for use elsewhere, if need exactly these transforms
+    # assume input is 0-255 uint8 tensor
+
+    # automatically normalises from 0-255 int to 0-1 float
+    transforms_to_apply = [transforms.ToTensor()]  # dataset gives PIL image currently
+
+    if greyscale:
+        # transforms.Grayscale() adds perceptual weighting to rgb channels
+        transforms_to_apply += [GrayscaleUnweighted()]
+
+    transforms_to_apply += [
+        transforms.RandomResizedCrop(
+            size=resize_size,  # assumed square
+            scale=crop_scale_bounds,  # crop factor
+            ratio=crop_ratio_bounds,  # crop aspect ratio
+            interpolation=transforms.InterpolationMode.BILINEAR),  # new aspect ratio
+        transforms.RandomHorizontalFlip(),
+        transforms.RandomRotation(
+            degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
+    ]
+    
+    return transforms_to_apply
 
 # torchvision
 class GrayscaleUnweighted(torch.nn.Module):
