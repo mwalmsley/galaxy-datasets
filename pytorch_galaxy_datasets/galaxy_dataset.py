@@ -79,8 +79,8 @@ def decode_jpeg(encoded_bytes):
 
 
 def get_galaxy_label(galaxy, label_cols):
-    # TODO currently assumes int i.e. num of votes or class label
-    return galaxy[label_cols].values.astype(np.int64).squeeze()  # squeeze for if there's one label_col
+    # no longer casts to int64, user now responsible in df
+    return galaxy[label_cols].values.squeeze()  # squeeze for if there's one label_col
 
 
 
