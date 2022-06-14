@@ -65,7 +65,7 @@ class GalaxyDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
 
-        logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
+        # logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
         return image, label
 
 
@@ -79,7 +79,7 @@ def decode_jpeg(encoded_bytes):
 
 
 def get_galaxy_label(galaxy, label_cols):
-    # no longer casts to int64, user now responsible in df
+    # no longer casts to int64, user now responsible in df. If dtype is mixed, will try to infer with infer_objects
     return galaxy[label_cols].infer_objects().values.squeeze()  # squeeze for if there's one label_col
 
 
