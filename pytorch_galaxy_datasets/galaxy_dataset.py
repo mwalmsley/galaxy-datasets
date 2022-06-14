@@ -80,7 +80,7 @@ def decode_jpeg(encoded_bytes):
 
 def get_galaxy_label(galaxy, label_cols):
     # no longer casts to int64, user now responsible in df
-    return np.array(galaxy[label_cols]).squeeze()  # squeeze for if there's one label_col
+    return galaxy[label_cols].infer_objects().values.squeeze()  # squeeze for if there's one label_col
 
 
 
