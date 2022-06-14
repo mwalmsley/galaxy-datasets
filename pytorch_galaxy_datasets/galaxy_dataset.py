@@ -65,7 +65,7 @@ class GalaxyDataset(Dataset):
         if self.target_transform:
             label = self.target_transform(label)
 
-        # logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
+        logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
         return image, label
 
 
