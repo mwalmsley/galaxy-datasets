@@ -145,6 +145,7 @@ class GalaxyDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
 
         if self.catalog is not None:
+            # will split the catalog into train, val, test here
             self.train_catalog, hidden_catalog = train_test_split(
                 self.catalog, train_size=self.train_fraction, random_state=self.seed
             )
@@ -153,9 +154,22 @@ class GalaxyDataModule(pl.LightningDataModule):
             )
             del hidden_catalog
         else:
-            assert self.train_catalog is not None
-            assert self.val_catalog is not None
-            assert self.test_catalog is not None
+            # assume you have passed pre-split catalogs
+            # (maybe not all, e.g. only a test catalog, or only train/val catalogs)
+            if stage == 'test':
+                # only need test
+                assert self.test_catalog is not None
+            elif stage == 'fit':
+                # only need train and val
+                assert self.train_catalog is not None
+                assert self.val_catalog is not None
+            else:
+                # need all three
+                assert self.train_catalog is not None
+                assert self.val_catalog is not None
+                assert self.test_catalog is not None
+            # (could write this shorter but this is clearest)
+
 
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
