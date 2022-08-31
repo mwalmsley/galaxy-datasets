@@ -32,6 +32,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         train_catalog=None,
         val_catalog=None,
         test_catalog=None,
+        predict_catalog=None,
         # augmentation params (sensible supervised defaults)
         greyscale=True,
         album=False,
@@ -52,7 +53,7 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert val_catalog is None
             assert test_catalog is None
         else:  # catalog not provided, must provide explicit split catalogs - at least one
-            assert (train_catalog is not None) or (val_catalog is not None) or (test_catalog is not None)
+            assert (train_catalog is not None) or (val_catalog is not None) or (test_catalog is not None) or (self.predict_catalog is not None)
             # see setup() for how having only some explicit catalogs is handled
 
         self.label_cols = label_cols
@@ -61,6 +62,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         self.train_catalog = train_catalog
         self.val_catalog = val_catalog
         self.test_catalog = test_catalog
+        self.predict_catalog = predict_catalog
 
         self.batch_size = batch_size
 
@@ -155,7 +157,9 @@ class GalaxyDataModule(pl.LightningDataModule):
         else:
             # assume you have passed pre-split catalogs
             # (maybe not all, e.g. only a test catalog, or only train/val catalogs)
-            if stage == 'test':
+            if stage == 'predict':
+                assert self.predict_catalog is not None
+            elif stage == 'test':
                 # only need test
                 assert self.test_catalog is not None
             elif stage == 'fit':
@@ -163,7 +167,7 @@ class GalaxyDataModule(pl.LightningDataModule):
                 assert self.train_catalog is not None
                 assert self.val_catalog is not None
             else:
-                # need all three
+                # need all three (predict is still optional)
                 assert self.train_catalog is not None
                 assert self.val_catalog is not None
                 assert self.test_catalog is not None
@@ -186,6 +190,11 @@ class GalaxyDataModule(pl.LightningDataModule):
                 catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
+        if stage == 'predict':  # not set up by default with stage=None, only if explicitly requested
+            self.predict_dataset = galaxy_dataset.GalaxyDataset(
+                catalog=self.predict_catalog, label_cols=self.label_cols, transform=self.transform
+            )
+
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
@@ -195,8 +204,8 @@ class GalaxyDataModule(pl.LightningDataModule):
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
-    # def predict_dataloader(self, )
-
+    def predict_dataloader(self):
+        return DataLoader(self.predict_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
 
 def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
