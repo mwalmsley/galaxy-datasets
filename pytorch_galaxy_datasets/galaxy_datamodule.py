@@ -51,10 +51,9 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert train_catalog is None
             assert val_catalog is None
             assert test_catalog is None
-        else:  # catalog not provided, must provide explicit split catalogs
-            assert train_catalog is not None
-            assert val_catalog is not None
-            assert test_catalog is not None
+        else:  # catalog not provided, must provide explicit split catalogs - at least one
+            assert (train_catalog is not None) or (val_catalog is not None) or (test_catalog is not None)
+            # see setup() for how having only some explicit catalogs is handled
 
         self.label_cols = label_cols
 
