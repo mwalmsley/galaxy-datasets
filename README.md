@@ -27,10 +27,10 @@ We include it here as a challenging fine-grained morphology classification task 
 
 For local development (e.g. adding a new dataset), you can install this by cloning from github, then running `pip install -e .` in the cloned repo root. 
 
-Note that installing `zoobot` will install this package as a dependency (by automatically running `pip install pytorch_galaxy_datasets`). As with any package) pip will install under your `sitepackages` so you won't be able to make changes easily. 
+Note that installing `zoobot` will install this package as a dependency (by automatically running `pip install pytorch-galaxy-datasets`). As with any package) pip will install under your `sitepackages` so you won't be able to make changes easily. 
 
 I suggest either:
-- For development, installing both `zoobot` and `pytorch_galaxy_datasets` via git
+- For development, installing both `zoobot` and `pytorch-galaxy-datasets` via git
 - For basic use without changes, installing `zoobot` via pip and allowing pip to manage this dependency
 
 ### Usage
