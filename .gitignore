@@ -150,3 +150,5 @@ internal_urls.py
 
 # candels table with urls
 hidden_data/*
+
+*.DS_Store
