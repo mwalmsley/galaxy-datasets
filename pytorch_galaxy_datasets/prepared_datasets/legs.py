@@ -100,7 +100,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
 
     catalog['subfolder'] = catalog['brickid'].astype(str)
     catalog['filename'] = catalog['dr8_id'].astype(str) + '.jpg'
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['subfolder'], x['filename']), axis=1)
     logging.info(catalog['file_loc'].iloc[0])
 
 

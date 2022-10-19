@@ -39,7 +39,7 @@ def rings_setup(root, train, download):
         test_catalog_loc = os.path.join(root, 'rings_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
     label_cols = label_metadata.rings_label_cols
 
@@ -48,11 +48,19 @@ def rings_setup(root, train, download):
 
 if __name__ == '__main__':
 
+    # personal stuff to pick my own root, comment out or adapt to your machine
+    if os.path.isdir('/Users/walml'):
+        root = '/Users/walml/repos/pytorch-galaxy-datasets/roots/rings'
+    elif os.path.sidir('/nvme1/scratch'):
+        root = '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/rings'
+    else:
+        raise ValueError
+
     # first download is basically just a convenient way to get the images and canonical catalogs
     rings_datset = RingsDataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/decals_dr5',
+        root=root,
         train=True,
-        download=False
+        download=True
     )
     rings_catalog = rings_datset.catalog
     adjusted_catalog = rings_catalog.sample(1000)

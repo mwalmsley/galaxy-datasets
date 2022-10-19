@@ -40,7 +40,8 @@ def decals_dr5_setup(root, train, download):
         test_catalog_loc = os.path.join(root, 'decals_dr5_ortho_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['subfolder'], x['filename']), axis=1)
+    # removed 'root' from here as downloader.image_dir already includes root
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
     # default, but not actually used here
     label_cols = label_metadata.decals_dr5_ortho_label_cols

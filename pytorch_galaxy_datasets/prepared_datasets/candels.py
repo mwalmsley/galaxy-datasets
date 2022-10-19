@@ -41,7 +41,7 @@ def candels_setup(root, train, download):
         test_catalog_loc = os.path.join(root, 'candels_ortho_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(root, downloader.image_dir, x['filename']), axis=1)  # no subfolder
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['filename']), axis=1)  # no subfolder
 
     return catalog, label_cols
 

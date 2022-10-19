@@ -10,6 +10,7 @@ class DatasetDownloader():
     # supports GalaxyDataset via composition
 
     def __init__(self, root, resources, images_to_spotcheck=None, image_dirname='images'):
+        # image_dirname should always be imagess; is not properly generalised to update the extract location
         self.root = root
         self.image_dir = os.path.join(self.root, image_dirname)
         self.resources = resources
