@@ -32,6 +32,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         train_catalog=None,
         val_catalog=None,
         test_catalog=None,
+        predict_catalog=None,
         # augmentation params (sensible supervised defaults)
         greyscale=True,
         album=False,
@@ -51,10 +52,9 @@ class GalaxyDataModule(pl.LightningDataModule):
             assert train_catalog is None
             assert val_catalog is None
             assert test_catalog is None
-        else:  # catalog not provided, must provide explicit split catalogs
-            assert train_catalog is not None
-            assert val_catalog is not None
-            assert test_catalog is not None
+        else:  # catalog not provided, must provide explicit split catalogs - at least one
+            assert (train_catalog is not None) or (val_catalog is not None) or (test_catalog is not None) or (predict_catalog is not None)
+            # see setup() for how having only some explicit catalogs is handled
 
         self.label_cols = label_cols
 
@@ -62,6 +62,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         self.train_catalog = train_catalog
         self.val_catalog = val_catalog
         self.test_catalog = test_catalog
+        self.predict_catalog = predict_catalog
 
         self.batch_size = batch_size
 
@@ -145,6 +146,7 @@ class GalaxyDataModule(pl.LightningDataModule):
     def setup(self, stage: Optional[str] = None):
 
         if self.catalog is not None:
+            # will split the catalog into train, val, test here
             self.train_catalog, hidden_catalog = train_test_split(
                 self.catalog, train_size=self.train_fraction, random_state=self.seed
             )
@@ -153,9 +155,24 @@ class GalaxyDataModule(pl.LightningDataModule):
             )
             del hidden_catalog
         else:
-            assert self.train_catalog is not None
-            assert self.val_catalog is not None
-            assert self.test_catalog is not None
+            # assume you have passed pre-split catalogs
+            # (maybe not all, e.g. only a test catalog, or only train/val catalogs)
+            if stage == 'predict':
+                assert self.predict_catalog is not None
+            elif stage == 'test':
+                # only need test
+                assert self.test_catalog is not None
+            elif stage == 'fit':
+                # only need train and val
+                assert self.train_catalog is not None
+                assert self.val_catalog is not None
+            else:
+                # need all three (predict is still optional)
+                assert self.train_catalog is not None
+                assert self.val_catalog is not None
+                assert self.test_catalog is not None
+            # (could write this shorter but this is clearest)
+
 
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
@@ -173,6 +190,11 @@ class GalaxyDataModule(pl.LightningDataModule):
                 catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
             )
 
+        if stage == 'predict':  # not set up by default with stage=None, only if explicitly requested
+            self.predict_dataset = galaxy_dataset.GalaxyDataset(
+                catalog=self.predict_catalog, label_cols=self.label_cols, transform=self.transform
+            )
+
     def train_dataloader(self):
         return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
@@ -182,8 +204,8 @@ class GalaxyDataModule(pl.LightningDataModule):
     def test_dataloader(self):
         return DataLoader(self.test_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
-    # def predict_dataloader(self, )
-
+    def predict_dataloader(self):
+        return DataLoader(self.predict_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
 
 def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
