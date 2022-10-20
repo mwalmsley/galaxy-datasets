@@ -67,7 +67,7 @@ def legs_setup(root=None, split='train', download=False, train=None):
     )
 
     if os.path.isdir('/share/nas2'):
-        hardcoded_catalog_root = '/share/nas2/walml/repos/pytorch-galaxy-datasets'
+        # hardcoded_catalog_root = '/share/nas2/walml/repos/pytorch-galaxy-datasets'
         pass  # oops, accidentally downloaded to pytorch-galaxy-datasets root...
     else:
         hardcoded_catalog_root = '/home/walml/repos/pytorch-galaxy-datasets/roots/legs'  # catalogs only
@@ -117,7 +117,7 @@ if __name__ == '__main__':
     # first download is basically just a convenient way to get the images and canonical catalogs
     legs_dataset = LegsDataset(
         root='whatever',
-        train=True,
+        split='train',  # not train=True
         download=False  # will fail except on galahad
     )
     legs_catalog = legs_dataset.catalog
