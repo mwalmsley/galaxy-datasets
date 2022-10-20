@@ -49,6 +49,8 @@ def legs_setup(root=None, split='train', download=False, train=None):
     #     (internal_urls.legs_chunk_06, '24cf944542e40335f86d7e43468723c0'),
     #     (internal_urls.legs_chunk_07, '583d92b917bd70670d7860e3836cb4a4')
     # )
+
+    # slightly lazier version that avoids checksumming all of them - sums above are correct, if neededd
     resources = (
         (internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473'),
         (internal_urls.legs_test_catalog, None),
@@ -65,8 +67,8 @@ def legs_setup(root=None, split='train', download=False, train=None):
     )
 
     if os.path.isdir('/share/nas2'):
-        # hardcoded_catalog_root = '/share/nas2/walml/repos/gz-decals-classifiers/data/decals/presplit_catalogs'
-        pass
+        hardcoded_catalog_root = '/share/nas2/walml/repos/pytorch-galaxy-datasets'
+        pass  # oops, accidentally downloaded to pytorch-galaxy-datasets root...
     else:
         hardcoded_catalog_root = '/home/walml/repos/pytorch-galaxy-datasets/roots/legs'  # catalogs only
         root = hardcoded_catalog_root
