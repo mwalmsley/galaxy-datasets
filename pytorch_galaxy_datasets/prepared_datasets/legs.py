@@ -127,7 +127,7 @@ if __name__ == '__main__':
     # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
     # (which makes its own generic datasets internally)
     datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=label_metadata.decals_all_campaigns_label_cols,
+        label_cols=label_metadata.decals_all_campaigns_ortho_label_cols,
         catalog=adjusted_catalog
     )
 
