@@ -67,11 +67,13 @@ def legs_setup(root=None, split='train', download=False, train=None):
     )
 
     if os.path.isdir('/share/nas2'):
-        # hardcoded_catalog_root = '/share/nas2/walml/repos/pytorch-galaxy-datasets'
+        hardcoded_catalog_root = '/share/nas2/walml/repos/_data/legs'
         pass  # oops, accidentally downloaded to pytorch-galaxy-datasets root...
     else:
         hardcoded_catalog_root = '/home/walml/repos/pytorch-galaxy-datasets/roots/legs'  # catalogs only
         root = hardcoded_catalog_root
+
+    # note that image_dirname='' i.e. images download directly to root, not root/images
     downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck=['338503/338503_3840.jpg'], image_dirname='')
     if download is True:
         logging.warning('Only downloading catalogs - images are too large to download')
