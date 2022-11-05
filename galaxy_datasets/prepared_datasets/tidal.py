@@ -1,22 +1,11 @@
 import os
 
 import pandas as pd
-from pytorch_galaxy_datasets import galaxy_datamodule, galaxy_dataset, download_utils
 
-# TODO could eventually refactor this out of Zoobot as well
-from zoobot.shared import label_metadata
+from galaxy_datasets.prepared_datasets import download_utils
 
 
-class TidalDataset(galaxy_dataset.GalaxyDataset):
-    
-    def __init__(self, root, train=True, download=False, transform=None, target_transform=None, label_mode='coarse'):
-
-        catalog, label_cols = tidal_setup(root, train, download, label_mode=label_mode)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
-
-
-def tidal_setup(root, train, download, label_mode='coarse'):
+def setup(root, train, download, label_mode='coarse'):
     resources = [
         ('https://dl.dropboxusercontent.com/s/jq6dyc8q87h92qq/tidal_train_catalog.parquet', '39def8527823f6d4f332fbc209b15a32'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/h8m7j7o3o11mt05/tidal_test_catalog.parquet', '12a8c6a23ddc8e7ad3f5bd597931bbe3'),  # test catalog
@@ -50,27 +39,3 @@ def tidal_setup(root, train, download, label_mode='coarse'):
 # defined outside for use elsewhere
 coarse_tidal_label_cols = ['coarse_tidal_label']
 finegrained_tidal_label_cols = ['finegrained_tidal_label']
-
-if __name__ == '__main__':
-
-    # first download is basically just a convenient way to get the images and canonical catalogs
-    tidal_catalog, label_cols = tidal_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/tidal',
-        train=True,
-        download=False,
-    )
-    adjusted_catalog = tidal_catalog.sample(1000)
-
-    # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
-    # (which makes its own generic datasets internally)
-    datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=label_cols,
-        catalog=adjusted_catalog
-    )
-
-    datamodule.prepare_data()
-    datamodule.setup()
-    for images, labels in datamodule.train_dataloader():
-        print(images.shape, labels.shape)
-        break
-        

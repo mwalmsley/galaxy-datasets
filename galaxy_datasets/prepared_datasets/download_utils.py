@@ -2,6 +2,7 @@ import os
 import logging
 
 from urllib.error import URLError
+# TODO this is the only pytorch dependency, could swap out perhaps
 from torchvision.datasets.utils import download_and_extract_archive, download_url, check_integrity
 
 

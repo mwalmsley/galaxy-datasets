@@ -12,7 +12,7 @@ from torchvision import transforms
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
-from pytorch_galaxy_datasets import galaxy_dataset
+from galaxy_datasets.pytorch import galaxy_dataset
 
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html

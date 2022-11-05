@@ -2,23 +2,14 @@
 import os
 
 import pandas as pd
-from pytorch_galaxy_datasets import galaxy_dataset, galaxy_datamodule, download_utils
 
 # this one has label_metadata contained in this repo, not zoobot. Others will follow, perhaps.
 from zoobot.shared import label_metadata
 
+from galaxy_datasets.prepared_datasets import download_utils
 
 
-class HubbleDataset(galaxy_dataset.GalaxyDataset):
-    
-    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
-
-        catalog, label_cols = hubble_setup(root, train, download)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
-
-
-def hubble_setup(root, train, download):
+def setup(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'c6cb821f7ebefb583dc74488cf7bfc5f'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '05e01ed822b34400f32977280eebec87'),  # test catalog
@@ -94,27 +85,3 @@ hubble_ortho_dependencies = {
 
 hubble_ortho_questions, hubble_ortho_label_cols = label_metadata.extract_questions_and_label_cols(hubble_ortho_pairs)
 
-
-if __name__ == '__main__':
-
-    # first download is basically just a convenient way to get the images and canonical catalogs
-    hubble_label_cols, hubble_catalog = hubble_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/hubble',
-        train=True,
-        download=False
-    )
-    
-    # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
-    # (which makes its own generic datasets internally)
-    adjusted_catalog = hubble_catalog.sample(1000)
-    datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=hubble_label_cols,
-        catalog=adjusted_catalog
-    )
-
-    datamodule.prepare_data()
-    datamodule.setup()
-    for images, labels in datamodule.train_dataloader():
-        print(images.shape, labels.shape)
-        break
-    

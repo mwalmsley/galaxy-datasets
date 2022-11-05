@@ -2,29 +2,14 @@ import logging
 import os
 
 import pandas as pd
-from pytorch_galaxy_datasets import galaxy_datamodule, galaxy_dataset, download_utils
-from pytorch_galaxy_datasets.prepared_datasets import internal_urls
+
+from galaxy_datasets.prepared_datasets import download_utils, internal_urls
 
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
 
 
-class LegsDataset(galaxy_dataset.GalaxyDataset):
-    
-    # based on https://pytorch.org/vision/stable/generated/torchvision.datasets.STL10.html
-    def __init__(self, root=None, split='train', download=False, transform=None, target_transform=None, train=None):
-        # train=None is just an exception-raising parameter to avoid confused users using the train=False api
-
-        catalog, label_cols = legs_setup(root, split, download, train)
-
-        # paths are not adjusted as cannot be downloaded
-        # catalog = _temp_adjust_catalog_paths(catalog)
-        # catalog = adjust_catalog_dtypes(catalog, label_cols)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
-
-
-def legs_setup(root=None, split='train', download=False, train=None):
+def setup(root=None, split='train', download=False, train=None):
 
     if train is not None:
         raise ValueError("This dataset has unlabelled data: use split='train', 'test', 'unlabelled' or 'train+unlabelled' rather than train=False etc")
@@ -105,32 +90,3 @@ def legs_setup(root=None, split='train', download=False, train=None):
 
 
     return catalog, label_cols
-
-
-
-
-if __name__ == '__main__':
-
-
-    # first download is basically just a convenient way to get the images and canonical catalogs
-    legs_dataset = LegsDataset(
-        root='whatever',
-        train=True,
-        download=False  # will fail except on galahad
-    )
-    legs_catalog = legs_dataset.catalog
-    adjusted_catalog = legs_catalog.sample(1000)
-
-    # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
-    # (which makes its own generic datasets internally)
-    datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=label_metadata.decals_all_campaigns_label_cols,
-        catalog=adjusted_catalog
-    )
-
-    datamodule.prepare_data()
-    datamodule.setup()
-    for images, labels in datamodule.train_dataloader():
-        print(images.shape, labels.shape)
-        break
-        
