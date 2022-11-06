@@ -8,6 +8,12 @@ from galaxy_datasets.prepared_datasets import download_utils, internal_urls
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
 
+"""
+Downloads DESI galaxies below z<0.1
+Includes GZ DESI labels where available (identical split to )
+
+Intended for active learning experiments simulated using GZ DESI
+"""
 
 def setup(root=None, split='train', download=False, train=None):
 
@@ -20,10 +26,15 @@ def setup(root=None, split='train', download=False, train=None):
         # 'Legacy Survey cannot be downloaded - ignoring root {}'.format(root)
         # TODO update for non-manchester users with a manual copy?
 
+
+    
+
+
+
     # resources = (
-    #     (internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473'),
-    #     (internal_urls.legs_test_catalog, '20919fe512ee8ce4d267790e519fcbf8'),
-    #     (internal_urls.legs_unlabelled_catalog, 'fbf287990add34d2249f584325bc9dca'),
+    #     (internal_urls.legs_train_catalog, '2364a714a1339f020587d374c1838418'),
+    #     (internal_urls.legs_test_catalog, '647bd46f53a06f13eb4df25311ccb9d3'),
+    #     (internal_urls.legs_unlabelled_catalog, '37c9f07b5c058f55d515d2df08ff132a'),
     #     # and the images, split into 8gb chunks
     #     (internal_urls.legs_chunk_00, 'd6ca1051b3dd48cfc5c7f0535b403b2d'),
     #     (internal_urls.legs_chunk_01, 'f258ab647cee076ca66288e25f4a778d'),
@@ -35,7 +46,7 @@ def setup(root=None, split='train', download=False, train=None):
     #     (internal_urls.legs_chunk_07, '583d92b917bd70670d7860e3836cb4a4')
     # )
     resources = (
-        (internal_urls.legs_train_catalog, 'bae2906e337bd114af013d02f3782473'),
+        (internal_urls.legs_train_catalog, '2364a714a1339f020587d374c1838418'),
         (internal_urls.legs_test_catalog, None),
         (internal_urls.legs_unlabelled_catalog, None),
         # and the images, split into 8gb chunks

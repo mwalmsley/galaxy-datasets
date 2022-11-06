@@ -22,9 +22,16 @@ def tidal_dataset():
     )
 
 # @pytest.fixture()
-def decals_dataset():
-    return datasets.DecalsDR5Dataset(
-        root=os.path.join(base_root_dir(), 'decals_dr5'),
+def gz_decals_dataset():
+    return datasets.GZDecalsDataset(
+        root=os.path.join(base_root_dir(), 'gz_decals'),
+        train=True,
+        download=False
+    )
+
+def gz_desi_dataset():
+    return datasets.GZDesiDataset(
+        root=os.path.join(base_root_dir(), 'gz_desi'),
         train=True,
         download=False
     )
@@ -37,38 +44,38 @@ def gz2_dataset():
     )
 
 # @pytest.fixture()
-def rings_dataset():
-    return datasets.RingsDataset(
-        root=os.path.join(base_root_dir(), 'rings'),
+def gz_rings_dataset():
+    return datasets.GZRingsDataset(
+        root=os.path.join(base_root_dir(), 'gz_rings'),
         train=True,
         download=False
     )
 
 # @pytest.fixture()
-def legs_dataset():
-    return datasets.LegsDataset(
-        root='whatever',
-        split='train',  # slightly different API
+# def legs_dataset():
+#     return datasets.LegsDataset(
+#         root='whatever',
+#         split='train',  # slightly different API
+#         download=False
+#     )
+
+# @pytest.fixture()
+def gz_hubble_dataset():
+    return datasets.GZHubbleDataset(
+        root=os.path.join(base_root_dir(), 'gz_hubble'),
         download=False
     )
 
-# @pytest.fixture()
-def hubble_dataset():
-    return datasets.HubbleDataset(
-        root=os.path.join(base_root_dir(), 'hubble'),
-        download=False
-    )
-
 
 # @pytest.fixture()
-def candels_dataset():
-    return datasets.CandelsDataset(
-        root=os.path.join(base_root_dir(), 'candels'),
+def gz_candels_dataset():
+    return datasets.GZCandelsDataset(
+        root=os.path.join(base_root_dir(), 'gz_candels'),
         download=False
     )
 
 # https://docs.pytest.org/en/6.2.x/fixture.html#using-marks-with-parametrized-fixtures
-@pytest.fixture(params=[gz2_dataset, hubble_dataset, candels_dataset, decals_dataset, rings_dataset, tidal_dataset, pytest.param(legs_dataset, marks=pytest.mark.skip)])
+@pytest.fixture(params=[gz2_dataset, gz_candels_dataset, gz_decals_dataset, gz_hubble_dataset, gz_rings_dataset, tidal_dataset, pytest.param(gz_desi_dataset, marks=pytest.mark.skip)])
 def dataset(request):
     return request.param()
 

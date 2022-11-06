@@ -1,1 +1,1 @@
-from galaxy_datasets.prepared_datasets import candels, decals, gz2, rings, tidal, legs, hubble
+from galaxy_datasets.prepared_datasets import gz_candels, gz_decals, gz_desi, gz_rings, gz_hubble,  gz2, tidal
