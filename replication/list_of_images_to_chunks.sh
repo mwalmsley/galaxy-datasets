@@ -9,18 +9,10 @@
 #SBATCH --cpus-per-task=24
 pwd; hostname; date
 
+# this script takes a list of images (already saved from elsewhere e.g.) and groups those images into .tar.gz "chunks" for easy upload/download
+
 # from jpg dir
 cd /share/nas2/walml/galaxy_zoo/decals/dr8/jpg
-
-
-# low z legs (deprecated for now)
-
-# # split main file into 200k chunks, named like temp/low_z_jpg_* where * is an int
-# split -d -l 200000 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt low_z_jpg_chunks/low_z_jpg_chunk_
-
-# # get the paths to those files (low_z_jpg_chunks/...), and then use xargs to start 24 processes, each using tar to read the paths in a chunkfile (-T) and save to path.tar.gz
-# ls low_z_jpg_chunks/low_z_jpg_chunk_* | xargs -n 1 -P 24 -i tar -czvf {}_archive.tar.gz -T {} 
-
 
 # gz desi
 
@@ -34,3 +26,16 @@ split -d -l 50000 /share/nas2/walml/repos/pytorch-galaxy-datasets/derived_data/g
 ls gz_desi_chunks/gz_desi_chunk_* | xargs -n 1 -P 24 -i tar -czvf {}_archive.tar.gz -T {} 
 
 # then rsync them back as usual
+
+
+
+
+
+
+# low z legs (deprecated for now)
+
+# # split main file into 200k chunks, named like temp/low_z_jpg_* where * is an int
+# split -d -l 200000 /share/nas2/walml/repos/pytorch-galaxy-datasets/notebooks/temp_legs_z_below_0p1_all_files.txt low_z_jpg_chunks/low_z_jpg_chunk_
+
+# # get the paths to those files (low_z_jpg_chunks/...), and then use xargs to start 24 processes, each using tar to read the paths in a chunkfile (-T) and save to path.tar.gz
+# ls low_z_jpg_chunks/low_z_jpg_chunk_* | xargs -n 1 -P 24 -i tar -czvf {}_archive.tar.gz -T {} 
