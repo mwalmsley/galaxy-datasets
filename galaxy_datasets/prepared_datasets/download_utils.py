@@ -10,12 +10,15 @@ class DatasetDownloader():
     # responsible for downloading a prespecified set of images/catalogs to a directory
     # supports GalaxyDataset via composition
 
-    def __init__(self, root, resources, images_to_spotcheck=None, image_dirname='images'):
-        # image_dirname should always be imagess; is not properly generalised to update the extract location
+    def __init__(self, root, resources, images_to_spotcheck=None, image_dirname='images', archive_includes_subdir=True):
+        # image_dirname should always be images; is not properly generalised to update the extract location
         self.root = root
         self.image_dir = os.path.join(self.root, image_dirname)
+        if not os.path.exists(self.image_dir):
+            os.mkdir(self.image_dir)
         self.resources = resources
         self.images_to_spotcheck = images_to_spotcheck
+        self.archive_includes_subdir = archive_includes_subdir
 
     def download(self) -> None:
         """Download the data if it doesn't exist already."""
@@ -31,9 +34,14 @@ class DatasetDownloader():
             try:
                 logging.info(f"Downloading {url}")
                 if url.endswith('.tar.gz') or url.endswith('.zip'):
+                    if self.archive_includes_subdir:
+                        download_root = self.root  # archive unpacks to subdir by itself
+                    else:  # need to download and extract directly into subdir
+                        download_root = self.image_dir
                     download_and_extract_archive(
-                        url, download_root=self.root, filename=filename, md5=md5)
+                        url, download_root=download_root, filename=filename, md5=md5)
                 else:  # don't try to extract archive, just download
+                    # TODO is this used?
                     download_url(url, root=self.root, filename=filename, md5=md5)
             except URLError as error:
                 logging.info(f"Failed to download (trying next):\n{error}")
