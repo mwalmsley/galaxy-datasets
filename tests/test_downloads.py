@@ -1,72 +1,33 @@
-# import pytest
+import pytest
 
-# import os
-# import numpy as np
-# from galaxy_datasets.prepared_datasets import candels, decals, gz2, legs, rings, tidal
+import os
+import numpy as np
+import pandas as pd
+from galaxy_datasets.prepared_datasets import gz_candels, gz_hubble, gz_decals, gz2, gz_desi, gz_rings, tidal
 
-# # first as smallest
-# def test_download_tidal_dataset(tmp_path):
-#     dataset = tidal.TidalDataset(
-#         train=True,
-#         root=tmp_path,
-#         download=True
-#     )
+# https://docs.pytest.org/en/6.2.x/fixture.html#using-marks-with-parametrized-fixtures
+# in order of dataset size
+# pytest.param(gz_desi.setup, marks=pytest.mark.skip)
+@pytest.fixture(params=[tidal.setup, gz_rings.setup, gz_candels.setup, gz_hubble.setup, gz2.setup, gz_decals.setup, gz_desi.setup])
+# @pytest.fixture(params=[gz_desi.setup])
+def setup_method(request):
+    return request.param  # param is the func, param() calls the func (which breaks here as no args)
 
-#     for image, label in dataset:
-#         print(np.array(image).shape, label)
-#         break
+def test_download_dataset(setup_method, tmp_path):
+    catalog, label_cols = setup_method(
+        train=True,
+        root=tmp_path,
+        download=True
+    )
 
+    assert isinstance(catalog, pd.DataFrame)
+    assert 'file_loc' in catalog.columns.values
+    assert len(catalog) > 0
+    
+    assert isinstance(label_cols, list)
+    assert len(label_cols) > 0
+    for col in label_cols:
+        assert col in catalog.columns.values
 
-# def test_download_candels_dataset(tmp_path):
-#     dataset = candels.CandelsDataset(
-#         root=tmp_path,
-#         download=True
-#     )
-#     for image, label in dataset:
-#         print(np.array(image).shape, label)
-#         break
-
-
-# def test_download_dr5_dataset(tmp_path):
-#     dataset = decals.DecalsDR5Dataset(
-#         root=tmp_path,
-#         download=True
-#     )
-#     for image, label in dataset:
-#         print(np.array(image).shape, label)
-#         break
-
-
-# def test_download_gz2_dataset(tmp_path):
-#     dataset = gz2.GZ2Dataset(
-#         root=tmp_path,
-#         download=True
-#     )
-#     for image, label in dataset:
-#         print(np.array(image).shape, label)
-#         break
-
-
-# def test_download_rings_dataset(tmp_path):
-
-#     dataset = rings.RingsDataset(
-#         # root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/rings_root/temp',
-#         root=tmp_path,
-#         download=True
-#     )
-#     for image, label in dataset:
-#         print(np.array(image).shape, label)
-#         break
-
-
-# @pytest.mark.skipif(not os.path.isdir('/share/nas2/walml'), reason="Data only exists on Galahad")
-# def test_download_legs_dataset(tmp_path):
-#     dataset = legs.LegsDataset(
-#         root=tmp_path,
-#         download=True,
-#         train='labelled'
-#     )
-#     for image, label in dataset:
-#         print(np.array(image).shape, label)
-#         break
-
+    for loc in catalog.sample(10, random_state=42)['file_loc']:
+        assert os.path.isfile(loc)

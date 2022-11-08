@@ -1,4 +1,5 @@
 
+from cProfile import label
 import os
 
 import pandas as pd
@@ -46,8 +47,6 @@ hubble_pairs = {
     # 'clump-configuration': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
     # 'one-clump-brightest': ['_yes', '_no'],
     # 'brightest-clump-central': ['_yes', '_no'],
-    # 'galaxy-symmetrical': ['_yes', '_no'],
-    # 'clumps-embedded-larger-object': ['_yes', '_no'],
     'disk-edge-on': ['_yes', '_no'],
     'bulge-shape': ['_rounded', '_boxy', '_none'],
     'bar': ['_yes', '_no'],
@@ -85,3 +84,15 @@ hubble_ortho_dependencies = {
 
 hubble_ortho_questions, hubble_ortho_label_cols = label_metadata.extract_questions_and_label_cols(hubble_ortho_pairs)
 
+
+if __name__ == '__main__':
+
+    hubble_cols = [x.replace('-hubble', '') for x in hubble_ortho_label_cols]
+    # print('\n'.join(cols))
+
+    decals_cols = [x for x in label_metadata.decals_label_cols]
+    # print('\n'.join(cols))
+
+    all_cols = list(set(hubble_cols).union(decals_cols))
+    all_cols.sort()
+    print('\n'.join(all_cols))
