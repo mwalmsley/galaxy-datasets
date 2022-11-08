@@ -62,13 +62,12 @@ def get_image_dataset(
 
     path_ds = tf.data.Dataset.from_tensor_slices([str(path) for path in image_paths])
 
-    # loads images from disk
-    # and applies preprocessing transforms: greyscaling/permuting, resizing
-    # will yield elements of {'image': preprocessed_image, 'id_str': path}
-    image_ds = path_ds.map(
-        lambda x: load_and_preprocess_image_as_element(x, mode=file_format, resize_size=resize_size, greyscale=greyscale, permute_channels=permute_channels),
-        num_parallel_calls=tf.data.AUTOTUNE
-    )  # keep deterministic though
+    # will yield elements of {'image': image, 'id_str': path}
+    image_ds = path_ds.map(lambda x: load_image_as_element(x, mode=file_format), num_parallel_calls=tf.data.AUTOTUNE)  # keep determinstic though
+
+    # applies preprocessing transforms to x['image']: greyscaling/permuting, resizing
+    # TODO could join these into the above function for speed, if needed
+    image_ds = image_ds.map(lambda x: preprocess_image_in_element(x, resize_size=resize_size, greyscale=greyscale, permute_channels=permute_channels), num_parallel_calls=tf.data.AUTOTUNE)
 
     if labels is not None:
         assert len(labels) == len(image_paths)
@@ -102,15 +101,8 @@ def get_image_dataset(
     return image_ds
 
 
-def load_and_preprocess_image_as_element(loc, mode, resize_size, greyscale, permute_channels):
-    # wrapper around the two functions below, to make a single .map for tf
-    element = load_image_as_element(loc, mode)
-    preprocessed_element = preprocess_image_in_element(element, resize_size, greyscale, permute_channels)
-    return preprocessed_element
-
-
 # https://stackoverflow.com/questions/62544528/tensorflow-decodejpeg-expected-image-jpeg-png-or-gif-got-unknown-format-st?rq=1
-def load_image_as_element(loc, mode='jpg'):
+def load_image_as_element(loc, mode='png'):
     """
     Load an image file from disk to memory.
     *Recently changed to return 0-1 floats not 0-255 floats*
