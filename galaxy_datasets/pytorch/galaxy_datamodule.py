@@ -105,10 +105,10 @@ class GalaxyDataModule(pl.LightningDataModule):
     def transform_with_album(self):
         # gives a transforms = Compose() object
         transforms_to_apply = default_albumentation_transforms(
-            greyscale=self.greyscale,
             crop_scale_bounds=self.crop_scale_bounds,
             crop_ratio_bounds=self.crop_ratio_bounds,
-            resize_after_crop=self.resize_after_crop
+            resize_after_crop=self.resize_after_crop,
+            pytorch_greyscale=self.greyscale
         )
         # applies that transforms object
         # albumentations expects np array, and returns dict keyed by "image"
