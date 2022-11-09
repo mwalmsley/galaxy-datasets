@@ -1,5 +1,11 @@
-# pytorch-galaxy-datasets
-PyTorch Datasets and PyTorch Lightning Datamodules for loading images and labels from Galaxy Zoo citizen science campaigns.
+# galaxy-datasets
+
+ML-friendly datasets for major Galaxy Zoo citizen science campaigns.
+
+- PyTorch Datasets and PyTorch Lightning DataModules
+- TensorFlow tf.data.Dataset's
+- Framework-independent (i.e. TensorFlow-friendly) download and augmentation code
+ 
 
 | Name      | Class | Published | Downloadable | Galaxies
 | ----------- | ----------- | --- | ---- | ---- |
@@ -37,7 +43,7 @@ I suggest either:
 
 You can load each prepared dataset as a pytorch Dataset like so:
 
-    from pytorch_galaxy_datasets.prepared_datasets import GZ2Dataset
+    from galaxy_datasets.pytorch.datasets import GZ2Dataset
 
     gz2_dataset = GZ2Dataset(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2',
@@ -49,9 +55,9 @@ You can load each prepared dataset as a pytorch Dataset like so:
 
 You will probably want to customise the dataset, selecting a subset of galaxies or labels. Do this with the `{dataset}_setup()` methods.
 
-    from pytorch_galaxy_datasets.prepared_datasets import gz2_setup
+    from pytorch_datasets.prepared_datasets.gz2 import setup
 
-    catalog, label_cols = gz2_setup(
+    catalog, label_cols = setup(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/gz2',
         train=True,
         download=False
@@ -60,7 +66,7 @@ You will probably want to customise the dataset, selecting a subset of galaxies 
 
 You can then customise the catalog and labels before creating a generic GalaxyDataset, which can be used with your own transforms etc. like any other pytorch dataset
 
-    from pytorch_galaxy_datasets.galaxy_dataset import GalaxyDataset
+    from pytorch_galaxy_datasets.pytorch.galaxy_dataset import GalaxyDataset
 
     dataset = GalaxyDataset(
         label_cols=['smooth-or-featured_smooth'],
