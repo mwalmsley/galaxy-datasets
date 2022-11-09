@@ -112,7 +112,8 @@ class GalaxyDataModule(pl.LightningDataModule):
         )
         # applies that transforms object
         # albumentations expects np array, and returns dict keyed by "image"
-        self.transform = lambda img: transforms_to_apply(image=np.array(img))["image"]
+        # transpose changes from BHWC (numpy/TF style) to BCHW (torch style) 
+        self.transform = lambda img: torch.transpose(transforms_to_apply(image=np.array(img))["image"], 1, 3)
 
 
     # only called on main process
