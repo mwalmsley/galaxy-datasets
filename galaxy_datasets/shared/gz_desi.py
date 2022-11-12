@@ -5,9 +5,9 @@ import pandas as pd
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
 
-from galaxy_datasets.prepared_datasets import download_utils
+from galaxy_datasets.shared import download_utils
 assert os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'internal_urls.py'))
-from galaxy_datasets.prepared_datasets import internal_urls
+from galaxy_datasets.shared import internal_urls
 
 """
 This downloads the *labelled* GZ DESI galaxies, at all redshifts, with no division between data releases (except label_cols)
@@ -18,7 +18,7 @@ does not include unlabelled galaxies (for e.g. contrastive learning, active lear
 Added to make GZ DESI easily downloadable, basically
 """
 
-def setup(root, train, download):
+def gz_desi(root, train, download):
     resources = [
         (internal_urls.gz_desi_train_catalog, '50997398a10886dafbe556d071ffbc68'),
         (internal_urls.gz_desi_test_catalog, '386f13daf123f439ffb8266b65eac474'),

@@ -2,10 +2,10 @@ import os
 
 import pandas as pd
 
-from galaxy_datasets.prepared_datasets import download_utils
+from galaxy_datasets.shared import download_utils
 
 
-def setup(root, train, download, label_mode='coarse'):
+def tidal(root, train, download, label_mode='coarse'):
     resources = [
         ('https://dl.dropboxusercontent.com/s/jq6dyc8q87h92qq/tidal_train_catalog.parquet', '39def8527823f6d4f332fbc209b15a32'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/h8m7j7o3o11mt05/tidal_test_catalog.parquet', '12a8c6a23ddc8e7ad3f5bd597931bbe3'),  # test catalog

@@ -3,7 +3,7 @@ import pytest
 import os
 import numpy as np
 import pandas as pd
-from galaxy_datasets.prepared_datasets import gz_candels, gz_hubble, gz_decals, gz2, gz_desi, gz_rings, tidal
+from galaxy_datasets.shared import gz_candels, gz_hubble, gz_decals, gz2, gz_desi, gz_rings, tidal
 
 # https://docs.pytest.org/en/6.2.x/fixture.html#using-marks-with-parametrized-fixtures
 # in order of dataset size

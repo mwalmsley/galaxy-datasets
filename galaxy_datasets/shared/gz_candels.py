@@ -6,12 +6,12 @@ import pandas as pd
 # this one has label_metadata contained in this repo, not zoobot. Others will follow, perhaps.
 from zoobot.shared import label_metadata
 
-from galaxy_datasets.prepared_datasets import download_utils
+from galaxy_datasets.shared import download_utils
 
 
 
 
-def setup(root, train, download):
+def gz_candels(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/cnjvdinnhh1r1md/candels_ortho_train_catalog.parquet', '90593d1bab79a608cf0e645d6fd8e741'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/y83v1gktw72hs0f/candels_ortho_test_catalog.parquet', '1062993dd8df09684b335678ab3fa8e3'),  # test catalog

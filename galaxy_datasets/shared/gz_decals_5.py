@@ -5,11 +5,11 @@ import pandas as pd
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
 
-from galaxy_datasets.prepared_datasets import download_utils
+from galaxy_datasets.shared import download_utils
 
 # DR8 will be basically the same
 
-def setup(root, train, download):
+def gz_decals_5(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/1tuehajonhgv8a2/decals_dr5_ortho_train_catalog.parquet', 'a0cd74edc073fdff068370f6eefeb802'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/3vo6hjlnbqgzuxz/decals_dr5_ortho_test_catalog.parquet', '55820e3712b22e587f6971e4b6c73dfe'),  # test catalog

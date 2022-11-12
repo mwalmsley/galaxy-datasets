@@ -1,48 +1,23 @@
-import matplotlib.pyplot as plt
 
-from functools import partial
-
-import tensorflow as tf
 # from albumentations import Compose
 
 # purely so we can import more easily from e.g. zoobot
 # (needs only galaxy_datasets.tensorflow.augmentations)
-from galaxy_datasets.transforms import default_albumentation_transforms  
+from galaxy_datasets.transforms import default_transforms  
 
-AUTOTUNE = tf.data.experimental.AUTOTUNE
+import matplotlib.pyplot as plt
 
+from galaxy_datasets.tensorflow import galaxy_dataset
+from galaxy_datasets.shared import tidal
+from galaxy_datasets.transforms import default_transforms
 
-def add_augmentations_to_dataset(dataset, transforms):
-    # only works if dataset yields either (images, labels) or (images, id_str), not (images, label_str, id_str)
-    # TODO make work with extra element - a little fiddly due to unpacking in graph mode, though
-
-    # use closure to pass in transforms (which cannot be passed via inp as not tensor-like)
-    def process_data(images, labels):
-        aug_imgs = tf.numpy_function(func=aug_fn, inp=[images], Tout=tf.float32)
-        return aug_imgs, labels
-        # return (aug_imgs) + args  # equivalent to aug_imgs, *args, but works prior to Python 3.8
-
-    def aug_fn(image):
-        # albumentations.transforms expects input like image=x
-        # and returns {'image': image} dict
-        return transforms(image=image)["image"]
-
-    # TODO specify output_size
-
-    return dataset.map(partial(process_data), num_parallel_calls=AUTOTUNE).prefetch(AUTOTUNE)
-
+from albumentations import (
+    Compose, HorizontalFlip,
+    Rotate
+)
 
 if __name__ == '__main__':
 
-
-    from galaxy_datasets.tensorflow import galaxy_dataset
-    from galaxy_datasets.prepared_datasets import tidal
-    from galaxy_datasets.transforms import default_albumentation_transforms
-
-    from albumentations import (
-        Compose, HorizontalFlip,
-        Rotate
-    )
 
     catalog, label_cols = tidal.setup(
         root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/tidal',
@@ -67,7 +42,7 @@ if __name__ == '__main__':
     #     Rotate(limit=90),
     #     HorizontalFlip()
     # ])
-    transforms = default_albumentation_transforms(
+    transforms = default_transforms(
         greyscale=True,
         crop_scale_bounds=(0.7, 0.8),
         crop_ratio_bounds=(0.9, 1.1),
@@ -98,7 +73,7 @@ if __name__ == '__main__':
     for n_repeat in range(n_repeats):
 
         for row in rows:
-            augmented = add_augmentations_to_dataset(dataset, transforms)
+            augmented = add_transforms_to_dataset(dataset, transforms)
 
             augmented_subset = augmented.take(n_galaxies)
             for n_galaxy, (image, _) in enumerate(augmented_subset):

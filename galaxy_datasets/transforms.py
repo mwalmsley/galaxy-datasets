@@ -2,7 +2,7 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 
-def default_albumentation_transforms(crop_scale_bounds, crop_ratio_bounds, resize_after_crop, pytorch_greyscale=False):
+def default_transforms(crop_scale_bounds, crop_ratio_bounds, resize_after_crop, pytorch_greyscale=False):
     if pytorch_greyscale:
         transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
             reduce_channels=True), always_apply=True)]

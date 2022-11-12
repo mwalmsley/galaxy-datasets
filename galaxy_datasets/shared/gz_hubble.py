@@ -7,10 +7,10 @@ import pandas as pd
 # this one has label_metadata contained in this repo, not zoobot. Others will follow, perhaps.
 from zoobot.shared import label_metadata
 
-from galaxy_datasets.prepared_datasets import download_utils
+from galaxy_datasets.shared import download_utils
 
 
-def setup(root, train, download):
+def gz_hubble(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'c6cb821f7ebefb583dc74488cf7bfc5f'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '05e01ed822b34400f32977280eebec87'),  # test catalog

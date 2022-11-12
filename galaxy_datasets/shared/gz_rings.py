@@ -2,7 +2,7 @@ import os
 
 import pandas as pd
 
-from galaxy_datasets.prepared_datasets import download_utils, internal_urls
+from galaxy_datasets.shared import download_utils, internal_urls
 
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
@@ -10,7 +10,7 @@ from zoobot.shared import label_metadata
 
 
 
-def setup(root, train, download):
+def gz_rings(root, train, download):
     resources = [
         (internal_urls.rings_train_catalog, 'e2fb6b2bca45cd7f1c58f5b4089a5976'),  # train catalog
         (internal_urls.rings_test_catalog, '6e3f362a6e19ecd02675eaa48f6727f0'),  # test catalog

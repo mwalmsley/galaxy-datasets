@@ -3,7 +3,7 @@ import os
 
 import pandas as pd
 
-from galaxy_datasets.prepared_datasets import download_utils, internal_urls
+from galaxy_datasets.shared import download_utils, internal_urls
 
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
@@ -15,7 +15,7 @@ Includes GZ DESI labels where available (identical split to )
 Intended for active learning experiments simulated using GZ DESI
 """
 
-def setup(root=None, split='train', download=False, train=None):
+def desi_low_z(root=None, split='train', download=False, train=None):
 
     if train is not None:
         raise ValueError("This dataset has unlabelled data: use split='train', 'test', 'unlabelled' or 'train+unlabelled' rather than train=False etc")
