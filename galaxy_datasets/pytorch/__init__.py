@@ -1,7 +1,7 @@
-from galaxy_datasets.pytorch.datasets import GZCandels, GZDecals5, GZRings, GZHubble, GZ2, Tidal
+from galaxy_datasets.pytorch.datasets import GZCandels, GZDecals5, GZHubble, GZ2, Tidal
 
 try:
-    from galaxy_datasets.pytorch.datasets import GZDesi
+    from galaxy_datasets.pytorch.datasets import GZDesi, GZRings
 except ImportError:
     # not using logging in case config still required
-    print('GZ DESI not available from galaxy_datasets.pytorch.datasets - skipping')    
+    print('GZDESI and GZRings not available from galaxy_datasets.pytorch.datasets - skipping')    

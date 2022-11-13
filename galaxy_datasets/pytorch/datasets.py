@@ -1,5 +1,6 @@
-from galaxy_datasets.shared import gz_candels, gz_decals_5, gz_desi,  gz_hubble, gz_rings, gz2, tidal
+from galaxy_datasets.shared import gz_candels, gz_decals_5, gz_hubble, gz2, tidal
 from galaxy_datasets.pytorch import galaxy_dataset
+
 
 # TODO could refactor these into same class if needed
 
@@ -20,13 +21,6 @@ class GZDecals5(galaxy_dataset.GalaxyDataset):
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
-class GZDesi(galaxy_dataset.GalaxyDataset):
-    
-    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
-
-        catalog, label_cols = gz_desi(root, train, download)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
 
 
 class GZ2(galaxy_dataset.GalaxyDataset):
@@ -46,16 +40,6 @@ class GZHubble(galaxy_dataset.GalaxyDataset):
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
-
-class GZRings(galaxy_dataset.GalaxyDataset):
-    
-    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
-
-        catalog, label_cols = gz_rings(root, train, download)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
-
-
 class Tidal(galaxy_dataset.GalaxyDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None, label_mode='coarse'):
@@ -63,6 +47,32 @@ class Tidal(galaxy_dataset.GalaxyDataset):
         catalog, label_cols = tidal(root, train, download, label_mode=label_mode)
 
         super().__init__(catalog, label_cols, transform, target_transform)
+
+
+try:
+    from galaxy_datasets.shared import gz_desi, gz_rings
+
+    class GZDesi(galaxy_dataset.GalaxyDataset):
+        
+        def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
+
+            catalog, label_cols = gz_desi(root, train, download)
+
+            super().__init__(catalog, label_cols, transform, target_transform)
+
+    class GZRings(galaxy_dataset.GalaxyDataset):
+        
+        def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
+
+            catalog, label_cols = gz_rings(root, train, download)
+
+            super().__init__(catalog, label_cols, transform, target_transform)
+
+
+
+except FileNotFoundError:
+    # not using logging in case config still required
+    print('GZDESI and GZRings not available from galaxy_datasets.pytorch.datasets - skipping')    
 
 
 

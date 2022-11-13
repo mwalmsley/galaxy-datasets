@@ -10,7 +10,7 @@ import pytorch_lightning as pl
 from torchvision import transforms
 
 from galaxy_datasets.pytorch import galaxy_dataset
-from galaxy_datasets.transforms import default_albumentation_transforms
+from galaxy_datasets.transforms import default_transforms
 
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
@@ -104,7 +104,7 @@ class GalaxyDataModule(pl.LightningDataModule):
 
     def transform_with_album(self):
         # gives a transforms = Compose() object
-        transforms_to_apply = default_albumentation_transforms(
+        transforms_to_apply = default_transforms(
             crop_scale_bounds=self.crop_scale_bounds,
             crop_ratio_bounds=self.crop_ratio_bounds,
             resize_after_crop=self.resize_after_crop,
