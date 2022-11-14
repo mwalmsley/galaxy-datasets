@@ -138,10 +138,15 @@ class ToGray():
 
     def __init__(self, reduce_channels=False):
         if reduce_channels:
-            self.mean = lambda arr: arr.mean(axis=2, keepdims=True)
+            self.forward = to_single_greyscale_channel
         else:
-            self.mean = lambda arr: arr.mean(
-                axis=2, keepdims=True).repeat(3, axis=2)
-
+            self.forward = to_triple_greyscale_channel
+            
     def __call__(self, image, **kwargs):
-        return self.mean(image)
+        return self.forward(image)
+
+def to_single_greyscale_channel(img):
+    return img.mean(axis=2, keepdims=True)
+
+def to_triple_greyscale_channel(img):
+    return img.mean(axis=2, keepdims=True).repeat(3, axis=2)
