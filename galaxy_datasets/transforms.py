@@ -1,9 +1,11 @@
+import typing
+
 import albumentations as A
 from albumentations.pytorch import ToTensorV2
-from AstroAugmentations import image_domain
 
 
-def default_transforms(crop_scale_bounds, crop_ratio_bounds, resize_after_crop, pytorch_greyscale=False):
+
+def default_transforms(crop_scale_bounds, crop_ratio_bounds, resize_after_crop, pytorch_greyscale=False) -> typing.Dict[str, typing.Any]:
     if pytorch_greyscale:
         transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
             reduce_channels=True), always_apply=True)]
@@ -30,12 +32,12 @@ def default_transforms(crop_scale_bounds, crop_ratio_bounds, resize_after_crop, 
     return A.Compose(transforms_to_apply)
 
 
-def alternative_transforms(
-    resize_size,
-    shift_limit,
-    scale_limit,
-    rotate_limit,
-    p_channelwise_dropout,
+def astroaugmentation_transforms(
+    resize_size: int,
+    shift_limit: float,
+    scale_limit: float,
+    rotate_limit: float,
+    p_channelwise_dropout: float,
     p_elastic=0,
     elastic_alpha=1,
     elastic_sigma=1,
@@ -45,35 +47,46 @@ def alternative_transforms(
     channelwise_dropout_min_height=10,
     channelwise_dropout_max_holes=100,
     pytorch_greyscale=False,
-):
+) -> typing.Dict[str, typing.Any]:
     """
-    Alternative augmentations. Sequentially:
-    ElasticTransform (optional) from https://ieeexplore.ieee.org/document/1227801
-    ChannelWiseDropout (good for Decals) from AstroAugmentations
-    ShiftScaleRotate instead of RandomResizedCrop for more control
-    Flip along x or y axis
+    Astrophysically-inspired image transforms from AstroAugmentations (Bowles in prep.)
+    Intended to mimic common distortions to optical telescope images.
+    
+    Sequentially:
+    - ElasticTransform (optional) from https://ieeexplore.ieee.org/document/1227801
+    - ChannelWiseDropout (good for Decals) from AstroAugmentations
+    - ShiftScaleRotate instead of RandomResizedCrop for more control
+    - Flip along x or y axis
 
+    Args:
+        resize_size (int): resolution
+        shift_limit (float): max relative shift factor. 0.3 can have the galaxy pretty much
+                            at the edge *without scaling*
+        scale_limit (float):  max relative max zoom *in* factor
+        rotate_limit (float): max rotate angle in degrees
+        p_channelwise_dropout (float): _description_
+        p_elastic (int, optional): how much to scale the random field. Defaults to 0.
+        elastic_alpha (int, optional): std. of the Gauss. kernel blurring the random field. Defaults to 1.
+        elastic_sigma (int, optional):  max area fraction to be affected. Defaults to 1.
+        p_flip (float, optional): _description_. Defaults to 0.5.
+        channelwise_dropout_max_fraction (float, optional): _description_. Defaults to 0.2.
+        channelwise_dropout_min_width (int, optional):  minimum width of the hole in pixels. Defaults to 10.
+        channelwise_dropout_min_height (int, optional):  minimum height of the hole in pixels. Defaults to 10.
+        channelwise_dropout_max_holes (int, optional): _description_. Defaults to 100.
+        pytorch_greyscale (bool, optional): _description_. Defaults to False.
 
-    resize_size:int
-        resolution
-    shift_limit:float
-        max relative shift factor. 0.3 can have the galaxy pretty much
-        at the edge *without scaling*
-    scale_limit:float
-        max relative max zoom *in* factor.
-    rotate_limit:float
-        max rotate angle in degrees.
-    elastic_alpha:float
-        how much to scale the random field
-    elastic_sigma:float
-        std. of the Gauss. kernel blurring the random field
-    channelwise_dropout_max_fraction:float
-        max area fraction to be affected
-    channelwise_dropout_min_width:int
-        minimum width of the hole in pixels
-    channelwise_dropout_min_height:int
-        minimum height of the hole in pixels
+    Returns:
+        typing.Dict[str, typing.Any]: _description_
     """
+    # wrapped in Try/Except to avoid making AstroAugmentations a package requirement for only this optional transform
+    try:
+        from AstroAugmentations import image_domain
+    except ImportError:
+        raise ImportError(
+            'Trying to use astroaugmentation_transforms but AstroAugmentations is not installed\n \
+            Please install via git. See instructions at https://github.com/mb010/AstroAugmentations#quick-start'
+        )
+
     if pytorch_greyscale:
         transforms_to_apply = [
             A.Lambda(
