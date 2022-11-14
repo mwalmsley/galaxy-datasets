@@ -1,6 +1,7 @@
 
 from typing import Optional
 import logging
+from functools import partial
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -114,10 +115,8 @@ class GalaxyDataModule(pl.LightningDataModule):
         # albumentations expects np array, and returns dict keyed by "image"
         # transpose changes from BHWC (numpy/TF style) to BCHW (torch style) 
 
-        # cannot use a lambda because must be pickleable for multi-gpu
-        def do_transform(img):
-            return np.transpose(transforms_to_apply(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
-        self.transform = do_transform
+        # cannot use a lambda or define here because must be pickleable for multi-gpu
+        self.transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
 
 
     # only called on main process
@@ -215,6 +214,9 @@ def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, cr
     
     return transforms_to_apply
 
+def do_transform(img, transforms_to_apply):
+    return np.transpose(transforms_to_apply(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
+
 # torchvision
 class GrayscaleUnweighted(torch.nn.Module):
 
@@ -237,3 +239,5 @@ class GrayscaleUnweighted(torch.nn.Module):
 
     def __repr__(self):
         return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
+
+
