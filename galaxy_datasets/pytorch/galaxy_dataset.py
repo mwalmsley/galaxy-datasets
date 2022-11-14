@@ -48,6 +48,18 @@ class GalaxyDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
 
+        image_format = self.catalog['file_loc'].iloc[0].split('.')[-1]
+        assert all(self.catalog['file_loc'].str.endswith(image_format)), 'Catalog file extensions not consistent. All image files must use the same extension (e.g. .jpg, .png, etc'
+        # technically would still work, but bad practice
+
+        if image_format == 'png':
+            logging.warning('Loading .png images - this works but is probably slower and more storage-intensive than .jpg images')
+            self.load_image_file = load_png_file
+        elif image_format == 'jpg':
+            self.load_image_file = load_jpg_file
+        else:
+            raise ValueError('File format {} not recognised - should be jpg (preferred) or png'.format(image_format))
+
 
     def __len__(self) -> int:
         return len(self.catalog)
@@ -57,17 +69,13 @@ class GalaxyDataset(Dataset):
         #the index is id_str so can use that for quick search on 1M+ catalo
         # galaxy = self._catalog.loc[idx]
         galaxy = self.catalog.iloc[idx]
-        # option A
-        # img_path = galaxy['file_loc']
-        # image = read_image(img_path) # PIL under the hood: Returns CHW Tensor.
-        # option B - tiny bit faster when CPU-limited
-        with open(galaxy['file_loc'], 'rb') as f:
-            # image = torch.from_numpy(decode_jpeg(f.read()).transpose(2, 0, 1))  # CHW tensor
-            try:
-                image = Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
-            except Exception as e:
-                logging.critical('Cannot load {}'.format(galaxy['file_loc']))
-                raise e
+        image_loc = galaxy['file_loc']
+        try:
+            image = self.load_image_file(image_loc)
+                    # HWC PIL image purely via PIL, useful for png (but a little slower)
+        except Exception as e:
+            logging.critical('Cannot load {}'.format(image_loc))
+            raise e
         label = get_galaxy_label(galaxy, self.label_cols)
 
         # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
@@ -83,9 +91,16 @@ class GalaxyDataset(Dataset):
         return image, label
 
 
-def load_encoded_jpeg(loc: str):
-    with open(loc, "rb") as f:
-        return f.read()  # bytes, not yet decoded
+def load_jpg_file(loc):
+    with open(loc, 'rb') as f:
+        return Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
+
+def load_png_file(loc):
+    return Image.open(loc)
+
+# def load_encoded_jpeg(loc: str):
+#     with open(loc, "rb") as f:
+#         return f.read()  # bytes, not yet decoded
 
 
 def decode_jpeg(encoded_bytes):
