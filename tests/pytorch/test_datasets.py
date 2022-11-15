@@ -7,7 +7,7 @@ from galaxy_datasets.pytorch import datasets, galaxy_datamodule
 
 def base_root_dir():
     if os.path.isdir('/nvme1/scratch'):
-        return '/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots'
+        return '/nvme1/scratch/walml/repos/galaxy-datasets/roots'
     elif os.path.isdir('/share/nas2'):
         return '/share/nas2/walml/repos/_data'
     else:
