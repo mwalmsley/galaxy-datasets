@@ -2,23 +2,16 @@
 import os
 
 import pandas as pd
-from pytorch_galaxy_datasets import galaxy_dataset, galaxy_datamodule, download_utils
 
 # this one has label_metadata contained in this repo, not zoobot. Others will follow, perhaps.
 from zoobot.shared import label_metadata
 
+from galaxy_datasets.shared import download_utils
 
 
-class CandelsDataset(galaxy_dataset.GalaxyDataset):
-    
-    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
-
-        catalog, label_cols = candels_setup(root, train, download)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
 
 
-def candels_setup(root, train, download):
+def gz_candels(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/cnjvdinnhh1r1md/candels_ortho_train_catalog.parquet', '90593d1bab79a608cf0e645d6fd8e741'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/y83v1gktw72hs0f/candels_ortho_test_catalog.parquet', '1062993dd8df09684b335678ab3fa8e3'),  # test catalog
@@ -91,28 +84,3 @@ candels_ortho_dependencies = {
 }
 
 candels_ortho_questions, candels_ortho_label_cols = label_metadata.extract_questions_and_label_cols(candels_ortho_pairs)
-
-
-if __name__ == '__main__':
-
-    # first download is basically just a convenient way to get the images and canonical catalogs
-    candels_label_cols, candels_catalog = candels_setup(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/candels',
-        train=True,
-        download=False
-    )
-    
-    # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
-    # (which makes its own generic datasets internally)
-    adjusted_catalog = candels_catalog.sample(1000)
-    datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=candels_label_cols,
-        catalog=adjusted_catalog
-    )
-
-    datamodule.prepare_data()
-    datamodule.setup()
-    for images, labels in datamodule.train_dataloader():
-        print(images.shape, labels.shape)
-        break
-    

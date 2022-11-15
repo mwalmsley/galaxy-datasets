@@ -1,10 +1,14 @@
 import os
 import hashlib
+import glob
 
 
 if __name__ == '__main__':    
 
-    for loc in ['/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/legs/low_z_jpg_chunk_0{}_archive.tar.gz'.format(n) for n in range(8)]:
+    root_to_checksum = 'gz_desi'
+    locs_to_checksum = glob.glob(f'/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/{root_to_checksum}/*_chunk_0*.tar.gz')
+
+    for loc in locs_to_checksum:
         # print hash
         with open(loc, 'rb') as f:
             md5_checksum = hashlib.md5(f.read()).hexdigest()

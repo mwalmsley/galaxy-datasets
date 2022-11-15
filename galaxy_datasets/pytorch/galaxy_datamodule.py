@@ -1,6 +1,7 @@
 
 from typing import Optional
 import logging
+from functools import partial
 
 import numpy as np
 from sklearn.model_selection import train_test_split
@@ -9,10 +10,8 @@ from torch.utils.data import DataLoader
 import pytorch_lightning as pl
 from torchvision import transforms
 
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
-
-from pytorch_galaxy_datasets import galaxy_dataset
+from galaxy_datasets.pytorch import galaxy_dataset
+from galaxy_datasets.transforms import default_transforms
 
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
@@ -35,10 +34,10 @@ class GalaxyDataModule(pl.LightningDataModule):
         predict_catalog=None,
         # augmentation params (sensible supervised defaults)
         greyscale=True,
-        album=False,
-        resize_size=224,
+        # album=False,  # now True always
         crop_scale_bounds=(0.7, 0.8),
         crop_ratio_bounds=(0.9, 1.1),
+        resize_after_crop=224,
         # hardware params
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
@@ -66,7 +65,7 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         self.batch_size = batch_size
 
-        self.resize_size = resize_size
+        self.resize_after_crop = resize_after_crop
         self.crop_scale_bounds = crop_scale_bounds
         self.crop_ratio_bounds = crop_ratio_bounds
 
@@ -83,14 +82,14 @@ class GalaxyDataModule(pl.LightningDataModule):
         self.test_fraction = test_fraction
 
         self.greyscale = greyscale
-        self.album = album
+        # self.album = album
 
-        if self.album:
-            logging.info('Using albumentations for augmentations')
-            self.transform_with_album()
-        else:
-            logging.info('Using torchvision for augmentations')
-            self.transform_with_torchvision()
+        # if self.album:
+        logging.info('Using albumentations for augmentations')
+        self.transform_with_album()
+        # else:
+        #     logging.info('Using torchvision for augmentations')
+        #     self.transform_with_torchvision()
 
         self.prefetch_factor = prefetch_factor
         self.dataloader_timeout = 240  # seconds
@@ -99,42 +98,25 @@ class GalaxyDataModule(pl.LightningDataModule):
         logging.info('Prefetch factor: {}'.format(self.prefetch_factor))
 
     def transform_with_torchvision(self):
-
-        transforms_to_apply = default_torchvision_transforms(self.greyscale, self.resize_size, self.crop_scale_bounds, self.crop_ratio_bounds)
-
-        self.transform = transforms.Compose(transforms_to_apply)
+        raise NotImplementedError('Deprecated in favor of albumentations')
+        # transforms_to_apply = default_torchvision_transforms(self.greyscale, self.resize_size, self.crop_scale_bounds, self.crop_ratio_bounds)
+        # self.transform = transforms.Compose(transforms_to_apply)
 
 
     def transform_with_album(self):
-
-        if self.greyscale:
-            transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
-                reduce_channels=True), always_apply=True)]
-        else:
-            transforms_to_apply = []
-
-            transforms_to_apply += [
-                A.ToFloat(),
-                # anything outside of the original image is set to 0.
-                A.Rotate(limit=180, interpolation=1,
-                         always_apply=True, border_mode=0, value=0),
-                A.RandomResizedCrop(
-                    height=self.resize_size,  # after crop resize
-                    width=self.resize_size,
-                    scale=self.crop_scale_bounds,  # crop factor
-                    ratio=self.crop_ratio_bounds,  # crop aspect ratio
-                    interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
-                    always_apply=True
-                ),  # new aspect ratio
-                A.VerticalFlip(p=0.5),
-                ToTensorV2()
-            ]
-
-        albumentations_transform = A.Compose(transforms_to_apply)
-
-        # warning - might need a transpose check
+        # gives a transforms = Compose() object
+        transforms_to_apply = default_transforms(
+            crop_scale_bounds=self.crop_scale_bounds,
+            crop_ratio_bounds=self.crop_ratio_bounds,
+            resize_after_crop=self.resize_after_crop,
+            pytorch_greyscale=self.greyscale
+        )
+        # applies that transforms object
         # albumentations expects np array, and returns dict keyed by "image"
-        self.transform = lambda img: albumentations_transform(image=np.array(img))["image"]
+        # transpose changes from BHWC (numpy/TF style) to BCHW (torch style) 
+
+        # cannot use a lambda or define here because must be pickleable for multi-gpu
+        self.transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
 
 
     # only called on main process
@@ -232,6 +214,9 @@ def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, cr
     
     return transforms_to_apply
 
+def do_transform(img, transforms_to_apply):
+    return np.transpose(transforms_to_apply(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
+
 # torchvision
 class GrayscaleUnweighted(torch.nn.Module):
 
@@ -256,15 +241,3 @@ class GrayscaleUnweighted(torch.nn.Module):
         return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
 
 
-# albumentations versuib of GrayscaleUnweighted
-class ToGray():
-
-    def __init__(self, reduce_channels=False):
-        if reduce_channels:
-            self.mean = lambda arr: arr.mean(axis=2, keepdims=True)
-        else:
-            self.mean = lambda arr: arr.mean(
-                axis=2, keepdims=True).repeat(3, axis=2)
-
-    def __call__(self, image, **kwargs):
-        return self.mean(image)

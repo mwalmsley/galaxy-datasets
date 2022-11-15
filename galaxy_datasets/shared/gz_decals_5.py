@@ -1,24 +1,15 @@
 import os
 
 import pandas as pd
-from pytorch_galaxy_datasets import galaxy_datamodule, galaxy_dataset, download_utils
 
 # TODO could eventually refactor this out of Zoobot as well
 from zoobot.shared import label_metadata
 
+from galaxy_datasets.shared import download_utils
+
 # DR8 will be basically the same
 
-
-class DecalsDR5Dataset(galaxy_dataset.GalaxyDataset):
-    
-    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
-
-        catalog, label_cols = decals_dr5_setup(root, train, download)
-
-        super().__init__(catalog, label_cols, transform, target_transform)
-
-
-def decals_dr5_setup(root, train, download):
+def gz_decals_5(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/1tuehajonhgv8a2/decals_dr5_ortho_train_catalog.parquet', 'a0cd74edc073fdff068370f6eefeb802'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/3vo6hjlnbqgzuxz/decals_dr5_ortho_test_catalog.parquet', '55820e3712b22e587f6971e4b6c73dfe'),  # test catalog
@@ -54,40 +45,3 @@ def decals_dr5_setup(root, train, download):
 #     for answer_col in label_cols:
 #         catalog[answer_col] = catalog[answer_col].astype(int)
 #     return catalog
-
-
-if __name__ == '__main__':
-
-    # first download is basically just a convenient way to get the images and canonical catalogs
-    dr5_dataset = DecalsDR5Dataset(
-        root='/nvme1/scratch/walml/repos/pytorch-galaxy-datasets/roots/decals_dr5',
-        train=True,
-        download=False
-    )
-    dr5_catalog = dr5_dataset.catalog
-    adjusted_catalog = dr5_catalog.sample(1000)
-
-    # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
-    # (which makes its own generic datasets internally)
-    datamodule = galaxy_datamodule.GalaxyDataModule(
-        label_cols=label_metadata.decals_dr5_ortho_label_cols,
-        catalog=adjusted_catalog
-    )
-
-    datamodule.prepare_data()
-    datamodule.setup()
-    for images, labels in datamodule.train_dataloader():
-        print(images.shape, labels.shape)
-        break
-        
-
-# class DECaLSDR5DataModule(galaxy_datamodule.GalaxyDataModule):
-
-#     def __init__(self, *args, **kwargs) -> None:
-#         """
-#         Currently identical to GalaxyDataModule - see that description
-#         """
-#         super().__init__(*args, dataset_class=DECaLSDR5Dataset, **kwargs)
-
-#     def prepare_data(self):
-#         DECaLSDR5Dataset(self.root, download=True)
