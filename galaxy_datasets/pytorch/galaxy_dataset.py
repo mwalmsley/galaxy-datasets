@@ -11,7 +11,7 @@ import simplejpeg
 
 # https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
 class GalaxyDataset(Dataset):
-    def __init__(self, catalog: pd.DataFrame, label_cols: List, transform=None, target_transform=None):
+    def __init__(self, catalog: pd.DataFrame, label_cols=None, transform=None, target_transform=None):
         """
         Create custom PyTorch Dataset using catalog of galaxy images
 
@@ -69,26 +69,36 @@ class GalaxyDataset(Dataset):
         #the index is id_str so can use that for quick search on 1M+ catalo
         # galaxy = self._catalog.loc[idx]
         galaxy = self.catalog.iloc[idx]
+
+        # load the image into memory
         image_loc = galaxy['file_loc']
         try:
             image = self.load_image_file(image_loc)
-                    # HWC PIL image purely via PIL, useful for png (but a little slower)
+            # HWC PIL image
+            # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
         except Exception as e:
             logging.critical('Cannot load {}'.format(image_loc))
             raise e
-        label = get_galaxy_label(galaxy, self.label_cols)
-
-        # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
-
+    
         if self.transform:
-            # a CHW tensor, which torchvision wants. May change to PIL image.
             image = self.transform(image)
+            # now a CHW tensor, which torchvision wants
+            # logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
+        else:
+            raise ValueError('Please specify a transform')
+            # TODO could use some kind of default transform for torch-friendly image, if needed
 
-        if self.target_transform:
-            label = self.target_transform(label)
+        if self.label_cols is None:
+            return image
+        else:
+            # load the labels. If no self.label_cols, will 
+            label = get_galaxy_label(galaxy, self.label_cols)
 
-        # logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
-        return image, label
+            if self.target_transform:
+                label = self.target_transform(label)
+
+            
+            return image, label
 
 
 def load_jpg_file(loc):
