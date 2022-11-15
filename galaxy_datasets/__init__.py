@@ -4,7 +4,7 @@ from galaxy_datasets.shared.gz_hubble import gz_hubble
 from galaxy_datasets.shared.gz2 import gz2
 from galaxy_datasets.shared.tidal import tidal
 
-import os
-if os.path.isfile(os.path.join(os.path.dirname(os.path.realpath(__file__)), 'internal_urls.py')):
+from galaxy_datasets.check_internal_urls import INTERNAL_URLS_EXIST
+if INTERNAL_URLS_EXIST:
     from galaxy_datasets.shared.gz_desi import gz_desi
     from galaxy_datasets.shared.gz_rings import gz_rings
