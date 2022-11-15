@@ -3,12 +3,12 @@ import pytest
 import os
 import numpy as np
 import pandas as pd
-from galaxy_datasets.shared import gz_candels, gz_hubble, gz_decals, gz2, gz_desi, gz_rings, tidal
+from galaxy_datasets.shared import gz_candels, gz_hubble, gz_decals_5, gz2, gz_desi, gz_rings, tidal
 
 # https://docs.pytest.org/en/6.2.x/fixture.html#using-marks-with-parametrized-fixtures
 # in order of dataset size
 # pytest.param(gz_desi.setup, marks=pytest.mark.skip)
-@pytest.fixture(params=[tidal.setup, gz_rings.setup, gz_candels.setup, gz_hubble.setup, gz2.setup, gz_decals.setup, gz_desi.setup])
+@pytest.fixture(params=[tidal, gz_rings, gz_candels, gz_hubble, gz2, gz_decals_5, gz_desi])
 # @pytest.fixture(params=[gz_desi.setup])
 def setup_method(request):
     return request.param  # param is the func, param() calls the func (which breaks here as no args)

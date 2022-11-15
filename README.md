@@ -77,12 +77,12 @@ Otherwise, you might like to use the classes in this package to load these catal
 
 Create a PyTorch Dataset from a catalog like so:
 
-    from galaxy_datasets.pytorch import GalaxyDataset  # generic Dataset for galaxies
+    from galaxy_datasets.pytorch.galaxy_dataset import GalaxyDataset  # generic Dataset for galaxies
 
     dataset = GalaxyDataset(
         catalog=catalog.sample(1000),  # from gz2(...) above
-        label_cols=['smooth-or-featured_smooth'],
-        transforms=optional_transforms_if_you_like
+        label_cols=['smooth-or-featured-gz2_smooth'],
+        transform=optional_transforms_if_you_like
     )
 
 Notice how you can adjust the catalog before creating the Dataset. This gives flexibility to try training on e.g. different catalog subsets.
@@ -101,10 +101,10 @@ If you don't want to change anything about the catalog, you can skip the framewo
 
 You might also find the PyTorch Lightning DataModule under `galaxy_datasets/pytorch/galaxy_datamodule` useful. Zoobot uses this for training and finetuning.
 
-    from galaxy_datasets.pytorch import GalaxyDataModule
+    from galaxy_datasets.pytorch.galaxy_datamodule import GalaxyDataModule
 
     datamodule = GalaxyDataModule(
-        label_cols=['smooth-or-featured_smooth'],
+        label_cols=['smooth-or-featured-gz2_smooth'],
         catalog=catalog
         # optional args to specify augmentations
     )
@@ -119,13 +119,14 @@ You might also find the PyTorch Lightning DataModule under `galaxy_datasets/pyto
 
 To create a tf.data.Dataset from a catalog:
 
-    from galaxy_datasets.tensorflow import get_image_dataset, add_augmentations_to_dataset
+    import tensorflow as tf
+    from galaxy_datasets.tensorflow.datasets import get_image_dataset, add_transforms_to_dataset
     from galaxy_datasets.transforms import default_transforms  # same transforms as PyTorch
 
     train_dataset = get_image_dataset(
         image_paths = catalog['file_loc'],
         labels=catalog[label_cols].values,
-        requested_img_size=requested_img_size
+        requested_img_size=224
     )
 
     # specify augmentations
@@ -135,7 +136,7 @@ To create a tf.data.Dataset from a catalog:
     train_dataset = add_transforms_to_dataset(train_dataset, transforms)
   
     # batch, shuffle, prefetch for performance
-    train_dataset = train_dataset.shuffle(5000).batch(batch_size).prefetch(tf.data.experimental.AUTOTUNE)
+    train_dataset = train_dataset.shuffle(5000).batch(64).prefetch(tf.data.experimental.AUTOTUNE)
 
     for images, labels in train_dataset.take(1):
         print(images.shape, labels.shape)

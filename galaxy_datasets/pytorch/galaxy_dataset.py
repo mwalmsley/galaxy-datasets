@@ -84,9 +84,9 @@ class GalaxyDataset(Dataset):
             image = self.transform(image)
             # now a CHW tensor, which torchvision wants
             # logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
-        else:
-            raise ValueError('Please specify a transform')
-            # TODO could use some kind of default transform for torch-friendly image, if needed
+        # else:
+        #     raise ValueError('Please specify a transform')
+        #     # TODO could use some kind of default transform for torch-friendly image, if needed
 
         if self.label_cols is None:
             return image

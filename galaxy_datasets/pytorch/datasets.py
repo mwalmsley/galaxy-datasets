@@ -1,4 +1,5 @@
-from galaxy_datasets.shared import gz_candels, gz_decals_5, gz_hubble, gz2, tidal
+from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, tidal
+
 from galaxy_datasets.pytorch import galaxy_dataset
 
 
@@ -48,8 +49,8 @@ class Tidal(galaxy_dataset.GalaxyDataset):
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
-
-try:
+from galaxy_datasets import check_internal_urls
+if check_internal_urls.INTERNAL_URLS_EXIST:
     from galaxy_datasets.shared import gz_desi, gz_rings
 
     class GZDesi(galaxy_dataset.GalaxyDataset):
@@ -67,12 +68,6 @@ try:
             catalog, label_cols = gz_rings(root, train, download)
 
             super().__init__(catalog, label_cols, transform, target_transform)
-
-
-
-except FileNotFoundError:
-    # not using logging in case config still required
-    print('GZDESI and GZRings not available from galaxy_datasets.pytorch.datasets - skipping')    
 
 
 

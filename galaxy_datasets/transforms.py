@@ -4,8 +4,12 @@ import albumentations as A
 from albumentations.pytorch import ToTensorV2
 
 
-
-def default_transforms(crop_scale_bounds, crop_ratio_bounds, resize_after_crop, pytorch_greyscale=False) -> typing.Dict[str, typing.Any]:
+def default_transforms(
+    crop_scale_bounds=(0.7, 0.8),
+    crop_ratio_bounds=(0.9, 1.1),
+    resize_after_crop=224, 
+    pytorch_greyscale=False
+    ) -> typing.Dict[str, typing.Any]:
     if pytorch_greyscale:
         transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
             reduce_channels=True), always_apply=True)]
