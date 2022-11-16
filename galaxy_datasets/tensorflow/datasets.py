@@ -34,7 +34,8 @@ def get_image_dataset(
     """
     
     assert len(image_paths) > 0
-    assert isinstance(image_paths[0], str)
+    example_path = image_paths.iloc[0]
+    assert isinstance(example_path, str)
     logging.info('Image paths to load as dataset: {}'.format(len(image_paths)))
 
     if check_valid_paths:
@@ -46,10 +47,10 @@ def get_image_dataset(
     else:
         logging.warning('Skipping valid path check')
 
-    file_format = image_paths[0].split('.')[-1]  # assume all same format
+    file_format = example_path.split('.')[-1]  # assume all same format
 
     # load a single image to check the shape
-    test_image = load_image_as_element(image_paths[0])['image']
+    test_image = load_image_as_element(example_path)['image']
     size_on_disk = test_image.numpy().shape[0]  # x dimension (XYC convention, not yet batched)
     if requested_img_size is None:
         logging.info('No specific image size requested on load - not resizing (until augmentations')
