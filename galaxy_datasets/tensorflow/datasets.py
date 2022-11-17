@@ -3,6 +3,7 @@ from functools import partial
 from typing import List
 import logging
 
+import pandas as pd
 import tensorflow as tf
 
 
@@ -34,7 +35,9 @@ def get_image_dataset(
     """
     
     assert len(image_paths) > 0
-    example_path = image_paths.iloc[0]
+    if isinstance(image_paths, pd.Series):
+        image_paths = list(image_paths)
+    example_path = image_paths[0]
     assert isinstance(example_path, str)
     logging.info('Image paths to load as dataset: {}'.format(len(image_paths)))
 
