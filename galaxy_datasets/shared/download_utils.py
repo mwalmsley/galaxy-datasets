@@ -13,6 +13,8 @@ class DatasetDownloader():
     def __init__(self, root, resources, images_to_spotcheck=None, image_dirname='images', archive_includes_subdir=True):
         # image_dirname should always be images; is not properly generalised to update the extract location
         self.root = root
+        if not os.path.exists(self.root):
+            os.mkdir(self.root)
         self.image_dir = os.path.join(self.root, image_dirname)
         if not os.path.exists(self.image_dir):
             os.mkdir(self.image_dir)

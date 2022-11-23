@@ -173,6 +173,8 @@ class GalaxyDataModule(pl.LightningDataModule):
             )
 
         if stage == 'predict':  # not set up by default with stage=None, only if explicitly requested
+            if self.predict_catalog is None:
+                raise ValueError('Attempting to predict, but GalaxyDataModule was init without a predict_catalog arg. init with GalaxyDataModule(predict_catalog=some_catalog, ...)')
             self.predict_dataset = galaxy_dataset.GalaxyDataset(
                 catalog=self.predict_catalog, label_cols=self.label_cols, transform=self.transform
             )
