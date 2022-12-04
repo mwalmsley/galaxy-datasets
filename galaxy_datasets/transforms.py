@@ -1,7 +1,6 @@
 import typing
 
 import albumentations as A
-from albumentations.pytorch import ToTensorV2
 
 
 def default_transforms(
@@ -30,7 +29,6 @@ def default_transforms(
             always_apply=True
         ),  # new aspect ratio
         A.VerticalFlip(p=0.5),
-        # ToTensorV2() TODO may be needed with pytorch arg
     ]
 
     return A.Compose(transforms_to_apply)
@@ -90,6 +88,7 @@ def astroaugmentation_transforms(
             'Trying to use astroaugmentation_transforms but AstroAugmentations is not installed\n \
             Please install via git. See instructions at https://github.com/mb010/AstroAugmentations#quick-start'
         )
+    from albumentations.pytorch import ToTensorV2  # also required pytorch
 
     if pytorch_greyscale:
         transforms_to_apply = [
