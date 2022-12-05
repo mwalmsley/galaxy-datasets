@@ -15,7 +15,7 @@ import contextlib
 import warnings
 import re
 import itertools
-import tqdm
+from tqdm import tqdm
 from urllib.parse import urlparse
 
 

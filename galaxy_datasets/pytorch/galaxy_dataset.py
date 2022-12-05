@@ -118,5 +118,5 @@ def decode_jpeg(encoded_bytes):
 
 
 def get_galaxy_label(galaxy: pd.Series, label_cols: List) -> np.ndarray:
-    # no longer casts to int64, user now responsible in df. If dtype is mixed, will try to infer with infer_objects
-    return galaxy[label_cols].infer_objects().values.squeeze()  # squeeze for if there's one label_col
+    # pytorch 1.12 is happy with float32 for both dirichlet and cross-entropy
+    return galaxy[label_cols].astype(np.float32).values.squeeze()  # squeeze for if there's one label_col
