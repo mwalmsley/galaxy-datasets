@@ -1,4 +1,5 @@
 import os
+from typing import Tuple, List
 
 import pandas as pd
 
@@ -20,7 +21,7 @@ does not include unlabelled galaxies (for e.g. contrastive learning, active lear
 Added to make GZ DESI easily downloadable, basically
 """
 
-def gz_desi(root, train, download):
+def gz_desi(root, train, download) -> Tuple[pd.DataFrame, List]:
     resources = [
         (internal_urls.gz_desi_train_catalog, '50997398a10886dafbe556d071ffbc68'),
         (internal_urls.gz_desi_test_catalog, '386f13daf123f439ffb8266b65eac474'),
