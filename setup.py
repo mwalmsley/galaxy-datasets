@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="galaxy-datasets",
-    version="0.0.2",
+    version="0.0.3",
     author="Mike Walmsley",
     author_email="walmsleymk1@gmail.com",
     description="Galaxy Zoo datasets for PyTorch/TensorFlow",
@@ -20,7 +20,7 @@ setuptools.setup(
         "Environment :: GPU :: NVIDIA CUDA"
     ],
     packages=setuptools.find_packages(),
-    python_requires=">=3.7",
+    python_requires=">=3.7",  # zoobot has 3.8
     extras_require={
         # these are lower than zoobot's reqs
         'pytorch': [
