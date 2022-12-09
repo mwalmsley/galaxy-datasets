@@ -2,9 +2,10 @@ import os
 import logging
 
 from urllib.error import URLError
-# TODO this is the only pytorch dependency, could swap out perhaps
-from torchvision.datasets.utils import download_and_extract_archive, download_url, check_integrity
 
+# I've copy/pasted these out of torchvision so I can use their excellent download code without having to have pytorch as a dependency (for TF users)
+# from torchvision.datasets.utils import download_and_extract_archive, download_url, check_integrity
+from galaxy_datasets.shared.torchvision_utils import download_and_extract_archive, download_url, check_integrity
 
 class DatasetDownloader():
     # responsible for downloading a prespecified set of images/catalogs to a directory
@@ -13,6 +14,8 @@ class DatasetDownloader():
     def __init__(self, root, resources, images_to_spotcheck=None, image_dirname='images', archive_includes_subdir=True):
         # image_dirname should always be images; is not properly generalised to update the extract location
         self.root = root
+        if not os.path.exists(self.root):
+            os.mkdir(self.root)
         self.image_dir = os.path.join(self.root, image_dirname)
         if not os.path.exists(self.image_dir):
             os.mkdir(self.image_dir)
@@ -66,6 +69,4 @@ class DatasetDownloader():
         logging.info('Images unpacked: {} ({}, {})'.format(images_unpacked, self.image_dir, self.images_to_spotcheck))
 
         return resources_downloaded & images_unpacked
-
-
 
