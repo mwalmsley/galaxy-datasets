@@ -1,4 +1,5 @@
 import os
+import logging
 
 import pandas as pd
 
@@ -9,6 +10,7 @@ from galaxy_datasets.shared import download_utils
 
 
 def gz2(root, train, download):
+    logging.info('Setting up gz2 dataset')
     resources = [
         ('https://dl.dropboxusercontent.com/s/vu77e3sh2s5c250/gz2_train_catalog.parquet', 'f489c9ec7dcf8d99f728bd00ee00b1d0'),  # the train catalog
         ('https://dl.dropboxusercontent.com/s/t8eh6f3oupndpl3/gz2_test_catalog.parquet', '8b2d74c93d35f86cc34f1d058b3b220b'),  # the test catalog
@@ -34,4 +36,5 @@ def gz2(root, train, download):
         lambda x: os.path.join(downloader.image_dir, x))
 
     label_cols = label_metadata.gz2_ortho_label_cols  # default, but you can ignore
+    logging.info('gz2 dataset ready')
     return catalog, label_cols

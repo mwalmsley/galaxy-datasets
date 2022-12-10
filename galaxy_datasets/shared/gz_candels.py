@@ -1,5 +1,6 @@
 
 import os
+import logging
 
 import pandas as pd
 
@@ -12,6 +13,7 @@ from galaxy_datasets.shared import download_utils
 
 
 def gz_candels(root, train, download):
+    logging.info('Setting up gz_candels dataset')
     resources = [
         ('https://dl.dropboxusercontent.com/s/cnjvdinnhh1r1md/candels_ortho_train_catalog.parquet', '90593d1bab79a608cf0e645d6fd8e741'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/y83v1gktw72hs0f/candels_ortho_test_catalog.parquet', '1062993dd8df09684b335678ab3fa8e3'),  # test catalog
@@ -36,6 +38,7 @@ def gz_candels(root, train, download):
 
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['filename']), axis=1)  # no subfolder
 
+    logging.info('gz_candels dataset ready')
     return catalog, label_cols
 
 # TODO may change features to featured-or-disk

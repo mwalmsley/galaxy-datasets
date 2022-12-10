@@ -1,4 +1,5 @@
 import os
+import logging
 
 import pandas as pd
 
@@ -21,6 +22,8 @@ Added to make GZ DESI easily downloadable, basically
 """
 
 def gz_desi(root, train, download):
+    logging.info('Setting up gz_desi dataset')
+
     resources = [
         (internal_urls.gz_desi_train_catalog, '50997398a10886dafbe556d071ffbc68'),
         (internal_urls.gz_desi_test_catalog, '386f13daf123f439ffb8266b65eac474'),
@@ -54,5 +57,6 @@ def gz_desi(root, train, download):
 
     # default, but not actually used here
     label_cols = label_metadata.decals_all_campaigns_ortho_label_cols
+    logging.info('gz_desi dataset ready')
     return catalog, label_cols
 

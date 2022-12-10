@@ -1,6 +1,5 @@
-
-from cProfile import label
 import os
+import logging
 
 import pandas as pd
 
@@ -11,6 +10,7 @@ from galaxy_datasets.shared import download_utils
 
 
 def gz_hubble(root, train, download):
+    logging.info('Setting up gz_hubble dataset')
     resources = [
         ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'c6cb821f7ebefb583dc74488cf7bfc5f'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '05e01ed822b34400f32977280eebec87'),  # test catalog
@@ -35,6 +35,7 @@ def gz_hubble(root, train, download):
 
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['filename']), axis=1)  # no subfolder
 
+    logging.info('gz_hubble dataset ready')
     return catalog, label_cols
 
 # TODO may change features to featured-or-disk

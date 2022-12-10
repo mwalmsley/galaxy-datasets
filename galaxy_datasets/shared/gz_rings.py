@@ -1,4 +1,5 @@
 import os
+import logging
 
 import pandas as pd
 
@@ -15,6 +16,7 @@ from zoobot.shared import label_metadata
 
 
 def gz_rings(root, train, download):
+    logging.info('Setting up gz_rings dataset')
     resources = [
         (internal_urls.rings_train_catalog, 'e2fb6b2bca45cd7f1c58f5b4089a5976'),  # train catalog
         (internal_urls.rings_test_catalog, '6e3f362a6e19ecd02675eaa48f6727f0'),  # test catalog
@@ -39,4 +41,5 @@ def gz_rings(root, train, download):
 
     label_cols = label_metadata.rings_label_cols
 
+    logging.info('gz_rings dataset ready')
     return catalog, label_cols
