@@ -9,8 +9,8 @@ from zoobot.shared import label_metadata
 from galaxy_datasets.shared import download_utils
 
 
-def gz_hubble(root, train, download):
-    logging.info('Setting up gz_euclid dataset')
+def gz_hubble_euclidized(root, train, download):
+    logging.info('Setting up gz_hubble_euclidized dataset')
     resources = [
         ('https://drive.google.com/file/d/1Vm__dpPbyojLFi58RTTZoyzmFSWv9Aup/view?usp=share_link', None),  # train catalog
         ('https://drive.google.com/file/d/1Vm__dpPbyojLFi58RTTZoyzmFSWv9Aup/view?usp=share_link',None),  # test catalog
