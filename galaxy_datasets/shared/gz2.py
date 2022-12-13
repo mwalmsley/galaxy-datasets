@@ -12,8 +12,8 @@ from galaxy_datasets.shared import download_utils
 def gz2(root, train, download):
     logging.info('Setting up gz2 dataset')
     resources = [
-        ('https://dl.dropboxusercontent.com/s/vu77e3sh2s5c250/gz2_train_catalog.parquet', '4601cf8f7bea8ab0d79b2aada1a4663d'),  # the train catalog
-        ('https://dl.dropboxusercontent.com/s/t8eh6f3oupndpl3/gz2_test_catalog.parquet', '65bc4d26cb1dd1426fed4f3c357cb42c'),  # the test catalog
+        ('https://dl.dropboxusercontent.com/s/vu77e3sh2s5c250/gz2_train_catalog.parquet', 'd5507a9332c75fd84a7f2562567da36b'),  # the train catalog
+        ('https://dl.dropboxusercontent.com/s/t8eh6f3oupndpl3/gz2_test_catalog.parquet', 'ac1fba88d0e8a95ee4f4eef79ea03063'),  # the test catalog
         ('https://dl.dropboxusercontent.com/s/5so7yof2afe761p/images_gz2.tar.gz', 'e3eab2fec57a6a60577236b9e0a6913d')  # the images
     ]
     images_to_spotcheck = ['587722/587722981741363294.jpg']
