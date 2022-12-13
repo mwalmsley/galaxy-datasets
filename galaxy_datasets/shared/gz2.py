@@ -34,7 +34,7 @@ def gz2(root, train, download):
 
     catalog['file_loc'] = catalog.apply(
         lambda x: os.path.join(downloader.image_dir, x['subfolder'], x['filename']),
-        axis=0
+        axis=1
     )
 
     label_cols = label_metadata.gz2_ortho_label_cols  # default, but you can ignore
