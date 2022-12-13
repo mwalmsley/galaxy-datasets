@@ -43,10 +43,8 @@ def astroaugmentation_transforms(
     p_elastic=0,
     elastic_alpha=1,
     elastic_sigma=1,
-    p_flip=0.5,
     channelwise_dropout_max_fraction=0.2,
-    channelwise_dropout_min_width=10,
-    channelwise_dropout_min_height=10,
+    channelwise_dropout_min_length=10,
     channelwise_dropout_max_holes=100,
     pytorch_greyscale=False,
 ) -> typing.Dict[str, typing.Any]:
@@ -70,10 +68,8 @@ def astroaugmentation_transforms(
         p_elastic (int, optional): how much to scale the random field. Defaults to 0.
         elastic_alpha (int, optional): std. of the Gauss. kernel blurring the random field. Defaults to 1.
         elastic_sigma (int, optional):  max area fraction to be affected. Defaults to 1.
-        p_flip (float, optional): _description_. Defaults to 0.5.
         channelwise_dropout_max_fraction (float, optional): _description_. Defaults to 0.2.
-        channelwise_dropout_min_width (int, optional):  minimum width of the hole in pixels. Defaults to 10.
-        channelwise_dropout_min_height (int, optional):  minimum height of the hole in pixels. Defaults to 10.
+        channelwise_dropout_min_length (int, optional):  minimum length of the hole in pixels. Defaults to 10. May be horizontal or vertical (width or height)
         channelwise_dropout_max_holes (int, optional): _description_. Defaults to 100.
         pytorch_greyscale (bool, optional): _description_. Defaults to False.
 
@@ -113,8 +109,9 @@ def astroaugmentation_transforms(
             name="MissingData",
             image=image_domain.optical.ChannelWiseDropout(
                 max_fraction=channelwise_dropout_max_fraction,
-                min_width=channelwise_dropout_min_width,
-                min_height=channelwise_dropout_min_height,
+                # max is up to channelwise_dropout_max_fraction
+                min_width=channelwise_dropout_min_length,
+                min_height=channelwise_dropout_min_length,
                 max_holes=channelwise_dropout_max_holes,
                 channelwise_application=True,
             ),
@@ -128,7 +125,8 @@ def astroaugmentation_transforms(
             border_mode=0,
             p=1,
         ),
-        A.Flip(p=p_flip),
+        # TODO maybe add sersic/gaussian
+        A.Flip(p=0.5),
         ToTensorV2(),
     ]
 
