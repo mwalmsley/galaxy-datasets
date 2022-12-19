@@ -12,9 +12,9 @@ from galaxy_datasets.shared import download_utils
 def gz_hubble_euclidized(root, train, download):
     logging.info('Setting up gz_hubble_euclidized dataset')
     resources = [
-        ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'c6cb821f7ebefb583dc74488cf7bfc5f'),  # train catalog
-        ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '05e01ed822b34400f32977280eebec87'),  # test catalog
-        ('ADD CORRECT LINK HERE', None)
+        ('ADD TRAIN LABELS LINK HERE', 'HASH_TRAIN'),  # train catalog
+        ('ADD TEST LABELS LINK HERE', 'HASH_TEST'),  # test catalog
+        ('ADD IMAGES LINK HERE', None)
     ]
     images_to_spotcheck = ['20163083.jpeg']
 
