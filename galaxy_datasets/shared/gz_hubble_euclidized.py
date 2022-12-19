@@ -14,9 +14,9 @@ def gz_hubble_euclidized(root, train, download):
     resources = [
         ('https://dl.dropboxusercontent.com/s/xnktj9hq6xig0a7/hubble_ortho_train_catalog.parquet', 'c6cb821f7ebefb583dc74488cf7bfc5f'),  # train catalog
         ('https://dl.dropboxusercontent.com/s/1g9lwih9944sys8/hubble_ortho_test_catalog.parquet', '05e01ed822b34400f32977280eebec87'),  # test catalog
-        ('https://dl.dropboxusercontent.com/s/k9xco1mtp8bw60v/hubble_images.tar.gz', None)  # the images 'b6fed2463bb2d17ddb8302f6b060534a'
+        ('ADD CORRECT LINK HERE', None)
     ]
-    images_to_spotcheck = ['20163083.jpg']
+    images_to_spotcheck = ['20163083.jpeg']
 
     downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck)
     if download is True:
