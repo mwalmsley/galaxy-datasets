@@ -2,10 +2,7 @@ import os
 
 import pandas as pd
 
-# TODO could eventually refactor this out of Zoobot as well
-from zoobot.shared import label_metadata
-
-from galaxy_datasets.shared import download_utils
+from galaxy_datasets.shared import download_utils, label_metadata
 
 # DR8 will be basically the same
 
@@ -21,8 +18,6 @@ def gz_decals_5(root, train, download):
     if download is True:
         downloader.download()
 
-    
-
     # useful_columns = label_cols + ['subfolder', 'filename']
     if train:
         train_catalog_loc = os.path.join(root, 'decals_dr5_ortho_train_catalog.parquet')
@@ -34,14 +29,7 @@ def gz_decals_5(root, train, download):
     # removed 'root' from here as downloader.image_dir already includes root
     catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
-    # default, but not actually used here
     label_cols = label_metadata.decals_dr5_ortho_label_cols
+
     return catalog, label_cols
 
-
-
-# def _temp_adjust_catalog_dtypes(catalog, label_cols):
-#     # enforce datatypes
-#     for answer_col in label_cols:
-#         catalog[answer_col] = catalog[answer_col].astype(int)
-#     return catalog

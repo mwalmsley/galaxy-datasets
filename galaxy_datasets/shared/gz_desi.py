@@ -5,7 +5,7 @@ from typing import Tuple, List
 import pandas as pd
 
 # TODO could eventually refactor this out of Zoobot as well
-from zoobot.shared import label_metadata
+from galaxy_datasets.shared import label_metadata
 
 from galaxy_datasets.shared import download_utils
 from galaxy_datasets.check_internal_urls import INTERNAL_URLS_EXIST

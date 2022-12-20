@@ -3,10 +3,7 @@ import logging
 
 import pandas as pd
 
-# TODO could eventually refactor this out of Zoobot as well
-from zoobot.shared import label_metadata
-
-from galaxy_datasets.shared import download_utils
+from galaxy_datasets.shared import download_utils, label_metadata
 
 
 def gz2(root, train, download):
@@ -40,3 +37,4 @@ def gz2(root, train, download):
     label_cols = label_metadata.gz2_ortho_label_cols  # default, but you can ignore
     logging.info('gz2 dataset ready')
     return catalog, label_cols
+
