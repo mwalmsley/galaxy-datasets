@@ -1,4 +1,4 @@
-from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, tidal
+from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, demo_rings, tidal
 
 from galaxy_datasets.pytorch import galaxy_dataset
 
@@ -41,6 +41,15 @@ class GZHubble(galaxy_dataset.GalaxyDataset):
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
+
+class DemoRings(galaxy_dataset.GalaxyDataset):
+    
+    def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
+
+        catalog, label_cols = demo_rings(root, train, download)
+
+        super().__init__(catalog, label_cols, transform, target_transform)
+
 class Tidal(galaxy_dataset.GalaxyDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None, label_mode='coarse'):
@@ -48,6 +57,8 @@ class Tidal(galaxy_dataset.GalaxyDataset):
         catalog, label_cols = tidal(root, train, download, label_mode=label_mode)
 
         super().__init__(catalog, label_cols, transform, target_transform)
+
+
 
 from galaxy_datasets import check_internal_urls
 if check_internal_urls.INTERNAL_URLS_EXIST:

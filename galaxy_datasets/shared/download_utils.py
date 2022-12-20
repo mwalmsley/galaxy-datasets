@@ -36,7 +36,7 @@ class DatasetDownloader():
             filename = os.path.basename(url)
             try:
                 logging.info(f"Downloading {url}")
-                if url.endswith('.tar.gz') or url.endswith('.zip'):
+                if url.endswith('.tar.gz') or url.endswith('.tar.xz') or url.endswith('.zip'):
                     if self.archive_includes_subdir:
                         download_root = self.root  # archive unpacks to subdir by itself
                     else:  # need to download and extract directly into subdir
