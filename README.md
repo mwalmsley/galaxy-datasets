@@ -46,6 +46,8 @@ I suggest either:
 
 ## Usage
 
+Check out the PyTorch quickstart Colab [here](https://colab.research.google.com/drive/1mLXz0tUWO_kDrfWTlxB7JT2AnPPWQODg?usp=sharing), or keep reading for more explanation.
+
 ### Framework-Independent
 
 To download a dataset:

@@ -4,12 +4,7 @@ import logging
 
 import pandas as pd
 
-# this one has label_metadata contained in this repo, not zoobot. Others will follow, perhaps.
-from zoobot.shared import label_metadata
-
-from galaxy_datasets.shared import download_utils
-
-
+from galaxy_datasets.shared import download_utils, label_metadata
 
 
 def gz_candels(root, train, download):
@@ -26,7 +21,7 @@ def gz_candels(root, train, download):
         downloader.download()
 
     # label_cols = [question + answer for question, answers in candels_ortho_pairs.items() for answer in answers]  # defined below, globally in this script (for imports elsewhere)
-    label_cols = candels_ortho_label_cols  # see below
+    label_cols = label_metadata.candels_ortho_label_cols  # see below
 
     useful_columns = label_cols + ['filename']
     if train:
@@ -40,50 +35,3 @@ def gz_candels(root, train, download):
 
     logging.info('gz_candels dataset ready')
     return catalog, label_cols
-
-# TODO may change features to featured-or-disk
-candels_pairs = {
-    'smooth-or-featured': ['_smooth', '_features', '_artifact'],
-    'how-rounded': ['_completely', '_in-between', '_cigar-shaped'],
-    'clumpy-appearance': ['_yes', '_no'],
-    'clump-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
-    # disable these for now as I don't support having several but not all answers leading to the same next question
-    # 'clump-configuration': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
-    # 'one-clump-brightest': ['_yes', '_no'],
-    # 'brightest-clump-central': ['_yes', '_no'],
-    # 'galaxy-symmetrical': ['_yes', '_no'],
-    # 'clumps-embedded-larger-object': ['_yes', '_no'],
-    'disk-edge-on': ['_yes', '_no'],
-    'edge-on-bulge': ['_yes', '_no'],
-    'bar': ['_yes', '_no'],
-    'has-spiral-arms': ['_yes', '_no'],
-    'spiral-winding': ['_tight', '_medium', '_loose'],
-    'spiral-arm-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
-    'bulge-size': ['_none', '_obvious', '_dominant'],
-    'merging': ['_merger', '_tidal-debris', '_both', '_neither']
-}
-# add -candels to the end of each question
-candels_ortho_pairs = dict([(key + '-candels', value) for key, value in candels_pairs.items()])
-
-# not used here, but may be helpful elsewhere
-candels_ortho_dependencies = {
-    'smooth-or-featured-candels': None,
-    'how-rounded-candels': 'smooth-or-featured-candels_smooth',
-    'clumpy-appearance-candels': 'smooth-or-featured-candels_features',
-    'clump-count-candels': 'clumpy-appearance-candels_yes',
-    # 'clump-configuration-candels': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
-    # 'one-clump-brightest-candels': ['_yes', '_no'],
-    # 'brightest-clump-central-candels': ['_yes', '_no'],
-    # 'galaxy-symmetrical-candels': ['_yes', '_no'],
-    # 'clumps-embedded-larger-object-candels': ['_yes', '_no'],
-    'disk-edge-on-candels': 'clumpy-appearance-candels_no',
-    'edge-on-bulge-candels': 'disk-edge-on-candels_yes',
-    'bar-candels': 'disk-edge-on-candels_no',
-    'has-spiral-arms-candels': 'disk-edge-on-candels_no',
-    'spiral-winding-candels': 'disk-edge-on-candels_no',
-    'spiral-arm-count-candels': 'disk-edge-on-candels_no',
-    'bulge-size-candels': 'disk-edge-on-candels_no',
-    'merging-candels': None
-}
-
-candels_ortho_questions, candels_ortho_label_cols = label_metadata.extract_questions_and_label_cols(candels_ortho_pairs)

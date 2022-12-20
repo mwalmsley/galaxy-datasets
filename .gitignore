@@ -133,7 +133,6 @@ dmypy.json
 *._images
 results_public.txt
 results.txt
-z
 
 # datasets, will grind git to a halt if not excluded
 *.zip
@@ -144,6 +143,8 @@ z
 *.parquet
 *.csv
 *.txt
+*.tar.gz
+*.tar.xz
 
 # for auto-downloads of unpublished data
 internal_urls.py  
