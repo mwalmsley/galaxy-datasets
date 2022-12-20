@@ -44,7 +44,7 @@ class DatasetDownloader():
                     download_and_extract_archive(
                         url, download_root=download_root, filename=filename, md5=md5)
                 else:  # don't try to extract archive, just download
-                    # TODO is this used?
+                    logging.info(f'Downloading non-archive file - {filename}')
                     download_url(url, root=self.root, filename=filename, md5=md5)
             except URLError as error:
                 logging.info(f"Failed to download (trying next):\n{error}")
