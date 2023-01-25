@@ -38,6 +38,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         crop_scale_bounds=(0.7, 0.8),
         crop_ratio_bounds=(0.9, 1.1),
         resize_after_crop=224,
+        custom_albumentation_transform=None,  # will override the settings above
         # hardware params
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
@@ -65,9 +66,14 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         self.batch_size = batch_size
 
-        self.resize_after_crop = resize_after_crop
-        self.crop_scale_bounds = crop_scale_bounds
-        self.crop_ratio_bounds = crop_ratio_bounds
+        if custom_albumentation_transform is not None:
+            self.custom_albumentation_transform = custom_albumentation_transform
+            logging.info('Using custom albumentations transform for augmentations')
+        else:
+            self.resize_after_crop = resize_after_crop
+            self.crop_scale_bounds = crop_scale_bounds
+            self.crop_ratio_bounds = crop_ratio_bounds
+            self.greyscale = greyscale
 
         self.use_memory = use_memory
         if self.use_memory:
@@ -81,10 +87,6 @@ class GalaxyDataModule(pl.LightningDataModule):
         self.val_fraction = val_fraction
         self.test_fraction = test_fraction
 
-        self.greyscale = greyscale
-        # self.album = album
-
-        # if self.album:
         logging.info('Using albumentations for augmentations')
         self.transform_with_album()
         # else:
@@ -104,20 +106,24 @@ class GalaxyDataModule(pl.LightningDataModule):
 
 
     def transform_with_album(self):
-        # gives a transforms = Compose() object
-        transforms_to_apply = default_transforms(
-            crop_scale_bounds=self.crop_scale_bounds,
-            crop_ratio_bounds=self.crop_ratio_bounds,
-            resize_after_crop=self.resize_after_crop,
-            pytorch_greyscale=self.greyscale
-        )
+
+        if self.custom_albumentation_transform is not None:
+            # should be a Compose() object, TODO assert
+            transforms_to_apply = self.custom_albumentation_transform
+        else:
+            # gives a transforms = Compose() object
+            transforms_to_apply = default_transforms(
+                crop_scale_bounds=self.crop_scale_bounds,
+                crop_ratio_bounds=self.crop_ratio_bounds,
+                resize_after_crop=self.resize_after_crop,
+                pytorch_greyscale=self.greyscale
+            )
+    
         # applies that transforms object
         # albumentations expects np array, and returns dict keyed by "image"
         # transpose changes from BHWC (numpy/TF style) to BCHW (torch style) 
-
         # cannot use a lambda or define here because must be pickleable for multi-gpu
         self.transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
-
 
     # only called on main process
     def prepare_data(self):
