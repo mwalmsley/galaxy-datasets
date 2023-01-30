@@ -83,9 +83,6 @@ decals_dr5_ortho_questions, decals_dr5_ortho_label_cols = extract_questions_and_
 decals_dr8_ortho_questions, decals_dr8_ortho_label_cols = extract_questions_and_label_cols(decals_dr8_ortho_pairs)
 decals_all_campaigns_ortho_questions, decals_all_campaigns_ortho_label_cols = extract_questions_and_label_cols(decals_all_campaigns_ortho_pairs)
 
-# similarly
-
-
 
 # Dict mapping each question (e.g. disk-edge-on) 
 # to the answer on which it depends (e.g. smooth-or-featured_featured-or-disk)
@@ -125,6 +122,27 @@ decals_ortho_dependencies = {
     'merging-dr8': None,
     }
 
+
+"""
+DESI
+
+Identical to DECalS DR5, DR8, except without the -dr8
+Not used for ML, only for user convenience
+"""
+
+desi_pairs = decals_dr8_ortho_pairs.copy()
+for question, answers in desi_pairs.copy().items(): # avoid modifying while looping
+    desi_pairs[question.replace('-dr8', '')] = answers
+    del desi_pairs[question]  # delete the old ones
+
+desi_dependencies = {}
+for question, dependency in decals_ortho_dependencies.copy().items():
+    question_text = question.replace('-dr8', '')
+    if dependency is None:
+        dependency_text = None
+    else:
+        dependency_text = dependency.replace('-dr8', '')
+    desi_dependencies[question_text] = dependency_text 
 
 
 """
