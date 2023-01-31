@@ -7,6 +7,12 @@ from torch.utils.data import Dataset
 from PIL import Image
 import simplejpeg
 
+# not a strict requirement unless loading fits
+try:
+    from astropy.io import fits
+except ImportError:
+    pass
+
 
 
 # https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
@@ -57,6 +63,8 @@ class GalaxyDataset(Dataset):
             self.load_image_file = load_png_file
         elif image_format == 'jpg':
             self.load_image_file = load_jpg_file
+        elif image_format == 'fits':
+            self.load_image_file = load_fits_file  # careful, these often need a transform to have reasonable dynamic range
         else:
             raise ValueError('File format {} not recognised - should be jpg (preferred) or png'.format(image_format))
 
@@ -106,12 +114,16 @@ def load_jpg_file(loc):
         return Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
 
 def load_png_file(loc):
-    return Image.open(loc)
+    return Image.open(loc) # HWC
 
 # def load_encoded_jpeg(loc: str):
 #     with open(loc, "rb") as f:
 #         return f.read()  # bytes, not yet decoded
 
+def load_fits_file(loc):  
+    x = fits.open(loc)[0].data.astype(np.float32)
+    # assumes single channel - add channel dimension
+    return np.expand_dims(x, axis=2)  # HWC
 
 def decode_jpeg(encoded_bytes):
     return simplejpeg.decode_jpeg(encoded_bytes, fastdct=True, fastupsample=True)
