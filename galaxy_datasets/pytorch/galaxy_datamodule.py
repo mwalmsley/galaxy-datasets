@@ -74,6 +74,7 @@ class GalaxyDataModule(pl.LightningDataModule):
             self.crop_scale_bounds = crop_scale_bounds
             self.crop_ratio_bounds = crop_ratio_bounds
             self.greyscale = greyscale
+            self.custom_albumentation_transform = None
 
         self.use_memory = use_memory
         if self.use_memory:
