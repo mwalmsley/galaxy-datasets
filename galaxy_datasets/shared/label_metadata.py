@@ -97,7 +97,7 @@ decals_ortho_dependencies = {
     'edge-on-bulge-dr12': 'disk-edge-on-dr12_yes',
     'spiral-winding-dr12': 'has-spiral-arms-dr12_yes',
     'spiral-arm-count-dr12': 'has-spiral-arms-dr12_yes',
-    'merging-dr12': None,
+    'merging-dr12': None,  # TODO technically should be smooth OR featured, but hard to code - no double dependency support yet
     # dr5
     'smooth-or-featured-dr5': None,  # always asked
     'disk-edge-on-dr5': 'smooth-or-featured-dr5_featured-or-disk',
@@ -137,12 +137,13 @@ for question, answers in desi_pairs.copy().items(): # avoid modifying while loop
 
 desi_dependencies = {}
 for question, dependency in decals_ortho_dependencies.copy().items():
-    question_text = question.replace('-dr8', '')
-    if dependency is None:
-        dependency_text = None
-    else:
-        dependency_text = dependency.replace('-dr8', '')
-    desi_dependencies[question_text] = dependency_text 
+    if '-dr8' in question:
+        question_text = question.replace('-dr8', '')
+        if dependency is None:
+            dependency_text = None
+        else:
+            dependency_text = dependency.replace('-dr8', '')
+        desi_dependencies[question_text] = dependency_text 
 
 
 """
@@ -330,7 +331,7 @@ cosmic_dawn_ortho_dependencies = {
     'edge-on-bulge-cd': 'disk-edge-on-cd_yes',
     'spiral-winding-cd': 'has-spiral-arms-cd_yes',
     'spiral-arm-count-cd': 'has-spiral-arms-cd_yes',
-    'merging-cd': None
+    'merging-cd': None  # technically, should be smooth OR featured, but hard to code
 }
 
 cosmic_dawn_ortho_questions, cosmic_dawn_ortho_label_cols = extract_questions_and_label_cols(cosmic_dawn_ortho_pairs)
