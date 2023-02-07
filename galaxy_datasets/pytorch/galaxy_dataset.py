@@ -63,10 +63,12 @@ class GalaxyDataset(Dataset):
             self.load_image_file = load_png_file
         elif image_format == 'jpg':
             self.load_image_file = load_jpg_file
+        elif image_format == 'jpeg':
+            self.load_image_file = load_jpg_file
         elif image_format == 'fits':
             self.load_image_file = load_fits_file  # careful, these often need a transform to have reasonable dynamic range
         else:
-            raise ValueError('File format {} not recognised - should be jpg (preferred) or png'.format(image_format))
+            raise ValueError('File format {} not recognised - should be jpeg|jpg (preferred) or png'.format(image_format))
 
 
     def __len__(self) -> int:
