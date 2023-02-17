@@ -11,7 +11,8 @@ def base_root_dir():
     elif os.path.isdir('/share/nas2'):
         return '/share/nas2/walml/repos/_data'
     else:
-        raise FileNotFoundError
+        return 'roots'
+    # TODO should really be relative to this file, not assuming repo root
 
 
 def tidal_dataset():
@@ -65,9 +66,16 @@ def gz_candels_dataset():
         download=False
     )
 
+def demo_rings_dataset():
+    return datasets.DemoRings(
+        root=os.path.join(base_root_dir(), 'demo_rings'),
+        download=True  # tests can download, it's small
+    )
+
 # https://docs.pytest.org/en/6.2.x/fixture.html#using-marks-with-parametrized-fixtures
 # pytest.param(gz_desi_dataset, marks=pytest.mark.skip)
 @pytest.fixture(params=[gz2_dataset, gz_candels_dataset, gz_decals_dataset, gz_hubble_dataset, gz_rings_dataset, tidal_dataset, gz_desi_dataset])
+# @pytest.fixture(params=[demo_rings_dataset])
 def dataset(request):
     return request.param()
 
@@ -77,7 +85,7 @@ def test_dataset(dataset):
     catalog = dataset.catalog
     label_cols = dataset.label_cols
 
-    adjusted_catalog = catalog.sample(1000)
+    adjusted_catalog = catalog.sample(100)
 
     # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
     # (which makes its own generic datasets internally)

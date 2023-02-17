@@ -54,22 +54,6 @@ class GalaxyDataset(Dataset):
         self.transform = transform
         self.target_transform = target_transform
 
-        image_format = self.catalog['file_loc'].iloc[0].split('.')[-1]
-        assert all(self.catalog['file_loc'].str.endswith(image_format)), 'Catalog file extensions not consistent. All image files must use the same extension (e.g. .jpg, .png, etc'
-        # technically would still work, but bad practice
-
-        if image_format == 'png':
-            logging.warning('Loading .png images - this works but is probably slower and more storage-intensive than .jpg images')
-            self.load_image_file = load_png_file
-        elif image_format == 'jpg':
-            self.load_image_file = load_jpg_file
-        elif image_format == 'jpeg':
-            self.load_image_file = load_jpg_file
-        elif image_format == 'fits':
-            self.load_image_file = load_fits_file  # careful, these often need a transform to have reasonable dynamic range
-        else:
-            raise ValueError('File format {} not recognised - should be jpeg|jpg (preferred) or png'.format(image_format))
-
 
     def __len__(self) -> int:
         return len(self.catalog)
@@ -83,7 +67,7 @@ class GalaxyDataset(Dataset):
         # load the image into memory
         image_loc = galaxy['file_loc']
         try:
-            image = self.load_image_file(image_loc)
+            image = load_img_file(image_loc)
             # HWC PIL image
             # logging.info((image.shape, torch.max(image), image.dtype, label))  # always 0-255 uint8
         except Exception as e:
@@ -110,6 +94,20 @@ class GalaxyDataset(Dataset):
             
             return image, label
 
+def load_img_file(loc):
+    # wrapper around specific loaders below
+    # could be more performant with a dict of {format:loader} but doubt significant
+    if loc.endswith('png'):
+        return load_png_file(loc)
+    elif loc.endswith('jpg'):
+        return load_jpg_file(loc)
+    elif loc.endswith('jpeg'):
+        return load_jpg_file(loc)
+    elif loc.endswith('fits'):
+        return load_fits_file(loc)  # careful, these often need a transform to have reasonable dynamic range
+    else:
+        raise ValueError('File format of {} not recognised - should be jpeg|jpg (preferred) or png'.format(loc))
+
 
 def load_jpg_file(loc):
     with open(loc, 'rb') as f:
@@ -117,10 +115,6 @@ def load_jpg_file(loc):
 
 def load_png_file(loc):
     return Image.open(loc) # HWC
-
-# def load_encoded_jpeg(loc: str):
-#     with open(loc, "rb") as f:
-#         return f.read()  # bytes, not yet decoded
 
 def load_fits_file(loc):  
     x = fits.open(loc)[0].data.astype(np.float32)
@@ -134,3 +128,14 @@ def decode_jpeg(encoded_bytes):
 def get_galaxy_label(galaxy: pd.Series, label_cols: List) -> np.ndarray:
     # pytorch 1.12 is happy with float32 for both dirichlet and cross-entropy
     return galaxy[label_cols].astype(np.float32).values.squeeze()  # squeeze for if there's one label_col
+
+
+if __name__ == '__main__':
+
+    # lazy test/example
+    data = [
+        {
+            'file_loc': '/s'
+        }
+    ]
+    df = pd.DataFrame()
