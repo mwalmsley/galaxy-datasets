@@ -74,7 +74,7 @@ def demo_rings_dataset():
 
 # https://docs.pytest.org/en/6.2.x/fixture.html#using-marks-with-parametrized-fixtures
 # pytest.param(gz_desi_dataset, marks=pytest.mark.skip)
-@pytest.fixture(params=[gz2_dataset, gz_candels_dataset, gz_decals_dataset, gz_hubble_dataset, gz_rings_dataset, tidal_dataset, gz_desi_dataset])
+@pytest.fixture(params=[demo_rings_dataset, gz2_dataset, gz_candels_dataset, gz_decals_dataset, gz_hubble_dataset, gz_rings_dataset, tidal_dataset, gz_desi_dataset])
 # @pytest.fixture(params=[demo_rings_dataset])
 def dataset(request):
     return request.param()

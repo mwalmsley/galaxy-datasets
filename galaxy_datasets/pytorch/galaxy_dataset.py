@@ -133,9 +133,16 @@ def get_galaxy_label(galaxy: pd.Series, label_cols: List) -> np.ndarray:
 if __name__ == '__main__':
 
     # lazy test/example
-    data = [
-        {
-            'file_loc': '/s'
-        }
-    ]
-    df = pd.DataFrame()
+    import glob
+    mixed_file_paths = glob.glob('tests/test_data/png_jpg_mix/*')
+    assert len(mixed_file_paths) > 0
+    data = {
+        'file_loc': mixed_file_paths, 
+        'id_str': [str(x) for x in np.arange(len(mixed_file_paths))]
+    }
+    df = pd.DataFrame(data)
+
+    dataset = GalaxyDataset(catalog=df)
+    for im in dataset:
+        im = np.array(im)  # returns PIL.Image, if not given label_cols or transform
+        print(im.shape, im.mean(), im.min(), im.max())
