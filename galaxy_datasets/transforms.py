@@ -135,10 +135,12 @@ def astroaugmentation_transforms(
 
 # albumentations versuib of GrayscaleUnweighted
 class ToGray():
-    # will do nothing if already greyscale
 
-    def __init__(self, reduce_channels=False):
-        if reduce_channels:
+    def __init__(self, remove_alpha=False, reduce_channels=False):
+        if remove_alpha:
+            self.forward = with_alpha_to_single_greyscale_channel
+            assert reduce_channels
+        elif reduce_channels:
             self.forward = to_single_greyscale_channel
         else:
             self.forward = to_triple_greyscale_channel
@@ -151,3 +153,8 @@ def to_single_greyscale_channel(img):
 
 def to_triple_greyscale_channel(img):
     return img.mean(axis=2, keepdims=True).repeat(3, axis=2)
+
+def with_alpha_to_single_greyscale_channel(img):
+    # alpha is 4th channel, always 1
+    # some pngs have this alpha channel
+    return img[:, :, :3].mean(axis=2, keepdims=True)
