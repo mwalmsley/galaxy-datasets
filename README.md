@@ -12,20 +12,21 @@ You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy
 | Name      | Method | PyTorch Dataset | Published | Downloadable | Galaxies
 | ----------- | ----- | ----------- | --- | ---- | ---- |
 | Galaxy Zoo 2 | gz2 | GZ2 | &#x2611; | &#x2611; | ~210k (main sample) |
-| GZ Hubble   | gz_hubble | GZHubble | &#x2611; | &#x2611; | ~106k (main sample) |
+| GZ Hubble*   | gz_hubble | GZHubble | &#x2611; | &#x2611; | ~106k (main sample) |
 | GZ CANDELS   | gz_candels | GZCandels | &#x2611; | &#x2611; | ~50k |
 | GZ DECaLS GZD-5 | gz_decals_5 | GZDecals5 | &#x2611; | &#x2611; | ~230k (GZD-5 only)|
 | GZ Rings | gz_rings | GZRings | &#x2612; | &#x2611; | ~93k |
-| GZ DESI  | gz_desi | GZDesi | &#x2612; | z < 0.1 only | ~375k + 8.3m unlabelled |
+| GZ DESI  | gz_desi | GZDesi | &#x2612; | WIP | WIP |
 | CFHT Tidal* | tidal | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
 
 Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).
 
 For each dataset, you must cite/acknowledge the GZ data release paper and the original telescope survey from which the images were derived. See [data.galaxyzoo.org](data.galaxyzoo.org) for the data release paper citations to use.
 
-*CFHT Tidal is not a Galaxy Zoo dataset, but rather a small expert-labelled dataset of tidal features from [Atkinson 2013](https://doi.org/10.1088/0004-637X/765/1/28).
-MW reproduced and modified the images in [Walmsley 2019](https://doi.org/10.1093/mnras/sty3232).
-We include it here as a challenging fine-grained morphology classification task with little labelled data.
+*GZ Hubble is also available in "euclidised" form (i.e. with the Euclid PSF applied) to Euclid collaboration members. The method is `gz_hubble_euclidised`. Courtesy of Ben Aussel.
+
+**CFHT Tidal is not a Galaxy Zoo dataset, but rather a small expert-labelled dataset of tidal features from [Atkinson 2013](https://doi.org/10.1088/0004-637X/765/1/28).
+MW reproduced and modified the images in [Walmsley 2019](https://doi.org/10.1093/mnras/sty3232). We include it here as a challenging fine-grained morphology classification task with little labelled data.
 
 ## Installation
 
