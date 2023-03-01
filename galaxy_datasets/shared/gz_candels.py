@@ -35,3 +35,8 @@ def gz_candels(root, train, download):
 
     logging.info('gz_candels dataset ready')
     return catalog, label_cols
+
+
+if __name__ == '__main__':
+
+    gz_candels(root='roots/gz_candels', train=True, download=True)
