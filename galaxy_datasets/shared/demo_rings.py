@@ -9,9 +9,9 @@ from galaxy_datasets.shared import download_utils
 def demo_rings(root, train, download):
     logging.info('Setting up demo_rings dataset')
     resources = [
-        ('https://dl.dropboxusercontent.com/s/4cfb9xbnlkvbkv1/demo_rings_train_catalog.parquet', '6b3ff71b8893175cbdb9dc092ed0dbd9'),  # train catalog
-        ('https://dl.dropboxusercontent.com/s/xghqujm41ujjlko/demo_rings_test_catalog.parquet', 'e63e13b57e8dbe55c1cf339dee5395ae'),  # test catalog
-        ('https://dl.dropboxusercontent.com/s/80s5j6dygtw0gu6/demo_rings_images.tar.gz', 'b8489af55d54b6965d4b037a4f952f3c')  # the images
+        ('https://dl.dropboxusercontent.com/s/4cfb9xbnlkvbkv1/demo_rings_train_catalog.parquet', '4cf7e3eaab46032c374d89c349295aa2'),  # train catalog
+        ('https://dl.dropboxusercontent.com/s/xghqujm41ujjlko/demo_rings_test_catalog.parquet', '7b28fc521836e76f794db50c3df4a2e1'),  # test catalog
+        ('https://dl.dropboxusercontent.com/s/80s5j6dygtw0gu6/demo_rings_images.tar.gz', '5b3c6c62618bbd3165988c60e36b8365')  # the images
     ]
     images_to_spotcheck = [
         'images/313982/313982_3559.jpg',
