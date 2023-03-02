@@ -9,13 +9,13 @@ from galaxy_datasets.shared import download_utils
 def demo_rings(root, train, download):
     logging.info('Setting up demo_rings dataset')
     resources = [
-        ('https://dl.dropboxusercontent.com/s/qwf4irf0xzj96sm/demo_rings_train_catalog.parquet', 'cf650961bcdd889f201ed049fb825085'),  # train catalog
-        ('https://dl.dropboxusercontent.com/s/b0w3ffoww4t9bq0/demo_rings_test_catalog.parquet', 'e84d19d279a02fb3a319d4e8aff4d724'),  # test catalog
-        ('https://dl.dropboxusercontent.com/s/54016cw50ide3y8/demo_rings_images.tar.xz', '36a75712ce1929b0c376ba3a8d51b7a8')  # the images
+        ('https://dl.dropboxusercontent.com/s/4cfb9xbnlkvbkv1/demo_rings_train_catalog.parquet', '6b3ff71b8893175cbdb9dc092ed0dbd9'),  # train catalog
+        ('https://dl.dropboxusercontent.com/s/xghqujm41ujjlko/demo_rings_test_catalog.parquet', 'e63e13b57e8dbe55c1cf339dee5395ae'),  # test catalog
+        ('https://dl.dropboxusercontent.com/s/80s5j6dygtw0gu6/demo_rings_images.tar.gz', 'b8489af55d54b6965d4b037a4f952f3c')  # the images
     ]
     images_to_spotcheck = [
-        'images/J000411.19+020924.0.jpg',
-        'images/J235601.89+073123.0.jpg'
+        'images/313982/313982_3559.jpg',
+        'images/374032/374032_255.jpg'
     ]
 
     downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck)
@@ -41,4 +41,4 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
     
-    demo_rings(root='/home/walml/repos/galaxy-datasets/roots/demo_rings', train=True, download=True)
+    demo_rings(root='/Users/user/repos/galaxy-datasets/roots/demo_rings', train=True, download=True)

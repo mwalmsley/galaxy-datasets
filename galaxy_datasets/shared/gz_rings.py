@@ -39,3 +39,9 @@ def gz_rings(root, train, download):
     logging.info('gz_rings dataset ready')
     return catalog, label_cols
 
+
+if __name__ == '__main__':
+
+    logging.basicConfig(level=logging.INFO)
+    
+    gz_rings(root='/Users/user/repos/galaxy-datasets/roots/gz_rings', train=True, download=True)
