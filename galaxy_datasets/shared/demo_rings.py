@@ -29,7 +29,7 @@ def demo_rings(root, train, download):
         test_catalog_loc = os.path.join(root, 'demo_rings_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['filename']), axis=1)
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['subfolder'], x['filename']), axis=1)
 
     label_cols = ['ring']  # 1 or 0
 
@@ -41,4 +41,5 @@ if __name__ == '__main__':
 
     logging.basicConfig(level=logging.INFO)
     
-    demo_rings(root='/Users/user/repos/galaxy-datasets/roots/demo_rings', train=True, download=True)
+    df, _ = demo_rings(root='/Users/user/repos/galaxy-datasets/roots/demo_rings', train=True, download=True)
+    assert os.path.isfile(df['file_loc'][0])
