@@ -66,16 +66,6 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         self.batch_size = batch_size
 
-        if custom_albumentation_transform is not None:
-            self.custom_albumentation_transform = custom_albumentation_transform
-            logging.info('Using custom albumentations transform for augmentations')
-        else:
-            self.resize_after_crop = resize_after_crop
-            self.crop_scale_bounds = crop_scale_bounds
-            self.crop_ratio_bounds = crop_ratio_bounds
-            self.greyscale = greyscale
-            self.custom_albumentation_transform = None
-
         self.use_memory = use_memory
         if self.use_memory:
             raise NotImplementedError
@@ -88,23 +78,28 @@ class GalaxyDataModule(pl.LightningDataModule):
         self.val_fraction = val_fraction
         self.test_fraction = test_fraction
 
-        logging.info('Using albumentations for augmentations')
-        self.transform_with_album()
-        # else:
-        #     logging.info('Using torchvision for augmentations')
-        #     self.transform_with_torchvision()
-
         self.prefetch_factor = prefetch_factor
         self.dataloader_timeout = 600  # seconds aka 10 mins
 
         logging.info('Num workers: {}'.format(self.num_workers))
         logging.info('Prefetch factor: {}'.format(self.prefetch_factor))
 
+
+        if custom_albumentation_transform is not None:
+            self.custom_albumentation_transform = custom_albumentation_transform
+            logging.info('Using custom albumentations transform for augmentations')
+        else:
+            self.resize_after_crop = resize_after_crop
+            self.crop_scale_bounds = crop_scale_bounds
+            self.crop_ratio_bounds = crop_ratio_bounds
+            self.greyscale = greyscale
+            self.custom_albumentation_transform = None
+
+        logging.info('Using albumentations for augmentations')
+        self.transform_with_album()
+
     def transform_with_torchvision(self):
         raise NotImplementedError('Deprecated in favor of albumentations')
-        # transforms_to_apply = default_torchvision_transforms(self.greyscale, self.resize_size, self.crop_scale_bounds, self.crop_ratio_bounds)
-        # self.transform = transforms.Compose(transforms_to_apply)
-
 
     def transform_with_album(self):
 
@@ -134,34 +129,7 @@ class GalaxyDataModule(pl.LightningDataModule):
 
     def setup(self, stage: Optional[str] = None):
 
-        if self.catalog is not None:
-            # will split the catalog into train, val, test here
-            self.train_catalog, hidden_catalog = train_test_split(
-                self.catalog, train_size=self.train_fraction, random_state=self.seed
-            )
-            self.val_catalog, self.test_catalog = train_test_split(
-                hidden_catalog, train_size=self.val_fraction/(self.val_fraction + self.test_fraction), random_state=self.seed
-            )
-            del hidden_catalog
-        else:
-            # assume you have passed pre-split catalogs
-            # (maybe not all, e.g. only a test catalog, or only train/val catalogs)
-            if stage == 'predict':
-                assert self.predict_catalog is not None
-            elif stage == 'test':
-                # only need test
-                assert self.test_catalog is not None
-            elif stage == 'fit':
-                # only need train and val
-                assert self.train_catalog is not None
-                assert self.val_catalog is not None
-            else:
-                # need all three (predict is still optional)
-                assert self.train_catalog is not None
-                assert self.val_catalog is not None
-                assert self.test_catalog is not None
-            # (could write this shorter but this is clearest)
-
+        self.specify_catalogs(stage)
 
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
@@ -198,6 +166,34 @@ class GalaxyDataModule(pl.LightningDataModule):
     def predict_dataloader(self):
         return DataLoader(self.predict_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
 
+    def specify_catalogs(self, stage):
+        if self.catalog is not None:
+            # will split the catalog into train, val, test here
+            self.train_catalog, hidden_catalog = train_test_split(
+                self.catalog, train_size=self.train_fraction, random_state=self.seed
+            )
+            self.val_catalog, self.test_catalog = train_test_split(
+                hidden_catalog, train_size=self.val_fraction/(self.val_fraction + self.test_fraction), random_state=self.seed
+            )
+            del hidden_catalog
+        else:
+            # assume you have passed pre-split catalogs
+            # (maybe not all, e.g. only a test catalog, or only train/val catalogs)
+            if stage == 'predict':
+                assert self.predict_catalog is not None
+            elif stage == 'test':
+                # only need test
+                assert self.test_catalog is not None
+            elif stage == 'fit':
+                # only need train and val
+                assert self.train_catalog is not None
+                assert self.val_catalog is not None
+            else:
+                # need all three (predict is still optional)
+                assert self.train_catalog is not None
+                assert self.val_catalog is not None
+                assert self.test_catalog is not None
+            # (could write this shorter but this is clearest)
 
 def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
     # refactored out for use elsewhere, if need exactly these transforms
