@@ -9,8 +9,10 @@ def default_transforms(
     resize_after_crop=224, 
     pytorch_greyscale=False
     ) -> typing.Dict[str, typing.Any]:
+
     if pytorch_greyscale:
         transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
+            remove_alpha=True,
             reduce_channels=True), always_apply=True)]
     else:
         transforms_to_apply = []
