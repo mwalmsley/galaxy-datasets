@@ -9,11 +9,17 @@ def default_transforms(
     resize_after_crop=224, 
     pytorch_greyscale=False
     ) -> typing.Dict[str, typing.Any]:
+
+    transforms_to_apply = [
+        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+    ]
+
     if pytorch_greyscale:
-        transforms_to_apply = [A.Lambda(name='ToGray', image=ToGray(
-            reduce_channels=True), always_apply=True)]
-    else:
-        transforms_to_apply = []
+        transforms_to_apply += [
+            A.Lambda(
+                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+            )
+        ]
 
     transforms_to_apply += [
         # A.ToFloat(),
