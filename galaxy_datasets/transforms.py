@@ -86,14 +86,17 @@ def astroaugmentation_transforms(
         )
     from albumentations.pytorch import ToTensorV2  # also required pytorch
 
+    transforms_to_apply = [
+        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+    ]
+
     if pytorch_greyscale:
-        transforms_to_apply = [
+        transforms_to_apply += [
             A.Lambda(
                 name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
             )
         ]
-    else:
-        transforms_to_apply = []
+
     transforms_to_apply += [
         A.LongestMaxSize(max_size=resize_size),
         A.ElasticTransform(
@@ -133,28 +136,29 @@ def astroaugmentation_transforms(
     return A.Compose(transforms_to_apply)
 
 
-# albumentations versuib of GrayscaleUnweighted
+# albumentations version of GrayscaleUnweighted
 class ToGray():
 
-    def __init__(self, remove_alpha=False, reduce_channels=False):
-        if remove_alpha:
-            self.forward = with_alpha_to_single_greyscale_channel
-            assert reduce_channels
-        elif reduce_channels:
-            self.forward = to_single_greyscale_channel
+    def __init__(self, reduce_channels=False):
+        self.reduce_channels = reduce_channels
+
+    def forward(self, img):
+        if self.reduce_channels:
+            return img.mean(axis=2, keepdims=True)
         else:
-            self.forward = to_triple_greyscale_channel
-            
+            return img.mean(axis=2, keepdims=True).repeat(3, axis=2)
+
     def __call__(self, image, **kwargs):
         return self.forward(image)
 
-def to_single_greyscale_channel(img):
-    return img.mean(axis=2, keepdims=True)
+class RemoveAlpha():
 
-def to_triple_greyscale_channel(img):
-    return img.mean(axis=2, keepdims=True).repeat(3, axis=2)
+    def __init__(self):
+        # some png images have fourth alpha channel with value of 255 everywhere (i.e. opaque). averaging over this adds incorrect offset
+        pass
 
-def with_alpha_to_single_greyscale_channel(img):
-    # alpha is 4th channel, always 1
-    # some pngs have this alpha channel
-    return img[:, :, :3].mean(axis=2, keepdims=True)
+    def forward(self, img):
+        return img[:, :, :3]
+
+    def __call__(self, image, **kwargs):
+        return self.forward(image)
