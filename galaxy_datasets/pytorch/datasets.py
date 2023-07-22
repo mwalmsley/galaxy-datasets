@@ -1,4 +1,4 @@
-from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, demo_rings, tidal
+from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, demo_rings, tidal, gz_cosmic_dawn
 
 from galaxy_datasets.pytorch import galaxy_dataset
 
@@ -77,6 +77,14 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
             catalog, label_cols = gz_rings(root, train, download)
+
+            super().__init__(catalog, label_cols, transform, target_transform)
+
+    class GZCosmic(galaxy_dataset.GalaxyDataset):
+        
+        def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
+
+            catalog, label_cols = gz_cosmic_dawn(root, train, download)
 
             super().__init__(catalog, label_cols, transform, target_transform)
 
