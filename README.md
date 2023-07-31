@@ -16,7 +16,8 @@ You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy
 | GZ CANDELS   | gz_candels | GZCandels | &#x2611; | &#x2611; | ~50k |
 | GZ DECaLS GZD-5 | gz_decals_5 | GZDecals5 | &#x2611; | &#x2611; | ~230k (GZD-5 only)|
 | GZ Rings | gz_rings | GZRings | &#x2612; | &#x2611; | ~93k |
-| GZ DESI  | gz_desi | GZDesi | &#x2612; | WIP | WIP |
+| GZ DESI  | gz_desi | GZDesi | &#x2612; | No (500GB) | 8.7M |
+| GZ Cosmic Dawn (HSC) | gz_cosmic_dawn | GZCosmic | &#x2612; | &#x2611; | ~48k |
 | CFHT Tidal* | tidal | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
 
 Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).

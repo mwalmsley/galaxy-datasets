@@ -1,6 +1,6 @@
 import os
 import logging
-
+from urllib.parse import urlparse
 from urllib.error import URLError
 
 # I've copy/pasted these out of torchvision so I can use their excellent download code without having to have pytorch as a dependency (for TF users)
@@ -33,10 +33,11 @@ class DatasetDownloader():
 
         # download files
         for url, md5 in self.resources:
-            filename = os.path.basename(url)
+            url_without_params = urlparse(url).path # e.g. desi/some_file.parquet
+            filename = os.path.basename(url_without_params)  # e.g. some_file.parquet
             try:
                 logging.info(f"Downloading {url}")
-                if url.endswith('.tar.gz') or url.endswith('.tar.xz') or url.endswith('.zip'):
+                if url_without_params.endswith('.tar.gz') or url_without_params.endswith('.tar.xz') or url_without_params.endswith('.zip'):
                     if self.archive_includes_subdir:
                         download_root = self.root  # archive unpacks to subdir by itself
                     else:  # need to download and extract directly into subdir
