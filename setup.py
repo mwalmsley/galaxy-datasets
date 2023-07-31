@@ -20,7 +20,12 @@ setuptools.setup(
         "Environment :: GPU :: NVIDIA CUDA"
     ],
     packages=setuptools.find_packages(),
-    python_requires=">=3.7",  # zoobot has 3.8
+    python_requires=">=3.7",  # zoobot has 3.8,
+    install_requires=[
+        'pandas',
+        'pyarrow',
+        'requests'
+    ],
     extras_require={
         # these are lower than zoobot's reqs
         'pytorch': [

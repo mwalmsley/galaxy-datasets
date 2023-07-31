@@ -336,3 +336,9 @@ cosmic_dawn_ortho_dependencies = {
 
 cosmic_dawn_ortho_questions, cosmic_dawn_ortho_label_cols = extract_questions_and_label_cols(cosmic_dawn_ortho_pairs)
 
+gz_evo_v2_label_cols = \
+    decals_all_campaigns_ortho_label_cols + \
+    gz2_ortho_label_cols + \
+    candels_ortho_label_cols + \
+    hubble_ortho_label_cols + \
+    cosmic_dawn_ortho_label_cols
