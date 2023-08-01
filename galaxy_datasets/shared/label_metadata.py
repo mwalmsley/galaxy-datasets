@@ -336,6 +336,23 @@ cosmic_dawn_ortho_dependencies = {
 
 cosmic_dawn_ortho_questions, cosmic_dawn_ortho_label_cols = extract_questions_and_label_cols(cosmic_dawn_ortho_pairs)
 
+
+cosmic_dawn_pairs = cosmic_dawn_ortho_pairs.copy()
+for question, answers in cosmic_dawn_pairs.copy().items(): # avoid modifying while looping
+    cosmic_dawn_pairs[question.replace('-cd', '')] = answers
+    del cosmic_dawn_pairs[question]  # delete the old ones
+
+cosmic_dawn_dependencies = {}
+for question, dependency in cosmic_dawn_ortho_dependencies.copy().items():
+    question_text = question.replace('-cd', '')
+    if dependency is None:
+        dependency_text = None
+    else:
+        dependency_text = dependency.replace('-cd', '')
+    cosmic_dawn_dependencies[question_text] = dependency_text 
+
+
+
 gz_evo_v2_label_cols = \
     decals_all_campaigns_ortho_label_cols + \
     gz2_ortho_label_cols + \
