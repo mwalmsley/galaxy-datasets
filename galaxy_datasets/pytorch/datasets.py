@@ -1,4 +1,4 @@
-from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, demo_rings, tidal, gz_cosmic_dawn
+from galaxy_datasets.shared import gz2, gz_candels, gz_decals_5, gz_hubble, demo_rings, tidal
 
 from galaxy_datasets.pytorch import galaxy_dataset
 
@@ -62,7 +62,7 @@ class Tidal(galaxy_dataset.GalaxyDataset):
 
 from galaxy_datasets import check_internal_urls
 if check_internal_urls.INTERNAL_URLS_EXIST:
-    from galaxy_datasets.shared import gz_desi, gz_rings
+    from galaxy_datasets.shared import gz_desi, gz_rings, gz_cosmic_dawn
 
     class GZDesi(galaxy_dataset.GalaxyDataset):
         
