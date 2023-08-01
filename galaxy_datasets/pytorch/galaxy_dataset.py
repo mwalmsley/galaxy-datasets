@@ -5,7 +5,6 @@ import numpy as np
 import pandas as pd
 from torch.utils.data import Dataset
 from PIL import Image
-import simplejpeg
 
 # not a strict requirement unless loading fits
 try:
@@ -76,11 +75,6 @@ class GalaxyDataset(Dataset):
     
         if self.transform:
             image = self.transform(image)
-            # now a CHW tensor, which torchvision wants
-            # logging.info((image.shape, torch.max(image), image.dtype, label))  #  should be 0-1 float
-        # else:
-        #     raise ValueError('Please specify a transform')
-        #     # TODO could use some kind of default transform for torch-friendly image, if needed
 
         if self.label_cols is None:
             return image
@@ -110,19 +104,27 @@ def load_img_file(loc):
 
 
 def load_jpg_file(loc):
-    with open(loc, 'rb') as f:
-        return Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
+    im = Image.open(loc, mode='r') # HWC
+    im.load()  # avoid lazy open
+    return im
+    # below works, but deprecated due to simplejpeg install issue on my M1 mac
+    # let's just keep dependencies simple...
+    # with open(loc, 'rb') as f:
+        # return Image.fromarray(decode_jpeg(f.read()))  # HWC PIL image via simplejpeg
+# def decode_jpeg(encoded_bytes):
+#     return simplejpeg.decode_jpeg(encoded_bytes, fastdct=True, fastupsample=True)
+
 
 def load_png_file(loc):
-    return Image.open(loc) # HWC
+    # TODO now duplicate with the above
+    im = Image.open(loc, mode='r') # HWC
+    im.load()  # avoid lazy open
+    return im
 
 def load_fits_file(loc):  
     x = fits.open(loc)[0].data.astype(np.float32)
     # assumes single channel - add channel dimension
     return np.expand_dims(x, axis=2)  # HWC
-
-def decode_jpeg(encoded_bytes):
-    return simplejpeg.decode_jpeg(encoded_bytes, fastdct=True, fastupsample=True)
 
 
 def get_galaxy_label(galaxy: pd.Series, label_cols: List) -> np.ndarray:
@@ -145,4 +147,5 @@ if __name__ == '__main__':
     dataset = GalaxyDataset(catalog=df)
     for im in dataset:
         im = np.array(im)  # returns PIL.Image, if not given label_cols or transform
-        print(im.shape, im.mean(), im.min(), im.max())
+        print(im.shape)
+        print(im.mean(), im.min(), im.max())
