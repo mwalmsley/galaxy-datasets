@@ -154,3 +154,6 @@ data/hidden_data/*
 
 *.DS_Store
 .vscode
+
+
+roots
