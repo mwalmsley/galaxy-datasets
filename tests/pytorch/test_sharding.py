@@ -51,8 +51,8 @@ def write_shards(write_dir):
 
 
 class CustomDataset(StreamingDataset):
-    def __init__(self, local, remote):
-        super().__init__(local=local, remote=remote)
+    def __init__(self, local, remote, **kwargs):
+        super().__init__(local=local, remote=remote, **kwargs)
 
     def __getitem__(self, idx: int):
         sample = super().__getitem__(idx)
@@ -62,24 +62,28 @@ class CustomDataset(StreamingDataset):
         return sample
 
 
-def read_shards(shard_dir):
+def read_shards(shard_dir, seed):
     
     local = '/tmp/cache'
     remote = shard_dir
 
-    streaming_dataset = CustomDataset(local, remote)
+    # https://docs.mosaicml.com/projects/streaming/en/latest/fundamentals/shuffling.html
+    # all defaults, but I checked they make sense for me
+    streaming_dataset = CustomDataset(local, remote, batching_method='random', sampling_method='balanced', shuffle_algo='py1s', shuffle_seed=seed)
 
     dataloader = DataLoader(dataset=streaming_dataset, batch_size=16, num_workers=6)        
 
     for batch in dataloader:
          print(batch['id_str'])
-         print(batch['label_cols'])
+         print(batch['label_cols'][0])
          print(batch['img'].shape)
          break
 
 
 if __name__ == '__main__':
+        
+        seed = 42
 
         shard_dir = '/home/walml/repos/galaxy-datasets/roots/sharded/gz2'
         # write_shards(shard_dir)
-        read_shards(shard_dir)
+        read_shards(shard_dir, seed)
