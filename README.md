@@ -6,8 +6,6 @@ ML-friendly datasets for major Galaxy Zoo citizen science campaigns.
 - TensorFlow tf.data.Dataset's
 - Framework-independent (i.e. TensorFlow-friendly) download and augmentation code
 
-You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy_mnist) as a simple dataset for teaching/debugging.
- 
 
 | Name      | Method | PyTorch Dataset | Published | Downloadable | Galaxies
 | ----------- | ----- | ----------- | --- | ---- | ---- |
@@ -16,13 +14,22 @@ You may also be interested in [Galaxy MNIST](https://github.com/mwalmsley/galaxy
 | GZ CANDELS   | gz_candels | GZCandels | &#x2611; | &#x2611; | ~50k |
 | GZ DECaLS GZD-5 | gz_decals_5 | GZDecals5 | &#x2611; | &#x2611; | ~230k (GZD-5 only)|
 | GZ Rings | gz_rings | GZRings | &#x2612; | &#x2611; | ~93k |
-| GZ DESI  | gz_desi | GZDesi | &#x2612; | No (500GB) | 8.7M |
+| GZ DESI  | gz_desi | GZDesi | &#x2611;| No (500GB) | 8.7M |
 | GZ Cosmic Dawn (HSC) | gz_cosmic_dawn | GZCosmic | &#x2612; | &#x2611; | ~48k |
 | CFHT Tidal* | tidal | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
 
 Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).
 
 For each dataset, you must cite/acknowledge the GZ data release paper and the original telescope survey from which the images were derived. See [data.galaxyzoo.org](data.galaxyzoo.org) for the data release paper citations to use.
+
+We also include small debugging datasets:
+
+| Name      | Method | PyTorch Dataset | Downloadable | Galaxies
+| ----------- | ----- | ----------- |  ---- | ---- |
+| Demo Rings (binary) | demo_rings | DemoRings |  &#x2612; | 1000 |
+| Galaxy MNIST (four-class)| galaxy_mnist | GalaxyMNIST |  &#x2612; | 10k  |
+
+Galaxy MNIST is also [available](https://github.com/mwalmsley/galaxy_mnist) as a pure torchvision dataset (exactly like MNIST).
 
 *GZ Hubble is also available in "euclidised" form (i.e. with the Euclid PSF applied) to Euclid collaboration members. The method is `gz_hubble_euclidised`. Courtesy of Ben Aussel.
 
