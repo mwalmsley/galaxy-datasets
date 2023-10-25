@@ -353,9 +353,29 @@ for question, dependency in cosmic_dawn_ortho_dependencies.copy().items():
 
 
 
-gz_evo_v2_label_cols = \
-    decals_all_campaigns_ortho_label_cols + \
-    gz2_ortho_label_cols + \
-    candels_ortho_label_cols + \
-    hubble_ortho_label_cols + \
-    cosmic_dawn_ortho_label_cols
+def get_gz_evo_v1_metadata():
+
+    question_answer_pairs = {}
+    question_answer_pairs.update(decals_all_campaigns_ortho_pairs)
+    question_answer_pairs.update(gz2_ortho_pairs)
+    question_answer_pairs.update(candels_ortho_pairs)
+    question_answer_pairs.update(hubble_ortho_pairs)
+    question_answer_pairs.update(cosmic_dawn_ortho_pairs)
+
+    dependencies = {}
+    dependencies.update(decals_ortho_dependencies)
+    dependencies.update(gz2_ortho_dependencies)
+    dependencies.update(candels_ortho_dependencies)
+    dependencies.update(hubble_ortho_dependencies)
+    dependencies.update(cosmic_dawn_ortho_dependencies)
+
+    label_cols = \
+        decals_all_campaigns_ortho_label_cols + \
+        gz2_ortho_label_cols + \
+        candels_ortho_label_cols + \
+        hubble_ortho_label_cols + \
+        cosmic_dawn_ortho_label_cols
+
+    return label_cols, question_answer_pairs, dependencies
+
+gz_evo_v1_label_cols, gz_evo_v1_pairs, gz_evo_v1_dependencies = get_gz_evo_v1_metadata()
