@@ -145,6 +145,7 @@ results.txt
 *.txt
 *.tar.gz
 *.tar.xz
+*.hdf5
 
 # for auto-downloads of unpublished data
 internal_urls.py  
