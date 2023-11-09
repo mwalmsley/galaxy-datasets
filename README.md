@@ -26,8 +26,8 @@ We also include small debugging datasets:
 
 | Name      | Method | PyTorch Dataset | Downloadable | Galaxies
 | ----------- | ----- | ----------- |  ---- | ---- |
-| Demo Rings (binary) | demo_rings | DemoRings |  &#x2612; | 1000 |
-| Galaxy MNIST (four-class)| galaxy_mnist | GalaxyMNIST |  &#x2612; | 10k  |
+| Demo Rings (binary) | demo_rings | DemoRings |  &#x2611; | 1000 |
+| Galaxy MNIST (four-class)| galaxy_mnist | GalaxyMNIST |  &#x2611; | 10k  |
 
 Galaxy MNIST is also [available](https://github.com/mwalmsley/galaxy_mnist) as a pure torchvision dataset (exactly like MNIST).
 
