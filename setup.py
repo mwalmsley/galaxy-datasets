@@ -4,7 +4,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
-    name="galaxy-datasets",
+    name="galaxy_datasets",
     version="0.0.15",
     author="Mike Walmsley",
     author_email="walmsleymk1@gmail.com",
