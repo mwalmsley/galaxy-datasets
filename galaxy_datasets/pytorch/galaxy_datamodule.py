@@ -5,10 +5,10 @@ from functools import partial
 
 import numpy as np
 from sklearn.model_selection import train_test_split
-import torch
+# import torch
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
-from torchvision import transforms
+# from torchvision import transforms
 
 from galaxy_datasets.pytorch import galaxy_dataset
 from galaxy_datasets.transforms import default_transforms
@@ -194,55 +194,59 @@ class GalaxyDataModule(pl.LightningDataModule):
                 assert self.val_catalog is not None
                 assert self.test_catalog is not None
             # (could write this shorter but this is clearest)
-
-def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
-    # refactored out for use elsewhere, if need exactly these transforms
-    # assume input is 0-255 uint8 tensor
-
-    # automatically normalises from 0-255 int to 0-1 float
-    transforms_to_apply = [transforms.ToTensor()]  # dataset gives PIL image currently
-
-    if greyscale:
-        # transforms.Grayscale() adds perceptual weighting to rgb channels
-        transforms_to_apply += [GrayscaleUnweighted()]
-
-    transforms_to_apply += [
-        transforms.RandomResizedCrop(
-            size=resize_size,  # assumed square
-            scale=crop_scale_bounds,  # crop factor
-            ratio=crop_ratio_bounds,  # crop aspect ratio
-            interpolation=transforms.InterpolationMode.BILINEAR),  # new aspect ratio
-        transforms.RandomHorizontalFlip(),
-        transforms.RandomRotation(
-            degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
-    ]
-    
-    return transforms_to_apply
+            
 
 def do_transform(img, transforms_to_apply):
     return np.transpose(transforms_to_apply(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
 
+
+
+# deprecated for albumentations
+# def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
+#     # refactored out for use elsewhere, if need exactly these transforms
+#     # assume input is 0-255 uint8 tensor
+
+#     # automatically normalises from 0-255 int to 0-1 float
+#     transforms_to_apply = [transforms.ToTensor()]  # dataset gives PIL image currently
+
+#     if greyscale:
+#         # transforms.Grayscale() adds perceptual weighting to rgb channels
+#         transforms_to_apply += [GrayscaleUnweighted()]
+
+#     transforms_to_apply += [
+#         transforms.RandomResizedCrop(
+#             size=resize_size,  # assumed square
+#             scale=crop_scale_bounds,  # crop factor
+#             ratio=crop_ratio_bounds,  # crop aspect ratio
+#             interpolation=transforms.InterpolationMode.BILINEAR),  # new aspect ratio
+#         transforms.RandomHorizontalFlip(),
+#         transforms.RandomRotation(
+#             degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
+#     ]
+    
+#     return transforms_to_apply
+
 # torchvision
-class GrayscaleUnweighted(torch.nn.Module):
+# class GrayscaleUnweighted(torch.nn.Module):
 
-    def __init__(self, num_output_channels=1):
-        super().__init__()
-        self.num_output_channels = num_output_channels
+#     def __init__(self, num_output_channels=1):
+#         super().__init__()
+#         self.num_output_channels = num_output_channels
 
-    def forward(self, img):
-        """
-        PyTorch (and tensorflow) does greyscale conversion as a *weighted* mean by default (as colours have different perceptual brightnesses).
-        Here, do a simple mean.
-        Args:
-            img (Tensor): Image to be converted to grayscale.
+#     def forward(self, img):
+#         """
+#         PyTorch (and tensorflow) does greyscale conversion as a *weighted* mean by default (as colours have different perceptual brightnesses).
+#         Here, do a simple mean.
+#         Args:
+#             img (Tensor): Image to be converted to grayscale.
 
-        Returns:
-            Tensor: Grayscaled image.
-        """
-        # https://pytorch.org/docs/stable/generated/torch.mean.html
-        return img.mean(dim=-3, keepdim=True)  # (..., C, H, W) convention
+#         Returns:
+#             Tensor: Grayscaled image.
+#         """
+#         # https://pytorch.org/docs/stable/generated/torch.mean.html
+#         return img.mean(dim=-3, keepdim=True)  # (..., C, H, W) convention
 
-    def __repr__(self):
-        return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
+#     def __repr__(self):
+#         return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)
 
 
