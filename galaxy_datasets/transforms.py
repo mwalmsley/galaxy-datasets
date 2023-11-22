@@ -40,6 +40,34 @@ def default_transforms(
     return A.Compose(transforms_to_apply)
 
 
+def minimal_transforms(
+    resize_after_crop=224, 
+    pytorch_greyscale=False
+    ) -> typing.Dict[str, typing.Any]:
+    # for testing how much augmentations slow training / picking CPU to allocate
+
+    transforms_to_apply = [
+        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+    ]
+
+    if pytorch_greyscale:
+        transforms_to_apply += [
+            A.Lambda(
+                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+            )
+        ]
+
+    transforms_to_apply += [
+        A.CenterCrop(
+            height=resize_after_crop,
+            width=resize_after_crop,
+            always_apply=True
+        )
+    ]
+
+    return A.Compose(transforms_to_apply)
+
+
 def astroaugmentation_transforms(
     resize_size: int,
     shift_limit: float,
