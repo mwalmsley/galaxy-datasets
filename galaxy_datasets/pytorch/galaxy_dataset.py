@@ -85,7 +85,6 @@ class GalaxyDataset(Dataset):
             if self.target_transform:
                 label = self.target_transform(label)
 
-            
             return image, label
 
 def load_img_file(loc):

@@ -10,16 +10,7 @@ def default_transforms(
     pytorch_greyscale=False
     ) -> typing.Dict[str, typing.Any]:
 
-    transforms_to_apply = [
-        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
-    ]
-
-    if pytorch_greyscale:
-        transforms_to_apply += [
-            A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
-            )
-        ]
+    transforms_to_apply = base_transforms(pytorch_greyscale)
 
     transforms_to_apply += [
         # A.ToFloat(),
@@ -45,18 +36,7 @@ def minimal_transforms(
     pytorch_greyscale=False
     ) -> typing.Dict[str, typing.Any]:
     # for testing how much augmentations slow training / picking CPU to allocate
-
-    transforms_to_apply = [
-        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
-    ]
-
-    if pytorch_greyscale:
-        transforms_to_apply += [
-            A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
-            )
-        ]
-
+    transforms_to_apply = base_transforms(pytorch_greyscale)
     transforms_to_apply += [
         A.CenterCrop(
             height=resize_after_crop,
@@ -64,8 +44,45 @@ def minimal_transforms(
             always_apply=True
         )
     ]
-
     return A.Compose(transforms_to_apply)
+
+
+def fast_transforms(
+    pytorch_greyscale=False,
+    resize_after_crop=224
+    ):
+    # middle ground between default and minimal transforms
+    # faster than default because we avoid interpolation
+    # better than minimal because we have some rotation/flip, and use random (non-central) crop
+    # should only be used for proper training if you already resize the images
+    # such that the resize_after_crop FoV makes sense (as this is just cropping)
+    # for 0.75x=224, x=300, so save at 300x300 pixels!
+    assert resize_after_crop == 224  # check user isn't attempting to change this
+    transforms_to_apply = base_transforms(pytorch_greyscale)
+    transforms_to_apply += [
+    #     A.RandomCrop(
+    #         height=resize_after_crop,
+    #         width=resize_after_crop,
+    #         always_apply=True
+    #     ),
+        A.Flip(),
+        A.RandomRotate90()
+    ]
+    return A.Compose(transforms_to_apply)
+
+
+def base_transforms(pytorch_greyscale):
+    transforms_to_apply = [
+        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+    ]
+    if pytorch_greyscale:
+        transforms_to_apply += [
+            A.Lambda(
+                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+            )
+        ]
+        
+    return transforms_to_apply
 
 
 def astroaugmentation_transforms(
