@@ -55,12 +55,15 @@ class DatasetDownloader():
     def _check_exists(self) -> bool:
         # takes a few seconds for the image .zip
         logging.info('Checking integrity of resources')
-        resources_downloaded = all([
+        integrity_by_resource = [
             check_integrity(
-                os.path.join(self.root, os.path.basename(res)),
-                md5
-            )
-            for res, md5 in self.resources])
+                os.path.join(self.root, res_to_basename(res)),
+                md5)
+            for res, md5 in self.resources]
+        # print([os.path.join(self.root, res_to_basename(res)) for res, _ in self.resources])
+        # print(self.resources)
+        # print(integrity_by_resource)
+        resources_downloaded = all(integrity_by_resource)
         logging.info('Resources downloaded: {}'.format(resources_downloaded))
 
         images_unpacked = all([
@@ -71,3 +74,6 @@ class DatasetDownloader():
 
         return resources_downloaded & images_unpacked
 
+def res_to_basename(res):
+    # e.g. /home/walml/repos/galaxy-datasets/roots/gz_ukidss_debug/ukidss_train_catalog.parquet?rlkey=3zsnbhvf97q5polfwmsr8lhsm&dl=0
+    return os.path.basename(res.split('?')[0])
