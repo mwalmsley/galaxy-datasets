@@ -336,21 +336,30 @@ cosmic_dawn_ortho_dependencies = {
 
 cosmic_dawn_ortho_questions, cosmic_dawn_ortho_label_cols = extract_questions_and_label_cols(cosmic_dawn_ortho_pairs)
 
+def change_suffix(old_pairs, old_dependancies, old_suffix, new_suffix):
+    pairs = old_pairs.copy()
+    dependencies = {}
 
-cosmic_dawn_pairs = cosmic_dawn_ortho_pairs.copy()
-for question, answers in cosmic_dawn_pairs.copy().items(): # avoid modifying while looping
-    cosmic_dawn_pairs[question.replace('-cd', '')] = answers
-    del cosmic_dawn_pairs[question]  # delete the old ones
+    for question, answers in pairs.copy().items(): # avoid modifying while looping
+        pairs[question.replace(old_suffix, new_suffix)] = answers
+        del pairs[question]  # delete the old ones
 
-cosmic_dawn_dependencies = {}
-for question, dependency in cosmic_dawn_ortho_dependencies.copy().items():
-    question_text = question.replace('-cd', '')
-    if dependency is None:
-        dependency_text = None
-    else:
-        dependency_text = dependency.replace('-cd', '')
-    cosmic_dawn_dependencies[question_text] = dependency_text 
+    for question, dependency in old_dependancies.copy().items():
+        question_text = question.replace(old_suffix, new_suffix)
+        if dependency is None:
+            dependency_text = None
+        else:
+            dependency_text = dependency.replace(old_suffix, new_suffix)
+        dependencies[question_text] = dependency_text 
 
+    return pairs, dependencies
+
+
+cosmic_dawn_pairs, cosmic_dawn_dependencies = change_suffix(cosmic_dawn_ortho_pairs, cosmic_dawn_ortho_dependencies, old_suffix='-cd', new_suffix='')
+
+# jwst is exactly the same except with -jwst instead of -cd
+# (has diffraction spikes under rare features, but we don't train on that anyway)
+jwst_ortho_pairs, jwst_ortho_dependencies = change_suffix(cosmic_dawn_ortho_pairs, cosmic_dawn_ortho_dependencies, old_suffix='-cd', new_suffix='-jwst')
 
 
 def get_gz_evo_v1_metadata():

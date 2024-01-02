@@ -8,7 +8,7 @@ def default_transforms(
     crop_ratio_bounds=(0.9, 1.1),
     resize_after_crop=224, 
     pytorch_greyscale=False
-    ) -> typing.Dict[str, typing.Any]:
+    ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
 
@@ -34,7 +34,7 @@ def default_transforms(
 def minimal_transforms(
     resize_after_crop=224, 
     pytorch_greyscale=False
-    ) -> typing.Dict[str, typing.Any]:
+    ) -> A.Compose:
     # for testing how much augmentations slow training / picking CPU to allocate
     transforms_to_apply = base_transforms(pytorch_greyscale)
     transforms_to_apply += [
@@ -98,7 +98,7 @@ def astroaugmentation_transforms(
     channelwise_dropout_min_length=10,
     channelwise_dropout_max_holes=100,
     pytorch_greyscale=False,
-) -> typing.Dict[str, typing.Any]:
+) -> A.Compose:
     """
     Astrophysically-inspired image transforms from AstroAugmentations (Bowles in prep.)
     Intended to mimic common distortions to optical telescope images.
@@ -125,11 +125,11 @@ def astroaugmentation_transforms(
         pytorch_greyscale (bool, optional): _description_. Defaults to False.
 
     Returns:
-        typing.Dict[str, typing.Any]: _description_
+        A.Compose: _description_
     """
     # wrapped in Try/Except to avoid making AstroAugmentations a package requirement for only this optional transform
     try:
-        from AstroAugmentations import image_domain
+        from AstroAugmentations import image_domain  # type: ignore
     except ImportError:
         raise ImportError(
             'Trying to use astroaugmentation_transforms but AstroAugmentations is not installed\n \
@@ -173,8 +173,8 @@ def astroaugmentation_transforms(
         ),
         A.ShiftScaleRotate(
             shift_limit=shift_limit,
-            scale_limit=(0, scale_limit),
-            rotate_limit=rotate_limit,
+            scale_limit=(0, scale_limit), # type: ignore
+            rotate_limit=rotate_limit, # type: ignore
             interpolation=2,
             border_mode=0,
             p=1,

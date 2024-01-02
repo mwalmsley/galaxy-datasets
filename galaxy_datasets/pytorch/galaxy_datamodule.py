@@ -1,8 +1,9 @@
 
-from typing import Optional
+from typing import Optional, Union
 import logging
 from functools import partial
 
+import pandas as pd
 import numpy as np
 from sklearn.model_selection import train_test_split
 # import torch
@@ -28,10 +29,10 @@ class GalaxyDataModule(pl.LightningDataModule):
         val_fraction=0.1,
         test_fraction=0.2,
         # provide train/val/test catalogs for your own previous split
-        train_catalog=None,
-        val_catalog=None,
-        test_catalog=None,
-        predict_catalog=None,
+        train_catalog: Optional[pd.DataFrame]=None,
+        val_catalog: Optional[pd.DataFrame]=None,
+        test_catalog: Optional[pd.DataFrame]=None,
+        predict_catalog: Optional[pd.DataFrame]=None,
         # augmentation params (sensible supervised defaults)
         greyscale=True,
         # album=False,  # now True always
@@ -39,6 +40,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         crop_ratio_bounds=(0.9, 1.1),
         resize_after_crop=224,
         custom_albumentation_transform=None,  # will override the settings above
+        custom_torchvision_transform=None,
         # hardware params
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
@@ -55,6 +57,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         else:  # catalog not provided, must provide explicit split catalogs - at least one
             assert (train_catalog is not None) or (val_catalog is not None) or (test_catalog is not None) or (predict_catalog is not None)
             # see setup() for how having only some explicit catalogs is handled
+            
 
         self.label_cols = label_cols
 
@@ -85,28 +88,30 @@ class GalaxyDataModule(pl.LightningDataModule):
         logging.info('Prefetch factor: {}'.format(self.prefetch_factor))
 
 
-        if custom_albumentation_transform is not None:
-            self.custom_albumentation_transform = custom_albumentation_transform
-            logging.info('Using custom albumentations transform for augmentations')
-        else:
-            self.resize_after_crop = resize_after_crop
-            self.crop_scale_bounds = crop_scale_bounds
-            self.crop_ratio_bounds = crop_ratio_bounds
-            self.greyscale = greyscale
-            self.custom_albumentation_transform = None
+        self.custom_albumentation_transform = custom_albumentation_transform
+        self.custom_torchvision_transform = custom_torchvision_transform
+        self.resize_after_crop = resize_after_crop
+        self.crop_scale_bounds = crop_scale_bounds
+        self.crop_ratio_bounds = crop_ratio_bounds
+        self.greyscale = greyscale
 
-        logging.info('Using albumentations for augmentations')
-        self.transform_with_album()
+        if custom_torchvision_transform is not None:
+            logging.info('Using custom torchvision transform for augmentations')
+            self.transform_with_torchvision()
+        else:
+            logging.info('Using albumentations transform for augmentations')
+            self.transform_with_albumentations()
 
     def transform_with_torchvision(self):
-        raise NotImplementedError('Deprecated in favor of albumentations')
+        self.transform = self.custom_torchvision_transform  # no need for partial etc
 
-    def transform_with_album(self):
-
+    def transform_with_albumentations(self):
         if self.custom_albumentation_transform is not None:
-            # should be a Compose() object, TODO assert
+            import albumentations as A
+            assert isinstance(self.custom_albumentation_transform, A.Compose)
             transforms_to_apply = self.custom_albumentation_transform
         else:
+            logging.info('Using basic albumentations transforms for augmentations')
             # gives a transforms = Compose() object
             transforms_to_apply = default_transforms(
                 crop_scale_bounds=self.crop_scale_bounds,
