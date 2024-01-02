@@ -178,7 +178,6 @@ gz2_ortho_dependencies = {
     'something-odd-gz2': None  # actually neglects the artifact branch
 }
 
-
 """
 Galaxy Zoo Rings (GZ Rings)
 """
@@ -360,6 +359,40 @@ cosmic_dawn_pairs, cosmic_dawn_dependencies = change_suffix(cosmic_dawn_ortho_pa
 # jwst is exactly the same except with -jwst instead of -cd
 # (has diffraction spikes under rare features, but we don't train on that anyway)
 jwst_ortho_pairs, jwst_ortho_dependencies = change_suffix(cosmic_dawn_ortho_pairs, cosmic_dawn_ortho_dependencies, old_suffix='-cd', new_suffix='-jwst')
+"""
+UKIDSS (almost the same as GZ2)
+
+"""
+
+ukidss_ortho_pairs = {
+    'smooth-or-featured-ukidss': ['_smooth', '_featured-or-disk', '_artifact'],
+    'disk-edge-on-ukidss': ['_yes', '_no'],
+    'has-spiral-arms-ukidss': ['_yes', '_no'],
+    'bar-ukidss': ['_yes', '_no'],
+    'bulge-size-ukidss': ['_dominant', '_obvious', '_just-noticeable', '_no'],
+    'something-odd-ukidss': ['_yes', '_no'],
+    'how-rounded-ukidss': ['_round', '_in-between', '_cigar'],
+    'bulge-shape-ukidss': ['_round', '_boxy', '_no-bulge'],
+    'spiral-winding-ukidss': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count-ukidss': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell']
+}
+ukidss_ortho_questions, ukidss_ortho_label_cols = extract_questions_and_label_cols(ukidss_ortho_pairs)
+
+ukidss_ortho_dependencies = {
+    'smooth-or-featured-ukidss': None,  # always asked
+    'disk-edge-on-ukidss': 'smooth-or-featured-ukidss_featured-or-disk',
+    'has-spiral-arms-ukidss': 'smooth-or-featured-ukidss_featured-or-disk',
+    'bar-ukidss': 'smooth-or-featured-ukidss_featured-or-disk',
+    'bulge-size-ukidss': 'smooth-or-featured-ukidss_featured-or-disk',
+    'how-rounded-ukidss': 'smooth-or-featured-ukidss_smooth',
+    'bulge-shape-ukidss': 'disk-edge-on-ukidss_yes',  # ukidss only
+    'edge-on-bulge-ukidss': 'disk-edge-on-ukidss_yes',
+    'spiral-winding-ukidss': 'has-spiral-arms-ukidss_yes',
+    'spiral-arm-count-ukidss': 'has-spiral-arms-ukidss_yes',
+    'something-odd-ukidss': None  # actually neglects the artifact branch
+}
+
+
 
 
 def get_gz_evo_v1_metadata():
@@ -388,3 +421,35 @@ def get_gz_evo_v1_metadata():
     return label_cols, question_answer_pairs, dependencies
 
 gz_evo_v1_label_cols, gz_evo_v1_pairs, gz_evo_v1_dependencies = get_gz_evo_v1_metadata()
+
+
+jwst_ortho_pairs = {
+    'smooth-or-featured-jwst': ['_smooth', '_featured-or-disk', '_star-artifact-zoom'],
+    'disk-edge-on-jwst': ['_yes', '_no'],
+    'has-spiral-arms-jwst': ['_yes', '_no'],
+    'bar-jwst': ['_strong', '_weak', '_no'],
+    'bulge-size-jwst': ['_dominant', '_large', '_moderate', '_small', '_none'],
+    'how-rounded-jwst': ['_round', '_in-between', '_cigar-shaped'],
+    'edge-on-bulge-jwst': ['_boxy', '_none', '_rounded'],
+    'spiral-winding-jwst': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count-jwst': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell'],
+    'clumps-jwst': ['_yes', '_no'],
+    'merging-jwst': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
+    'problem-jwst': ['_star', '_artifact', '_bad-zoom']
+}
+jwst_ortho_questions, jwst_ortho_label_cols = extract_questions_and_label_cols(jwst_ortho_pairs)
+
+jwst_ortho_dependencies = {
+    'smooth-or-featured-jwst': None,  # always asked
+    'disk-edge-on-jwst': 'smooth-or-featured-jwst_featured-or-disk',
+    'has-spiral-arms-jwst': 'disk-edge-on-jwst_no',
+    'bar-jwst': 'disk-edge-on-jwst_no',
+    'bulge-size-jwst': 'disk-edge-on-jwst_no',
+    'how-rounded-jwst': 'smooth-or-featured-jwst_smooth',
+    'edge-on-bulge-jwst': 'disk-edge-on-jwst_yes',
+    'spiral-winding-jwst': 'has-spiral-arms-jwst_yes',
+    'spiral-arm-count-jwst': 'has-spiral-arms-jwst_yes', # bad naming...
+    'merging-jwst': None,  # ignores artifact,
+    'clumps-jwst': None,  # ignores artifact
+    'problem-jwst': 'smooth-or-featured-jwst_star-artifact-zoom'
+}
