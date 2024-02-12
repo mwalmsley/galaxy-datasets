@@ -1,5 +1,5 @@
 import typing
-
+import numpy as np
 import albumentations as A
 
 
@@ -72,17 +72,17 @@ def fast_transforms(
 
 
 def base_transforms(pytorch_greyscale):
-    transforms_to_apply = [
-        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
-    ]
     if pytorch_greyscale:
-        transforms_to_apply += [
+        return [
             A.Lambda(
                 name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
             )
         ]
+    else:
+       return [
+            A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+        ]
         
-    return transforms_to_apply
 
 
 def astroaugmentation_transforms(
@@ -194,6 +194,9 @@ class ToGray():
         self.reduce_channels = reduce_channels
 
     def forward(self, img):
+        if len(img.shape) == 2:  # saved to disk as greyscale already, with no channel
+            img = np.expand_dims(img, axis=2) # add channel=1 dimension
+        # print(img.shape)
         if self.reduce_channels:
             return img.mean(axis=2, keepdims=True)
         else:
