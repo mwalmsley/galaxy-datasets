@@ -7,7 +7,8 @@ def default_transforms(
     crop_scale_bounds=(0.7, 0.8),
     crop_ratio_bounds=(0.9, 1.1),
     resize_after_crop=224, 
-    pytorch_greyscale=False
+    pytorch_greyscale=False,
+    to_float=True  # later zoobot checkpoints expect 0-1 float, not 0-255 float
     ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
@@ -25,8 +26,10 @@ def default_transforms(
             interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
             always_apply=True
         ),  # new aspect ratio
-        A.VerticalFlip(p=0.5),
+        A.VerticalFlip(p=0.5)
     ]
+    if to_float:
+        transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
 
     return A.Compose(transforms_to_apply)
 
