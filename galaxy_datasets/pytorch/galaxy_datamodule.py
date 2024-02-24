@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 # import torch
 from torch.utils.data import DataLoader
 import pytorch_lightning as pl
-# from torchvision import transforms
+from torchvision.transforms import v2 as T
 
 from galaxy_datasets.pytorch import galaxy_dataset
 from galaxy_datasets.transforms import default_transforms
@@ -103,7 +103,12 @@ class GalaxyDataModule(pl.LightningDataModule):
             self.transform_with_albumentations()
 
     def transform_with_torchvision(self):
-        self.transform = self.custom_torchvision_transform  # no need for partial etc
+        # galaxy_dataset loads PIL images for now
+        # need to add a torchvision.transforms.PILToTensor to whatever transforms were passed in
+        self.transform = T.Compose([
+            T.PILToTensor(),
+            self.custom_torchvision_transform
+        ])
 
     def transform_with_albumentations(self):
         if self.custom_albumentation_transform is not None:
@@ -160,7 +165,7 @@ class GalaxyDataModule(pl.LightningDataModule):
             )
 
     def train_dataloader(self):
-        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
+        return DataLoader(self.train_dataset, batch_size=self.batch_size, shuffle=True, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout, drop_last=True)
 
     def val_dataloader(self):
         return DataLoader(self.val_dataset, batch_size=self.batch_size, shuffle=False, num_workers=self.num_workers, pin_memory=True, persistent_workers=self.num_workers > 0, prefetch_factor=self.prefetch_factor, timeout=self.dataloader_timeout)
