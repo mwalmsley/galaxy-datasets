@@ -81,8 +81,13 @@ class GalaxyDataModule(pl.LightningDataModule):
         self.val_fraction = val_fraction
         self.test_fraction = test_fraction
 
-        self.prefetch_factor = prefetch_factor
-        self.dataloader_timeout = 600  # seconds aka 10 mins
+        if self.num_workers == 0:
+            logging.warning('num_workers=0, setting prefetch=None and timeout=0 as no multiprocessing')
+            self.prefetch_factor = None
+            self.dataloader_timeout = 0
+        else:
+            self.prefetch_factor = prefetch_factor
+            self.dataloader_timeout = 600  # seconds aka 10 mins
 
         logging.info('Num workers: {}'.format(self.num_workers))
         logging.info('Prefetch factor: {}'.format(self.prefetch_factor))
