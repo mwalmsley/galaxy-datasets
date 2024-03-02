@@ -39,8 +39,8 @@ class GalaxyDataModule(pl.LightningDataModule):
         crop_scale_bounds=(0.7, 0.8),
         crop_ratio_bounds=(0.9, 1.1),
         resize_after_crop=224,
-        custom_albumentation_transform=None,  # will override the settings above
-        custom_torchvision_transform=None,
+        custom_albumentation_transform=None,  # will override the settings above. If tuple, assume (train, test) transforms
+        custom_torchvision_transform=None,  # similarly
         # hardware params
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
@@ -103,13 +103,28 @@ class GalaxyDataModule(pl.LightningDataModule):
             self.transform_with_albumentations()
 
     def transform_with_torchvision(self):
-        self.transform = self.custom_torchvision_transform  # no need for partial etc
+        if isinstance(self.custom_torchvision_transform, tuple):
+            logging.info('Using different torchvision transforms for train and test')
+            assert len(self.custom_torchvision_transform) == 2
+            self.train_transform = self.custom_torchvision_transform[0]
+            self.test_transform = self.custom_torchvision_transform[1]
+        else:
+            self.train_transform = self.custom_torchvision_transform
+            self.test_transform = self.custom_torchvision_transform
 
     def transform_with_albumentations(self):
+        import albumentations as A
         if self.custom_albumentation_transform is not None:
-            import albumentations as A
-            assert isinstance(self.custom_albumentation_transform, A.Compose)
-            transforms_to_apply = self.custom_albumentation_transform
+            if isinstance(self.custom_albumentation_transform, tuple):
+                logging.info('Using different albumentations transforms for train and test')
+                assert len(self.custom_albumentation_transform) == 2
+                assert isinstance(self.custom_albumentation_transform[0], A.Compose)
+                self.train_transform = partial(do_transform, transforms_to_apply=self.custom_albumentation_transform[0])
+                self.test_transform = partial(do_transform, transforms_to_apply=self.custom_albumentation_transform[1])
+            else:
+                logging.info('Using the same custom albumentations transforms for train and test')
+                self.train_transform = partial(do_transform, transforms_to_apply=self.custom_albumentation_transform)
+                self.test_transform = partial(do_transform, transforms_to_apply=self.custom_albumentation_transform)
         else:
             logging.info('Using basic albumentations transforms for augmentations')
             # gives a transforms = Compose() object
@@ -119,12 +134,10 @@ class GalaxyDataModule(pl.LightningDataModule):
                 resize_after_crop=self.resize_after_crop,
                 pytorch_greyscale=self.greyscale
             )
-    
-        # applies that transforms object
-        # albumentations expects np array, and returns dict keyed by "image"
-        # transpose changes from BHWC (numpy/TF style) to BCHW (torch style) 
-        # cannot use a lambda or define here because must be pickleable for multi-gpu
-        self.transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
+            self.train_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
+            self.test_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
+
+        
 
     # only called on main process
     def prepare_data(self):
@@ -140,23 +153,23 @@ class GalaxyDataModule(pl.LightningDataModule):
         # assumes dataset_class has these standard args
         if stage == "fit" or stage is None:
             self.train_dataset = galaxy_dataset.GalaxyDataset(
-                catalog=self.train_catalog, label_cols=self.label_cols, transform=self.transform
+                catalog=self.train_catalog, label_cols=self.label_cols, transform=self.train_transform
             )
             self.val_dataset = galaxy_dataset.GalaxyDataset(
-                catalog=self.val_catalog, label_cols=self.label_cols, transform=self.transform
+                catalog=self.val_catalog, label_cols=self.label_cols, transform=self.test_transform
             )
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
             self.test_dataset = galaxy_dataset.GalaxyDataset(
-                catalog=self.test_catalog, label_cols=self.label_cols, transform=self.transform
+                catalog=self.test_catalog, label_cols=self.label_cols, transform=self.test_transform
             )
 
         if stage == 'predict':  # not set up by default with stage=None, only if explicitly requested
             if self.predict_catalog is None:
                 raise ValueError('Attempting to predict, but GalaxyDataModule was init without a predict_catalog arg. init with GalaxyDataModule(predict_catalog=some_catalog, ...)')
             self.predict_dataset = galaxy_dataset.GalaxyDataset(
-                catalog=self.predict_catalog, label_cols=self.label_cols, transform=self.transform
+                catalog=self.predict_catalog, label_cols=self.label_cols, transform=self.test_transform
             )
 
     def train_dataloader(self):
@@ -202,6 +215,9 @@ class GalaxyDataModule(pl.LightningDataModule):
             
 
 def do_transform(img, transforms_to_apply):
+    # albumentations expects np array, and returns dict keyed by "image"
+    # transpose changes from BHWC (numpy/TF style) to BCHW (torch style) 
+    # cannot use a lambda or define here because must be pickleable for multi-gpu
     return np.transpose(transforms_to_apply(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
 
 
