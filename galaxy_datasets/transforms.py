@@ -1,5 +1,5 @@
 import typing
-
+import numpy as np
 import albumentations as A
 
 
@@ -7,7 +7,8 @@ def default_transforms(
     crop_scale_bounds=(0.7, 0.8),
     crop_ratio_bounds=(0.9, 1.1),
     resize_after_crop=224, 
-    pytorch_greyscale=False
+    pytorch_greyscale=False,
+    to_float=True  # later zoobot checkpoints expect 0-1 float, not 0-255 float
     ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
@@ -25,8 +26,10 @@ def default_transforms(
             interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
             always_apply=True
         ),  # new aspect ratio
-        A.VerticalFlip(p=0.5),
+        A.VerticalFlip(p=0.5)
     ]
+    if to_float:
+        transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
 
     return A.Compose(transforms_to_apply)
 
@@ -72,17 +75,17 @@ def fast_transforms(
 
 
 def base_transforms(pytorch_greyscale):
-    transforms_to_apply = [
-        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
-    ]
     if pytorch_greyscale:
-        transforms_to_apply += [
+        return [
             A.Lambda(
                 name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
             )
         ]
+    else:
+       return [
+            A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+        ]
         
-    return transforms_to_apply
 
 
 def astroaugmentation_transforms(
@@ -194,6 +197,9 @@ class ToGray():
         self.reduce_channels = reduce_channels
 
     def forward(self, img):
+        if len(img.shape) == 2:  # saved to disk as greyscale already, with no channel
+            img = np.expand_dims(img, axis=2) # add channel=1 dimension
+        # print(img.shape)
         if self.reduce_channels:
             return img.mean(axis=2, keepdims=True)
         else:

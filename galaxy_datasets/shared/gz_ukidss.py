@@ -13,8 +13,8 @@ from galaxy_datasets.shared import internal_urls
 def gz_ukidss(root, train, download):
     logging.info('Setting up gz_ukidss dataset')
     resources = [
-        (internal_urls.gz_ukidss_train_catalog, 'ad6d831db91e619799c5485d8256d2b0'),  # train catalog
-        (internal_urls.gz_ukidss_test_catalog, '72abd24972a6cbec9ab35e297b4a7b5a'),  # test catalog
+        (internal_urls.gz_ukidss_train_catalog, '8d84de1a1f33556f83470ce0c22c979b'),  # train catalog
+        (internal_urls.gz_ukidss_test_catalog, 'f64b850e941b09546df5aca84b708fb4'),  # test catalog
         (internal_urls.gz_ukidss_images, 'd4586af013b1543753346544b4703711')  # the images
     ]
     images_to_spotcheck = [
