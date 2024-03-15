@@ -13,3 +13,4 @@ if INTERNAL_URLS_EXIST:
     from galaxy_datasets.shared.gz_h2o import gz_h2o
     from galaxy_datasets.shared.gz_ukidss import gz_ukidss
     from galaxy_datasets.shared.gz_jwst import gz_jwst
+    from galaxy_datasets.shared.gz_hubble_euclidized import gz_hubble_euclidized
