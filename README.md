@@ -10,12 +10,14 @@ ML-friendly datasets for major Galaxy Zoo citizen science campaigns.
 | Name      | Method | PyTorch Dataset | Published | Downloadable | Galaxies
 | ----------- | ----- | ----------- | --- | ---- | ---- |
 | Galaxy Zoo 2 | gz2 | GZ2 | &#x2611; | &#x2611; | ~210k (main sample) |
+| GZ UKIDSS | gz_ukidss | GZUKIDSS| &#x2612; | &#x2611; | ~71k |
 | GZ Hubble*   | gz_hubble | GZHubble | &#x2611; | &#x2611; | ~106k (main sample) |
 | GZ CANDELS   | gz_candels | GZCandels | &#x2611; | &#x2611; | ~50k |
 | GZ DECaLS GZD-5 | gz_decals_5 | GZDecals5 | &#x2611; | &#x2611; | ~230k (GZD-5 only)|
 | GZ Rings | gz_rings | GZRings | &#x2612; | &#x2611; | ~93k |
 | GZ DESI  | gz_desi | GZDesi | &#x2611;| No (500GB) | 8.7M |
-| GZ Cosmic Dawn (HSC) | gz_cosmic_dawn | GZCosmic | &#x2612; | &#x2611; | ~48k |
+| GZ H2O (deep HSC) | gz_h2o | GZH2O| &#x2612; | &#x2611; | ~48k |
+| GZ JWST (CEERS) | gz_JWST | GZJWST| &#x2612; | &#x2611; | ~7k |
 | CFHT Tidal* | tidal | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
 
 Any datasets marked as downloadable but not marked as published are only downloadable internally (for development purposes).

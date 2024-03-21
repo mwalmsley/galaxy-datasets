@@ -1,5 +1,5 @@
 import typing
-
+import numpy as np
 import albumentations as A
 
 
@@ -7,19 +7,11 @@ def default_transforms(
     crop_scale_bounds=(0.7, 0.8),
     crop_ratio_bounds=(0.9, 1.1),
     resize_after_crop=224, 
-    pytorch_greyscale=False
-    ) -> typing.Dict[str, typing.Any]:
+    pytorch_greyscale=False,
+    to_float=False  # later zoobot checkpoints expect 0-1 float, not 0-255 float
+    ) -> A.Compose:
 
-    transforms_to_apply = [
-        A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
-    ]
-
-    if pytorch_greyscale:
-        transforms_to_apply += [
-            A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
-            )
-        ]
+    transforms_to_apply = base_transforms(pytorch_greyscale)
 
     transforms_to_apply += [
         # A.ToFloat(),
@@ -34,10 +26,66 @@ def default_transforms(
             interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
             always_apply=True
         ),  # new aspect ratio
-        A.VerticalFlip(p=0.5),
+        A.VerticalFlip(p=0.5)
     ]
+    if to_float:
+        transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
 
     return A.Compose(transforms_to_apply)
+
+
+def minimal_transforms(
+    resize_after_crop=224, 
+    pytorch_greyscale=False
+    ) -> A.Compose:
+    # for testing how much augmentations slow training / picking CPU to allocate
+    transforms_to_apply = base_transforms(pytorch_greyscale)
+    transforms_to_apply += [
+        A.CenterCrop(
+            height=resize_after_crop,
+            width=resize_after_crop,
+            always_apply=True
+        )
+    ]
+    return A.Compose(transforms_to_apply)
+
+
+def fast_transforms(
+    pytorch_greyscale=False,
+    resize_after_crop=224
+    ):
+    # middle ground between default and minimal transforms
+    # faster than default because we avoid interpolation
+    # better than minimal because we have some rotation/flip, and use random (non-central) crop
+    # should only be used for proper training if you already resize the images
+    # such that the resize_after_crop FoV makes sense (as this is just cropping)
+    # for 0.75x=224, x=300, so save at 300x300 pixels!
+    assert resize_after_crop == 224  # check user isn't attempting to change this
+    transforms_to_apply = base_transforms(pytorch_greyscale)
+    transforms_to_apply += [
+    #     A.RandomCrop(
+    #         height=resize_after_crop,
+    #         width=resize_after_crop,
+    #         always_apply=True
+    #     ),
+        A.Flip(),
+        A.RandomRotate90()
+    ]
+    return A.Compose(transforms_to_apply)
+
+
+def base_transforms(pytorch_greyscale):
+    if pytorch_greyscale:
+        return [
+            A.Lambda(
+                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+            )
+        ]
+    else:
+       return [
+            A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+        ]
+        
 
 
 def astroaugmentation_transforms(
@@ -53,7 +101,7 @@ def astroaugmentation_transforms(
     channelwise_dropout_min_length=10,
     channelwise_dropout_max_holes=100,
     pytorch_greyscale=False,
-) -> typing.Dict[str, typing.Any]:
+) -> A.Compose:
     """
     Astrophysically-inspired image transforms from AstroAugmentations (Bowles in prep.)
     Intended to mimic common distortions to optical telescope images.
@@ -80,11 +128,11 @@ def astroaugmentation_transforms(
         pytorch_greyscale (bool, optional): _description_. Defaults to False.
 
     Returns:
-        typing.Dict[str, typing.Any]: _description_
+        A.Compose: _description_
     """
     # wrapped in Try/Except to avoid making AstroAugmentations a package requirement for only this optional transform
     try:
-        from AstroAugmentations import image_domain
+        from AstroAugmentations import image_domain  # type: ignore
     except ImportError:
         raise ImportError(
             'Trying to use astroaugmentation_transforms but AstroAugmentations is not installed\n \
@@ -128,8 +176,8 @@ def astroaugmentation_transforms(
         ),
         A.ShiftScaleRotate(
             shift_limit=shift_limit,
-            scale_limit=(0, scale_limit),
-            rotate_limit=rotate_limit,
+            scale_limit=(0, scale_limit), # type: ignore
+            rotate_limit=rotate_limit, # type: ignore
             interpolation=2,
             border_mode=0,
             p=1,
@@ -149,6 +197,9 @@ class ToGray():
         self.reduce_channels = reduce_channels
 
     def forward(self, img):
+        if len(img.shape) == 2:  # saved to disk as greyscale already, with no channel
+            img = np.expand_dims(img, axis=2) # add channel=1 dimension
+        # print(img.shape)
         if self.reduce_channels:
             return img.mean(axis=2, keepdims=True)
         else:

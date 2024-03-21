@@ -22,7 +22,7 @@ def gz_hubble(root, train, download):
     # label_cols = [question + answer for question, answers in hubble_ortho_pairs.items() for answer in answers]  # defined below, globally in this script (for imports elsewhere)
     label_cols = label_metadata.hubble_ortho_label_cols  # see below
 
-    useful_columns = label_cols + ['filename']
+    useful_columns = label_cols + ['filename', 'ra', 'dec']
     if train:
         train_catalog_loc = os.path.join(root, 'hubble_ortho_train_catalog.parquet')
         catalog = pd.read_parquet(train_catalog_loc, columns=useful_columns)

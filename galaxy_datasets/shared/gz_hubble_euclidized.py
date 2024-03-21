@@ -27,7 +27,7 @@ def gz_hubble_euclidized(root, train, download):
 
     label_cols = label_metadata.hubble_ortho_label_cols
 
-    useful_columns = label_cols + ['filename']
+    useful_columns = label_cols + ['filename']  # this version doesn't have RA/dec like hubble sadly
     if train:
         train_catalog_loc = os.path.join(root, 'catalog_euclid_train.parquet')
         catalog = pd.read_parquet(train_catalog_loc, columns=useful_columns)
@@ -45,7 +45,7 @@ if __name__ == '__main__':
 
 
     gz_hubble_euclidized(
-        root='/nvme1/scratch/walml/repos/galaxy-datasets/roots/gz_hubble_euclidised',
+        root='/home/walml/repos/galaxy-datasets/roots/gz_hubble_euclidized',
         train=True,
         download=True
         )

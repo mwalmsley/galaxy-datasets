@@ -10,4 +10,7 @@ from galaxy_datasets.check_internal_urls import INTERNAL_URLS_EXIST
 if INTERNAL_URLS_EXIST:
     from galaxy_datasets.shared.gz_desi import gz_desi
     from galaxy_datasets.shared.gz_rings import gz_rings
-    from galaxy_datasets.shared.gz_cosmic_dawn import gz_cosmic_dawn
+    from galaxy_datasets.shared.gz_h2o import gz_h2o
+    from galaxy_datasets.shared.gz_ukidss import gz_ukidss
+    from galaxy_datasets.shared.gz_jwst import gz_jwst
+    from galaxy_datasets.shared.gz_hubble_euclidized import gz_hubble_euclidized

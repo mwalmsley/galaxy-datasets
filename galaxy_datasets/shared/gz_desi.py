@@ -24,17 +24,17 @@ Added to make GZ DESI easily downloadable, basically
 def gz_desi(root, train, download) -> Tuple[pd.DataFrame, List]:
     logging.info('Setting up gz_desi dataset')
     resources = [
-        (internal_urls.gz_desi_train_catalog, '50997398a10886dafbe556d071ffbc68'),
-        (internal_urls.gz_desi_test_catalog, '386f13daf123f439ffb8266b65eac474'),
-        (internal_urls.gz_desi_images_chunk_00, '1d52898581bfb8f08acd13fe77c69901'),
-        (internal_urls.gz_desi_images_chunk_01, 'ada3fe9a94258075bbe62d42e6550440'),
-        (internal_urls.gz_desi_images_chunk_02, 'e187ef2d77ea606244c8631599a31ca1'),
-        (internal_urls.gz_desi_images_chunk_03, '1a649787bd2ecfe3efcb1856a3627548'),
-        (internal_urls.gz_desi_images_chunk_04, 'a7734ef953f68aac7787b8ea9caf4633'),
-        (internal_urls.gz_desi_images_chunk_05, '960b25c4f6fec9967625696bbfa72d07'),
-        (internal_urls.gz_desi_images_chunk_06, 'bfa6fa0b64e49da72053b4f63468afa0'),
-        (internal_urls.gz_desi_images_chunk_07, '1c1b59cc72ef86db765f5f7189c06260'),
-        (internal_urls.gz_desi_images_chunk_08, 'abc32a75cb5eea4d425085abb6ecd6e8')
+        (internal_urls.gz_desi_train_catalog, 'edcbbe4f0adb767d26bdc5de26aa854d'),
+        (internal_urls.gz_desi_test_catalog, '95bfed06c5a00742f58171f46cb1d8c1'),
+        (internal_urls.gz_desi_images_chunk_00, '76c861762633d022603686e0794ce99c'),
+        (internal_urls.gz_desi_images_chunk_01, '844502e49d6e087b6c1f4fcfef0772c0'),
+        (internal_urls.gz_desi_images_chunk_02, 'b793771b8fc9383b616d2dc67bdfbf7e'),
+        (internal_urls.gz_desi_images_chunk_03, '003821161b4990a49d1dcb5d72d49b12'),
+        (internal_urls.gz_desi_images_chunk_04, 'aa85dec158d95edea98b31efe30231d5'),
+        (internal_urls.gz_desi_images_chunk_05, '36ed5893441a533d1d74fe480cb42cb2'),
+        (internal_urls.gz_desi_images_chunk_06, '6b84e92c7b4f1edbb372d2247ff1740a'),
+        (internal_urls.gz_desi_images_chunk_07, 'feef448b45eeb3d5edc3f44d936f386a'),
+        (internal_urls.gz_desi_images_chunk_08, 'c8be005044f94046a7080617815a3d00')
     ]
     images_to_spotcheck = []  # TODO
 

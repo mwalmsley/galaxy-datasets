@@ -70,7 +70,7 @@ class Tidal(galaxy_dataset.GalaxyDataset):
 
 from galaxy_datasets import check_internal_urls
 if check_internal_urls.INTERNAL_URLS_EXIST:
-    from galaxy_datasets.shared import gz_desi, gz_rings, gz_cosmic_dawn
+    from galaxy_datasets.shared import gz_desi, gz_rings, gz_h2o, gz_ukidss, gz_jwst
 
     class GZDesi(galaxy_dataset.GalaxyDataset):
         
@@ -88,11 +88,29 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
 
             super().__init__(catalog, label_cols, transform, target_transform)
 
-    class GZCosmic(galaxy_dataset.GalaxyDataset):
+    class GZH2O(galaxy_dataset.GalaxyDataset):
         
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
-            catalog, label_cols = gz_cosmic_dawn(root, train, download)
+            catalog, label_cols = gz_h2o(root, train, download)
+
+            super().__init__(catalog, label_cols, transform, target_transform)
+
+
+    class GZUKIDSS(galaxy_dataset.GalaxyDataset):
+        
+        def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
+
+            catalog, label_cols = gz_ukidss(root, train, download)
+
+            super().__init__(catalog, label_cols, transform, target_transform)
+
+
+    class GZJWST(galaxy_dataset.GalaxyDataset):
+        
+        def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
+
+            catalog, label_cols = gz_jwst(root, train, download)
 
             super().__init__(catalog, label_cols, transform, target_transform)
 
