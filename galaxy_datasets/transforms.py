@@ -8,7 +8,7 @@ def default_transforms(
     crop_ratio_bounds=(0.9, 1.1),
     resize_after_crop=224, 
     pytorch_greyscale=False,
-    to_float=True  # later zoobot checkpoints expect 0-1 float, not 0-255 float
+    to_float=False  # later zoobot checkpoints expect 0-1 float, not 0-255 float
     ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
