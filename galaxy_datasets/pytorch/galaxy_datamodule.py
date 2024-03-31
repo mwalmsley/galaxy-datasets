@@ -34,7 +34,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         test_catalog: Optional[pd.DataFrame]=None,
         predict_catalog: Optional[pd.DataFrame]=None,
         # augmentation params (sensible supervised defaults)
-        greyscale=True,
+        greyscale=False,
         # album=False,  # now True always
         crop_scale_bounds=(0.7, 0.8),
         crop_ratio_bounds=(0.9, 1.1),
