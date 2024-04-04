@@ -15,7 +15,7 @@ ML-friendly datasets for major Galaxy Zoo citizen science campaigns.
 | GZ CANDELS   | gz_candels | GZCandels | &#x2611; | &#x2611; | ~50k |
 | GZ DECaLS GZD-5 | gz_decals_5 | GZDecals5 | &#x2611; | &#x2611; | ~230k (GZD-5 only)|
 | GZ Rings | gz_rings | GZRings | &#x2612; | &#x2611; | ~93k |
-| GZ DESI  | gz_desi | GZDesi | &#x2611;| No (500GB) | 8.7M |
+| GZ DESI  | gz_desi | GZDesi | &#x2611;| No* (500GB) | 8.7M |
 | GZ H2O (deep HSC) | gz_h2o | GZH2O| &#x2612; | &#x2611; | ~48k |
 | GZ JWST (CEERS) | gz_JWST | GZJWST| &#x2612; | &#x2611; | ~7k |
 | CFHT Tidal* | tidal | Tidal | &#x2611; | &#x2611; | 1760 (expert) |
@@ -34,6 +34,8 @@ We also include small debugging datasets:
 Galaxy MNIST is also [available](https://github.com/mwalmsley/galaxy_mnist) as a pure torchvision dataset (exactly like MNIST).
 
 *GZ Hubble is also available in "euclidised" form (i.e. with the Euclid PSF applied) to Euclid collaboration members. The method is `gz_hubble_euclidised`. Courtesy of Ben Aussel.
+
+**Mike Smith has shared a replication of the GZ DESI images and labels on [HuggingFace](https://huggingface.co/datasets/Smith42/galaxies) (983GB)
 
 **CFHT Tidal is not a Galaxy Zoo dataset, but rather a small expert-labelled dataset of tidal features from [Atkinson 2013](https://doi.org/10.1088/0004-637X/765/1/28).
 MW reproduced and modified the images in [Walmsley 2019](https://doi.org/10.1093/mnras/sty3232). We include it here as a challenging fine-grained morphology classification task with little labelled data.
