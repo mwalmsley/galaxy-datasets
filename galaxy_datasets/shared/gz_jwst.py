@@ -26,7 +26,7 @@ def gz_jwst(root, train, download):
         downloader.download()
 
     label_cols = label_metadata.jwst_ortho_label_cols
-    useful_columns = label_cols + ['filename', 'subject_id']
+    useful_columns = label_cols + ['filename', 'subject_id', 'id_str']
     # useful_columns = None
     if train:
         train_catalog_loc = os.path.join(root, 'jwst_train_catalog.parquet')
