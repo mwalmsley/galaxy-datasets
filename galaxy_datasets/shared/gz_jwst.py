@@ -26,7 +26,7 @@ def gz_jwst(root, train, download):
         downloader.download()
 
     label_cols = label_metadata.jwst_ortho_label_cols
-    useful_columns = label_cols + ['filename']
+    useful_columns = label_cols + ['filename', 'subject_id', 'id_str']
     # useful_columns = None
     if train:
         train_catalog_loc = os.path.join(root, 'jwst_train_catalog.parquet')
@@ -35,7 +35,8 @@ def gz_jwst(root, train, download):
         test_catalog_loc = os.path.join(root, 'jwst_test_catalog.parquet')
         catalog = pd.read_parquet(test_catalog_loc, columns=useful_columns)
 
-    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, x['filename']), axis=1)
+    # slight hack as I used subject_id as the filename semi-accidentally
+    catalog['file_loc'] = catalog.apply(lambda x: os.path.join(downloader.image_dir, str(x['subject_id'])+'.jpg'), axis=1)
 
     logging.info('gz_jwst dataset ready')
     return catalog, label_cols
