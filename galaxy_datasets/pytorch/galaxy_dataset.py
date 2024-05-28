@@ -119,7 +119,6 @@ class HF_GalaxyDataset(Dataset):
     def __getitem__(self, idx: int):
         example = self.dataset[idx]
         image, label = example["image"], example["label"]
-
         if self.transform:
             image = self.transform(image)
 
@@ -144,9 +143,7 @@ def load_img_file(loc):
         )  # careful, these often need a transform to have reasonable dynamic range
     else:
         raise ValueError(
-            "File format of {} not recognised - should be jpeg|jpg (preferred) or png".format(
-                loc
-            )
+            "File format of {} not recognised - should be jpeg|jpg (preferred) or png".format(loc)
         )
 
 
