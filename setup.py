@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="galaxy-datasets",
-    version="0.0.18",
+    version="0.0.19",
     author="Mike Walmsley",
     author_email="walmsleymk1@gmail.com",
     description="Galaxy Zoo datasets for PyTorch/TensorFlow",
@@ -20,12 +20,13 @@ setuptools.setup(
         "Environment :: GPU :: NVIDIA CUDA"
     ],
     packages=setuptools.find_packages(),
-    python_requires=">=3.7",  # zoobot has 3.8,
+    python_requires=">=3.9",  # zoobot has 3.9,
     install_requires=[
         'numpy',
         'pandas',
         'pyarrow',
-        'requests'
+        'requests',
+        'datasets'  # for HF typing
     ],
     extras_require={
         # these are lower than zoobot's reqs
@@ -33,11 +34,10 @@ setuptools.setup(
             'torch >= 1.10.1',
             'torchvision >= 0.11.2',
             'torchaudio >= 0.10.1',
-            'pytorch-lightning >=1.6.5',  # 1.7 requires protobuf version incompatible with tensorflow/tensorboard. Otherwise works.
-            # 'simplejpeg',
-            'albumentations'
+            'pytorch-lightning >=2.0',
+            'albumentations'  # torchvision now preferred
         ],
-        'tensorflow': [
+        'tensorflow': [ # will be deprecated
             'tensorflow >= 2.10.0',
             'protobuf <= 3.19'  # tensorflow incompatible above this (usually resolved by pip automatically)
         ]

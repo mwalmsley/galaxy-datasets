@@ -395,32 +395,36 @@ ukidss_ortho_dependencies = {
 
 
 
-def get_gz_evo_v1_metadata():
+def get_gz_evo_v1_metadata(internal):
 
     question_answer_pairs = {}
     question_answer_pairs.update(decals_all_campaigns_ortho_pairs)
     question_answer_pairs.update(gz2_ortho_pairs)
     question_answer_pairs.update(candels_ortho_pairs)
     question_answer_pairs.update(hubble_ortho_pairs)
-    question_answer_pairs.update(cosmic_dawn_ortho_pairs)
+    if internal:
+        question_answer_pairs.update(cosmic_dawn_ortho_pairs)
 
     dependencies = {}
     dependencies.update(decals_ortho_dependencies)
     dependencies.update(gz2_ortho_dependencies)
     dependencies.update(candels_ortho_dependencies)
     dependencies.update(hubble_ortho_dependencies)
-    dependencies.update(cosmic_dawn_ortho_dependencies)
+    if internal:
+        dependencies.update(cosmic_dawn_ortho_dependencies)
 
     label_cols = \
         decals_all_campaigns_ortho_label_cols + \
         gz2_ortho_label_cols + \
         candels_ortho_label_cols + \
-        hubble_ortho_label_cols + \
-        cosmic_dawn_ortho_label_cols
+        hubble_ortho_label_cols
+    if internal:
+        label_cols += cosmic_dawn_ortho_label_cols
 
     return label_cols, question_answer_pairs, dependencies
 
-gz_evo_v1_label_cols, gz_evo_v1_pairs, gz_evo_v1_dependencies = get_gz_evo_v1_metadata()
+gz_evo_v1_label_cols, gz_evo_v1_pairs, gz_evo_v1_dependencies = get_gz_evo_v1_metadata(internal=True)
+gz_evo_v1_public_label_cols, gz_evo_v1_public_pairs, gz_evo_v1_public_dependencies = get_gz_evo_v1_metadata(internal=False)
 
 
 jwst_ortho_pairs = {
