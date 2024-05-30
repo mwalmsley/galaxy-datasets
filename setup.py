@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="galaxy-datasets",
-    version="0.0.19",
+    version="0.0.20",
     author="Mike Walmsley",
     author_email="walmsleymk1@gmail.com",
     description="Galaxy Zoo datasets for PyTorch/TensorFlow",
@@ -26,6 +26,7 @@ setuptools.setup(
         'pandas',
         'pyarrow',
         'requests',
+        'omegaconf',  # for config
         'datasets'  # for HF typing
     ],
     extras_require={
