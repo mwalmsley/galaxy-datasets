@@ -9,6 +9,7 @@ from galaxy_datasets.shared import label_metadata
 
 from galaxy_datasets.shared import download_utils
 from galaxy_datasets.check_internal_urls import INTERNAL_URLS_EXIST
+
 if not INTERNAL_URLS_EXIST:
     raise FileNotFoundError
 from galaxy_datasets.shared import internal_urls
