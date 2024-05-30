@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 
 # import torch
 from torch.utils.data import DataLoader
-from torchvision.transforms import v2 as T
+import datasets as hf_datasets
 
 from galaxy_datasets.pytorch import galaxy_dataset
 from galaxy_datasets.transforms import default_transforms
@@ -299,10 +299,11 @@ def do_transform(img, transforms_to_apply):
 
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
-class HF_GalaxyDataModule(pl.LightningDataModule):
+class HF_GalaxyDataModule(GalaxyDataModule):
     def __init__(
         self,
-        dataset,
+        dataset: hf_datasets.Dataset,
+        label_cols: list,
         train_transform,
         test_transform,
         target_transform=None,
@@ -312,12 +313,14 @@ class HF_GalaxyDataModule(pl.LightningDataModule):
         prefetch_factor=4,
         seed=42,
     ):
-        super().__init__()
+        # super().__init__()
+        pl.LightningDataModule.__init__(self)
 
         self.batch_size = batch_size
 
         self.num_workers = num_workers
         self.seed = seed
+        self.label_cols = label_cols
         self.dataset = dataset
         self.train_transform = train_transform
         self.test_transform = test_transform
@@ -336,128 +339,49 @@ class HF_GalaxyDataModule(pl.LightningDataModule):
         logging.info("Num workers: {}".format(self.num_workers))
         logging.info("Prefetch factor: {}".format(self.prefetch_factor))
 
+        # self.prepare_data_per_node = False  # run prepare_data below only on master node (and one process)
+
     # only called on main process
     def prepare_data(self):
-        pass  # could include some basic checks
+        pass
 
     # called on every gpu
-
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
         if stage == "fit" or stage is None:
-            self.train_dataset = galaxy_dataset.HF_GalaxyDataset(
-                dataset=self.dataset,
-                split="train",
-                transform=self.train_transform,
-                target_transform=self.target_transform,
-            )
             if "val" in self.dataset.keys():
-                self.val_dataset = galaxy_dataset.HF_GalaxyDataset(
-                    dataset=self.dataset,
-                    split="val",
-                    transform=self.test_transform,
-                    target_transform=self.target_transform,
-                )
+                # life is good, we have all the splits we need
+                train_dataset_hf = self.dataset['train']
+                val_dataset_hf = self.dataset['val']
             else:
-                self.val_dataset = galaxy_dataset.HF_GalaxyDataset(
-                    dataset=self.dataset,
-                    split="test",
-                    transform=self.test_transform,
-                    target_transform=self.target_transform,
-                )
+                # life is less good, we need to make a val split from train
+                # (not from test, to avoid overfitting via early stopping)
+                logging.warning('No premade validation split, creating from 20%% of train dataset')
+                train_datasetdict = self.dataset["train"].train_test_split(test_size=0.2, shuffle=True)
+                train_dataset_hf = train_datasetdict["train"]
+                val_dataset_hf = train_datasetdict['test']  # actually used as val
+                del train_datasetdict
 
-        # Assign test dataset for use in dataloader(s)
-        if stage == "test" or stage is None:
-            self.test_dataset = galaxy_dataset.HF_GalaxyDataset(
-                dataset=self.dataset,
-                split="test",
+            self.train_dataset = galaxy_dataset.HF_GalaxyDataset(
+                    dataset=train_dataset_hf,
+                    label_cols=self.label_cols,
+                    transform=self.train_transform,
+                    target_transform=self.target_transform,
+            )
+            self.val_dataset = galaxy_dataset.HF_GalaxyDataset(
+                dataset=val_dataset_hf,
+                label_cols=self.label_cols,
                 transform=self.test_transform,
                 target_transform=self.target_transform,
             )
 
-    def train_dataloader(self):
-        return DataLoader(
-            self.train_dataset,
-            batch_size=self.batch_size,
-            shuffle=True,
-            num_workers=self.num_workers,
-            pin_memory=True,
-            persistent_workers=self.num_workers > 0,
-            prefetch_factor=self.prefetch_factor,
-            timeout=self.dataloader_timeout,
-            drop_last=True,
-        )
+        # Assign test dataset for use in dataloader(s)
+        if stage == "test" or stage is None:
+            self.test_dataset = galaxy_dataset.HF_GalaxyDataset(
+                dataset=self.dataset['test'],
+                label_cols=self.label_cols,
+                transform=self.test_transform,
+                target_transform=self.target_transform,
+            )
 
-    def val_dataloader(self):
-        return DataLoader(
-            self.val_dataset,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.num_workers,
-            pin_memory=True,
-            persistent_workers=self.num_workers > 0,
-            prefetch_factor=self.prefetch_factor,
-            timeout=self.dataloader_timeout,
-        )
-
-    def test_dataloader(self):
-        return DataLoader(
-            self.test_dataset,
-            batch_size=self.batch_size,
-            shuffle=False,
-            num_workers=self.num_workers,
-            pin_memory=True,
-            persistent_workers=self.num_workers > 0,
-            prefetch_factor=self.prefetch_factor,
-            timeout=self.dataloader_timeout,
-        )
-
-
-# deprecated for albumentations
-# def default_torchvision_transforms(greyscale, resize_size, crop_scale_bounds, crop_ratio_bounds):
-#     # refactored out for use elsewhere, if need exactly these transforms
-#     # assume input is 0-255 uint8 tensor
-
-#     # automatically normalises from 0-255 int to 0-1 float
-#     transforms_to_apply = [transforms.ToTensor()]  # dataset gives PIL image currently
-
-#     if greyscale:
-#         # transforms.Grayscale() adds perceptual weighting to rgb channels
-#         transforms_to_apply += [GrayscaleUnweighted()]
-
-#     transforms_to_apply += [
-#         transforms.RandomResizedCrop(
-#             size=resize_size,  # assumed square
-#             scale=crop_scale_bounds,  # crop factor
-#             ratio=crop_ratio_bounds,  # crop aspect ratio
-#             interpolation=transforms.InterpolationMode.BILINEAR),  # new aspect ratio
-#         transforms.RandomHorizontalFlip(),
-#         transforms.RandomRotation(
-#             degrees=180., interpolation=transforms.InterpolationMode.BILINEAR)
-#     ]
-
-#     return transforms_to_apply
-
-# torchvision
-# class GrayscaleUnweighted(torch.nn.Module):
-
-#     def __init__(self, num_output_channels=1):
-#         super().__init__()
-#         self.num_output_channels = num_output_channels
-
-#     def forward(self, img):
-#         """
-#         PyTorch (and tensorflow) does greyscale conversion as a *weighted* mean by default (as colours have different perceptual brightnesses).
-#         Here, do a simple mean.
-#         Args:
-#             img (Tensor): Image to be converted to grayscale.
-
-#         Returns:
-#             Tensor: Grayscaled image.
-#         """
-#         # https://pytorch.org/docs/stable/generated/torch.mean.html
-#         return img.mean(dim=-3, keepdim=True)  # (..., C, H, W) convention
-
-#     def __repr__(self):
-#         return self.__class__.__name__ + '(num_output_channels={0})'.format(self.num_output_channels)

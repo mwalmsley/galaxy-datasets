@@ -1,6 +1,167 @@
-import typing
+import logging
+
+from omegaconf import DictConfig
+import torch
 import numpy as np
 import albumentations as A
+import torchvision.transforms.v2 as T
+import PIL
+
+
+class GalaxyViewTransform():
+    # most powerful and most general transform options
+
+    def __init__(
+        self,
+        cfg: DictConfig
+    ):
+        """
+        Transforms expect to act on channel-first tensor. 
+        Probably uint8 0-255 for speed, but not necessary.
+
+        Transforms return a channel-first float32 tensor in the range (0, 1)
+
+        Args:
+            cfg (DictConfig): options for common torchvision transforms
+        """
+        logging.info(f'Using view transform config: {cfg}')
+        
+        interpolation = interpolation_lookup(cfg.interpolation_method)
+        antialias = True
+        
+        transform = []
+        
+        # transform += [T.ToImage()]  # explicit but not needed, just tells torchvision it's an image (assumed anway)
+        # disabled for beluga
+        # 'torchvision.transforms.v2' has no attribute 'ToImage'
+        # requires 0.16.0, beluga has 0.15.2
+
+        # shear/perspective transforms happen before any cropping
+        if cfg.random_affine:  # will use this for rotation and off-center zoom/crop
+            transform.append(T.RandomAffine(
+                **cfg.random_affine, interpolation=interpolation
+            ))
+            transform.append(T.Resize(cfg.output_size, interpolation=interpolation, antialias=antialias))
+
+        else:  # maybe do perspective/crop, maybe do rotation, maybe both
+
+            if cfg.random_perspective:
+                transform.append(T.RandomPerspective(**cfg.random_perspective, interpolation=interpolation))
+                transform.append(T.CenterCrop(size=cfg.output_size))
+            else: # no affine transform, no perspective shift, so safe to apply simple center or random crops
+                if cfg.center_crop:
+                    transform.append(T.CenterCrop(
+                            size=cfg.output_size
+                        ))
+                if cfg.random_resized_crop:
+                    transform.append(T.RandomResizedCrop(
+                                size=cfg.output_size,
+                                interpolation=interpolation,
+                                antialias=antialias,
+                                **cfg.random_resized_crop  # scale only
+                            ))
+
+            if cfg.rotation_prob > 0:
+                    transform.append(T.RandomRotation(degrees=90, interpolation=interpolation, p=cfg.rotation_prob))
+
+
+        # flip and rotate. safe after any geometric transforms.
+        transform.append(T.RandomHorizontalFlip(p=cfg.flip_prob))
+        transform.append(T.RandomVerticalFlip(p=cfg.flip_prob))
+
+        if cfg.color_jitter_prob > 0.:
+            transform.append(T.RandomApply(
+                        [
+                            T.ColorJitter(
+                                **cfg.color_jitter
+                            )
+                        ],
+                        p=cfg.color_jitter_prob,
+                    ))
+
+        # ugly unpack/tuple cast because T checks for list or tuple, but mine is Omega ListConfig
+        if cfg.erase_iterations > 0:
+            for _ in range(cfg.erase_iterations):
+                scale = tuple(cfg.random_erasing.scale)
+                ratio = tuple(cfg.random_erasing.ratio)
+                transform.append(T.RandomErasing(scale=scale, ratio=ratio, p=cfg.random_erasing.p))
+                
+        if cfg.posterize:
+            transform.append(T.RandomPosterize(**cfg.posterize))
+
+        if cfg.elastic_prob > 0:
+            # see-through-water 
+            transform.append(
+                T.RandomApply([
+                    # should probably not change this 
+                    T.ElasticTransform(
+                        **cfg.elastic
+                         # alpha=magnitude i.e. how much to displace
+                         # sigma=smoothness i.e. size of the ripples. Should be about 10+ to keep a distorted galaxy with same morphology. Gets slower fast.
+                    )],
+                p=cfg.elastic_prob)
+            )
+
+
+        # if cfg.normalize:
+        #     transform.append([T.Normalize(mean=normalize["mean"], std=normalize["std"])]
+        
+        # finally, shift to 0-1 float32 before hitting model etc
+        # transform.append(T.ToDtype(torch.float32, scale=True))
+        transform.append(T.ConvertImageDtype(torch.float32)) # TEMP use this 0.15 equivalent version
+
+        self.transform = T.Compose(transform)
+
+
+    def __call__(self, image) -> torch.Tensor:
+
+        return self.transform(image)
+
+
+def default_view_config():
+    # for debugging
+     return DictConfig(dict(
+        output_size=224,
+        interpolation_method='bilinear',
+        random_affine=dict(degrees=90, translate=(0.1, 0.1), scale=(1.2, 1.4), shear=(0,20,0,20)),
+        random_perspective=False,
+        center_crop=False,
+        random_resized_crop=False,
+        flip_prob=0.5,
+        rotation_prob=0.,
+        color_jitter_prob=0.,
+        # color_jitter=dict(
+        #     brightness=.5,
+        #     contrast=.3,
+        #     saturation=.5,
+        #     hue=None
+        # ),
+        erase_iterations=5,
+        random_erasing=dict(p=1., scale=[0.002, 0.007], ratio=[0.5, 2.]),
+        posterize=False,
+        elastic_prob=0.
+        # elastic=dict(alpha=100, sigma=10.)
+    ))
+
+def minimal_view_config():
+    return DictConfig(dict(
+        output_size=224,
+        interpolation_method='bilinear',
+        # no rotation, no translate, less aggressive crop, no shear
+        random_affine=dict(degrees=0, translate=None, scale=(1.2, 1.2), shear=None),
+        random_perspective=False,
+        center_crop=False,
+        random_resized_crop=False,
+        flip_prob=0.,
+        rotation_prob=0.,
+        color_jitter_prob=0.,
+        erase_iterations=0,
+        posterize=False,
+        elastic_prob=0.
+    ))
+
+
+"""And below, the older transform options"""
 
 
 def default_transforms(
@@ -32,6 +193,7 @@ def default_transforms(
         transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
 
     return A.Compose(transforms_to_apply)
+
 
 
 def minimal_transforms(
@@ -219,3 +381,9 @@ class RemoveAlpha():
 
     def __call__(self, image, **kwargs):
         return self.forward(image)
+
+
+
+def interpolation_lookup(interpolation_str='bilinear'):
+        # PIL.Image.bilinear
+        return getattr(PIL.Image, interpolation_str.upper())

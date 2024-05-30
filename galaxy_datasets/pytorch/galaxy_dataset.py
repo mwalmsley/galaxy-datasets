@@ -5,6 +5,8 @@ import numpy as np
 import pandas as pd
 from PIL import Image
 from torch.utils.data import Dataset
+import torch
+import datasets as hf_datasets  # HuggingFace datasets
 
 # not a strict requirement unless loading fits
 try:
@@ -91,12 +93,13 @@ class GalaxyDataset(Dataset):
             return image, label
 
 
-# https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
+# https://huggingface.co/docs/datasets/en/use_with_pytorch
+# https://huggingface.co/docs/datasets/en/image_process
 class HF_GalaxyDataset(Dataset):
     def __init__(
         self,
-        dataset,
-        split,
+        dataset: hf_datasets.Dataset,  # HF Dataset
+        label_cols=['label'],
         transform=None,
         target_transform=None,
     ):
@@ -109,7 +112,8 @@ class HF_GalaxyDataset(Dataset):
             transform (callable, optional): See Pytorch Datasets. Defaults to None.
             target_transform (callable, optional): See Pytorch Datasets. Defaults to None.
         """
-        self.dataset = dataset[split]
+        self.dataset = dataset
+        self.label_cols = label_cols
         self.transform = transform
         self.target_transform = target_transform
 
@@ -117,15 +121,18 @@ class HF_GalaxyDataset(Dataset):
         return len(self.dataset)
 
     def __getitem__(self, idx: int):
-        example = self.dataset[idx]
-        image, label = example["image"], example["label"]
+        example:dict = self.dataset[idx]
+        
         if self.transform:
-            image = self.transform(image)
+             example['image'] = self.transform(example['image'])
 
         if self.target_transform:
-            label = self.target_transform(label)
+            example = self.target_transform(example)  # slightly generalised: target_transform to expect and yield example, changing the targets (labels)
 
-        return image, label
+        return (example['image'], torch.stack([example[label] for label in self.label_cols]).squeeze())
+        # ultimately I would prefer to migrate to 
+        # return example  # dict like {'image': image, 'label_a': label_a, ...}
+
 
 
 def load_img_file(loc):
