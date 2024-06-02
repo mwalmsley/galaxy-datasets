@@ -160,6 +160,22 @@ def minimal_view_config():
         elastic_prob=0.
     ))
 
+def fast_view_config():
+    return DictConfig(dict(
+        output_size=224,
+        interpolation_method='bilinear',
+        random_affine=False,
+        random_perspective=False,
+        center_crop=True,  # only transform
+        random_resized_crop=False,
+        flip_prob=0.,
+        rotation_prob=0.,
+        color_jitter_prob=0.,
+        erase_iterations=0,
+        posterize=False,
+        elastic_prob=0.
+    ))
+
 
 """And below, the older transform options"""
 
