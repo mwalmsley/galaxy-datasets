@@ -4,6 +4,7 @@ from omegaconf import DictConfig
 import torch
 import numpy as np
 import albumentations as A
+from albumentations.pytorch import ToTensorV2
 import torchvision.transforms.v2 as T
 import PIL
 
@@ -185,7 +186,8 @@ def default_transforms(
     crop_ratio_bounds=(0.9, 1.1),
     resize_after_crop=224, 
     pytorch_greyscale=False,
-    to_float=True  # set to True when loading images directly, False via webdatasets (which normalizes to 0-1 on decode)
+    to_float=True,  # set to True when loading images directly, False via webdatasets (which normalizes to 0-1 on decode)
+    to_tensor=True
     ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
@@ -207,6 +209,9 @@ def default_transforms(
     ]
     if to_float:
         transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
+
+    if to_tensor:
+        transforms_to_apply += [ToTensorV2(always_apply=True)]
 
     return A.Compose(transforms_to_apply)
 
@@ -393,7 +398,9 @@ class RemoveAlpha():
         pass
 
     def forward(self, img):
-        return img[:, :, :3]
+        if img.shape[2] == 4:
+            return img[:, :, :3]
+        return img
 
     def __call__(self, image, **kwargs):
         return self.forward(image)
