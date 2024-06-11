@@ -184,6 +184,7 @@ def fast_view_config():
 def default_transforms(
     crop_scale_bounds=(0.7, 0.8),
     crop_ratio_bounds=(0.9, 1.1),
+    initial_center_crop=None,
     resize_after_crop=224, 
     pytorch_greyscale=False,
     to_float=True,  # set to True when loading images directly, False via webdatasets (which normalizes to 0-1 on decode)
@@ -191,6 +192,15 @@ def default_transforms(
     ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
+
+    if initial_center_crop:
+        transforms_to_apply += [
+            A.CenterCrop(
+                height=initial_center_crop,  # initial crop
+                width=initial_center_crop,
+                always_apply=True
+            )
+        ]
 
     transforms_to_apply += [
         # A.ToFloat(),
