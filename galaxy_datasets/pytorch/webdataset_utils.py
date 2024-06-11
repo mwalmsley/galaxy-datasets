@@ -107,23 +107,34 @@ def galaxy_to_wds(galaxy: pd.Series, label_cols: Union[list[str],None]=None, met
 
     if transform is not None:
         im = transform(image=im)['image']
-    
-    if label_cols is None:
-        labels = json.dumps({})
-    else:
-        labels = json.dumps(galaxy[label_cols].to_dict())
-  
-    if metadata_cols is None:
-        metadata = json.dumps({})
-    else:
-        metadata = json.dumps(galaxy[metadata_cols].to_dict())
-    
-    return {
+
+    dict_to_save = {
         "__key__": id_str,  # silly wds bug where if __key__ ends .jpg, all keys get jpg. prepended?! use id_str instead
         "image.jpg": im,
-        "labels.json": labels,
-        "metadata.json": metadata
     }
+    if label_cols is not None:
+        dict_to_save['labels.json'] = json.dumps(galaxy[label_cols].to_dict())
+    if metadata_cols is not None:
+        dict_to_save['metadata.json'] = json.dumps(galaxy[metadata_cols].to_dict())
+    return dict_to_save
+    
+    # huggingface doesn't like empty keys
+
+    # if label_cols is None:
+    #     labels = json.dumps({})
+    # else:
+    #     labels = json.dumps(galaxy[label_cols].to_dict())
+  
+    # if metadata_cols is None:
+    #     metadata = json.dumps({})
+    # else:
+    #     
+    
+    # return {
+    #     "image.jpg": im,
+    #     "labels.json": labels,
+    #     "metadata.json": metadata
+    # }
 
 
 # just for debugging
