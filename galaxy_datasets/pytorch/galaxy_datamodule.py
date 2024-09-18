@@ -13,7 +13,7 @@ from torch.utils.data import DataLoader
 import datasets as hf_datasets
 
 from galaxy_datasets.pytorch import galaxy_dataset
-# from galaxy_datasets.transforms import default_transforms
+from galaxy_datasets.transforms import default_transforms
 
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
