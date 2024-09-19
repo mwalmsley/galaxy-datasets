@@ -492,4 +492,6 @@ euclid_ortho_dependencies = {
 }
 
 euclid_ortho_questions, euclid_ortho_label_cols = extract_questions_and_label_cols(euclid_ortho_pairs)
+
 euclid_pairs, euclid_dependencies = change_suffix(euclid_ortho_pairs, euclid_ortho_dependencies, old_suffix='-euclid', new_suffix='')
+euclid_questions, euclid_label_cols = extract_questions_and_label_cols(euclid_pairs)
