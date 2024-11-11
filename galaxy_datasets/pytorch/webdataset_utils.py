@@ -62,16 +62,18 @@ def df_to_wds(df: pd.DataFrame, label_cols, save_loc: str, n_shards: int, sparse
         # let's stick to small boundary crop and 0.75-0.85 in augs
 
         # turn these off for current euclidized images, already 300x300
-        A.CenterCrop(
-            height=400,
-            width=400,
-            always_apply=True
-        ),
-        A.Resize(
-            height=300,
-            width=300,
-            interpolation=cv2.INTER_AREA  # slow and good interpolation
-        )
+        # A.CenterCrop(
+        #     height=400,
+        #     width=400,
+        #     always_apply=True
+        # ),
+        # A.Resize(
+        #     height=300,
+        #     width=300,
+        #     interpolation=cv2.INTER_AREA  # slow and good interpolation
+        # )
+
+        # with GZ Euclid, apply no transforms, the images are saved at native size already
     ]
     transform = A.Compose(transforms_to_apply)
     # transform = None

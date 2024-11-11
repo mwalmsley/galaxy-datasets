@@ -241,6 +241,36 @@ hubble_ortho_dependencies = {
 
 hubble_ortho_questions, hubble_ortho_label_cols = extract_questions_and_label_cols(hubble_ortho_pairs)
 
+
+
+# similar but simplified version avoiding the questionable clump questions
+# Courtesy David O'Ryan - thanks, David!
+hubble_v2_pairs = {
+    'smooth-or-featured': ['_smooth', '_features', '_artifact'],
+    'how-rounded': ['_completely', '_in-between', '_cigar-shaped'],
+    'disk-edge-on': ['_yes', '_no'],
+    'bulge-shape': ['_rounded', '_boxy', '_none'],
+    'bar': ['_yes', '_no'],
+    'has-spiral-arms': ['_yes', '_no'],
+    'spiral-winding': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
+    'bulge-size': ['_none', '_just-noticeable', '_obvious', '_dominant'],
+}
+hubble_v2_ortho_pairs = dict([(key + '-hubble', value) for key, value in hubble_v2_pairs.items()])
+
+hubble_v2_ortho_dependencies = {
+    'smooth-or-featured-hubble': None,
+    'how-rounded-hubble': 'smooth-or-featured-hubble_smooth',
+    'disk-edge-on-hubble': 'smooth-or-featured-hubble_features',
+    'bulge-shape-hubble': 'disk-edge-on-hubble_yes',
+    'edge-on-bulge-hubble': 'disk-edge-on-hubble_yes',
+    'bar-hubble': 'disk-edge-on-hubble_no',
+    'has-spiral-arms-hubble': 'disk-edge-on-hubble_no',
+    'spiral-winding-hubble': 'disk-edge-on-hubble_no',
+    'spiral-arm-count-hubble': 'disk-edge-on-hubble_no',
+    'bulge-size-hubble': 'disk-edge-on-hubble_no'
+}
+
 """
 Galaxy Zoo CANDELS
 """
