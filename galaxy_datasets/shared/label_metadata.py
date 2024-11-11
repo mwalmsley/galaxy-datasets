@@ -424,6 +424,45 @@ ukidss_ortho_dependencies = {
 }
 
 
+# same as cosmic dawn (except ghosts) for now
+euclid_ortho_pairs = {
+    'smooth-or-featured-euclid': ['_smooth', '_featured-or-disk', '_problem'],  # renamed from artifact
+    'disk-edge-on-euclid': ['_yes', '_no'],
+    'has-spiral-arms-euclid': ['_yes', '_no'],
+    'bar-euclid': ['_strong', '_weak', '_no'],
+    'bulge-size-euclid': ['_dominant', '_large', '_moderate', '_small', '_none'],
+    'how-rounded-euclid': ['_round', '_in-between', '_cigar-shaped'],
+    'edge-on-bulge-euclid': ['_boxy', '_none', '_rounded'],
+    'spiral-winding-euclid': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count-euclid': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell'],
+    'merging-euclid': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
+    'clumps-euclid': ['_yes', '_no'],
+    'problem-euclid': ['_star', '_artifact', '_zoom'],
+    'artifact-euclid': ['_satellite', '_scattered', '_diffraction', '_ray', '_saturation', '_other', '_ghost']
+}
+
+euclid_ortho_dependencies = {
+    'smooth-or-featured-euclid': None,
+    'problem-euclid': 'smooth-or-featured-euclid_problem',  # newly added (new problem branch)
+    'artifact-euclid': 'problem-euclid_artifact',  # newly added (new problem branch)
+    'disk-edge-on-euclid': 'smooth-or-featured-euclid_featured-or-disk',
+    'clumps-euclid': 'disk-edge-on-euclid_no',  # newly added (featured branch)
+    'has-spiral-arms-euclid': 'disk-edge-on-euclid_no',
+    'bar-euclid': 'disk-edge-on-euclid_no',
+    'bulge-size-euclid': 'disk-edge-on-euclid_no',
+    'how-rounded-euclid': 'smooth-or-featured-euclid_smooth',
+    'edge-on-bulge-euclid': 'disk-edge-on-euclid_yes',
+    'spiral-winding-euclid': 'has-spiral-arms-euclid_yes',
+    'spiral-arm-count-euclid': 'has-spiral-arms-euclid_yes',
+    'merging-euclid': None  # technically, should be smooth OR featured, but hard to code
+}
+
+euclid_ortho_questions, euclid_ortho_label_cols = extract_questions_and_label_cols(euclid_ortho_pairs)
+
+euclid_pairs, euclid_dependencies = change_suffix(euclid_ortho_pairs, euclid_ortho_dependencies, old_suffix='-euclid', new_suffix='')
+euclid_questions, euclid_label_cols = extract_questions_and_label_cols(euclid_pairs)
+
+
 
 
 def get_gz_evo_v1_metadata(internal):
@@ -525,40 +564,3 @@ jwst_ortho_dependencies = {
     'problem-jwst': 'smooth-or-featured-jwst_star-artifact-zoom'
 }
 
-# same as cosmic dawn (except ghosts) for now
-euclid_ortho_pairs = {
-    'smooth-or-featured-euclid': ['_smooth', '_featured-or-disk', '_problem'],  # renamed from artifact
-    'disk-edge-on-euclid': ['_yes', '_no'],
-    'has-spiral-arms-euclid': ['_yes', '_no'],
-    'bar-euclid': ['_strong', '_weak', '_no'],
-    'bulge-size-euclid': ['_dominant', '_large', '_moderate', '_small', '_none'],
-    'how-rounded-euclid': ['_round', '_in-between', '_cigar-shaped'],
-    'edge-on-bulge-euclid': ['_boxy', '_none', '_rounded'],
-    'spiral-winding-euclid': ['_tight', '_medium', '_loose'],
-    'spiral-arm-count-euclid': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell'],
-    'merging-euclid': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
-    'clumps-euclid': ['_yes', '_no'],
-    'problem-euclid': ['_star', '_artifact', '_zoom'],
-    'artifact-euclid': ['_satellite', '_scattered', '_diffraction', '_ray', '_saturation', '_other', '_ghost']
-}
-
-euclid_ortho_dependencies = {
-    'smooth-or-featured-euclid': None,
-    'problem-euclid': 'smooth-or-featured-euclid_problem',  # newly added (new problem branch)
-    'artifact-euclid': 'problem-euclid_artifact',  # newly added (new problem branch)
-    'disk-edge-on-euclid': 'smooth-or-featured-euclid_featured-or-disk',
-    'clumps-euclid': 'disk-edge-on-euclid_no',  # newly added (featured branch)
-    'has-spiral-arms-euclid': 'disk-edge-on-euclid_no',
-    'bar-euclid': 'disk-edge-on-euclid_no',
-    'bulge-size-euclid': 'disk-edge-on-euclid_no',
-    'how-rounded-euclid': 'smooth-or-featured-euclid_smooth',
-    'edge-on-bulge-euclid': 'disk-edge-on-euclid_yes',
-    'spiral-winding-euclid': 'has-spiral-arms-euclid_yes',
-    'spiral-arm-count-euclid': 'has-spiral-arms-euclid_yes',
-    'merging-euclid': None  # technically, should be smooth OR featured, but hard to code
-}
-
-euclid_ortho_questions, euclid_ortho_label_cols = extract_questions_and_label_cols(euclid_ortho_pairs)
-
-euclid_pairs, euclid_dependencies = change_suffix(euclid_ortho_pairs, euclid_ortho_dependencies, old_suffix='-euclid', new_suffix='')
-euclid_questions, euclid_label_cols = extract_questions_and_label_cols(euclid_pairs)
