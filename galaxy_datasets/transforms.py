@@ -8,6 +8,8 @@ from albumentations.pytorch import ToTensorV2
 import torchvision.transforms.v2 as T
 import PIL
 
+from torchvision.transforms import InterpolationMode
+
 
 class GalaxyViewTransform():
     # most powerful and most general transform options
@@ -27,11 +29,14 @@ class GalaxyViewTransform():
         """
         logging.info(f'Using view transform config: {cfg}')
         
-        interpolation = interpolation_lookup(cfg.interpolation_method)
+        interpolation = InterpolationMode[cfg.interpolation_method.upper()]
         antialias = True
         
         transform = []
         
+        if cfg.greyscale:
+            transform.append(T.Grayscale(num_output_channels=1))
+
         # transform += [T.ToImage()]  # explicit but not needed, just tells torchvision it's an image (assumed anway)
         # disabled for beluga
         # 'torchvision.transforms.v2' has no attribute 'ToImage'
@@ -43,6 +48,7 @@ class GalaxyViewTransform():
                 **cfg.random_affine, interpolation=interpolation
             ))
             transform.append(T.Resize(cfg.output_size, interpolation=interpolation, antialias=antialias))
+            transform.append(T.CenterCrop(cfg.output_size))  # T.Resize is a touch imprecise e.g. (224, 227) after resizing. Do a final center crop for safety because torch requires exact shapes.
 
         else:  # maybe do perspective/crop, maybe do rotation, maybe both
 
@@ -103,13 +109,9 @@ class GalaxyViewTransform():
                 p=cfg.elastic_prob)
             )
 
-
-        # if cfg.normalize:
-        #     transform.append([T.Normalize(mean=normalize["mean"], std=normalize["std"])]
-        
         # finally, shift to 0-1 float32 before hitting model etc
         # transform.append(T.ToDtype(torch.float32, scale=True))
-        transform.append(T.ConvertImageDtype(torch.float32)) # TEMP use this 0.15 equivalent version
+        # transform.append(T.ConvertImageDtype(torch.float32))
 
         self.transform = T.Compose(transform)
 
@@ -123,6 +125,7 @@ def default_view_config():
     # for debugging
      return DictConfig(dict(
         output_size=224,
+        greyscale=False,
         interpolation_method='bilinear',
         random_affine=dict(degrees=90, translate=(0.1, 0.1), scale=(1.2, 1.4), shear=(0,20,0,20)),
         random_perspective=False,
@@ -147,6 +150,7 @@ def default_view_config():
 def minimal_view_config():
     return DictConfig(dict(
         output_size=224,
+        greyscale=False,
         interpolation_method='bilinear',
         # no rotation, no translate, less aggressive crop, no shear
         random_affine=dict(degrees=0, translate=None, scale=(1.2, 1.2), shear=None),
@@ -417,6 +421,6 @@ class RemoveAlpha():
 
 
 
-def interpolation_lookup(interpolation_str='bilinear'):
-        # PIL.Image.bilinear
-        return getattr(PIL.Image, interpolation_str.upper())
+# def interpolation_lookup(interpolation_str='bilinear'):
+#         # PIL.Image.bilinear
+#         return getattr(PIL.Image, interpolation_str.upper())
