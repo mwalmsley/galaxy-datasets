@@ -37,15 +37,7 @@ class WebDataModule(pl.LightningDataModule):
         self.test_urls = test_urls
         self.predict_urls = predict_urls
 
-        if train_urls is not None:
-            # assume the size of each shard is encoded in the filename as ..._{size}.tar
-            self.train_size = interpret_dataset_size_from_urls(train_urls)
-        if val_urls is not None:
-            self.val_size = interpret_dataset_size_from_urls(val_urls)
-        if test_urls is not None:
-            self.test_size = interpret_dataset_size_from_urls(test_urls)
-        if predict_urls is not None:
-            self.predict_size = interpret_dataset_size_from_urls(predict_urls)
+        self.set_dataset_size_attributes(train_urls, val_urls, test_urls, predict_urls)
 
         self.label_cols = label_cols
 
@@ -70,6 +62,17 @@ class WebDataModule(pl.LightningDataModule):
                 logging.info(f"{url_name} (before hardware splits) = {len(urls)} e.g. {urls[0]}", )
 
         logging.info(f"batch_size: {self.batch_size}, num_workers: {self.num_workers}")
+
+    def set_dataset_size_attributes(self, train_urls=None, val_urls=None, test_urls=None, predict_urls=None):
+        if train_urls is not None:
+            # assume the size of each shard is encoded in the filename as ..._{size}.tar
+            self.train_size = interpret_dataset_size_from_urls(train_urls)
+        if val_urls is not None:
+            self.val_size = interpret_dataset_size_from_urls(val_urls)
+        if test_urls is not None:
+            self.test_size = interpret_dataset_size_from_urls(test_urls)
+        if predict_urls is not None:
+            self.predict_size = interpret_dataset_size_from_urls(predict_urls)
 
     def make_image_transform(self, mode="train"):
 
@@ -222,6 +225,7 @@ def webdataset_to_webloader(dataset, num_workers, prefetch_factor):
 
 
 def dict_to_label_cols_factory(label_cols=None):
+    # converts from dict to vector of counts
     if label_cols is not None:
         def label_transform(label_dict):
             return torch.from_numpy(np.array([label_dict.get(col, 0) for col in label_cols])).double()  # gets cast to int in zoobot loss
@@ -229,6 +233,8 @@ def dict_to_label_cols_factory(label_cols=None):
     else:
         return identity  # do nothing
 
+
+# Used for hybrid pretraining
 def dict_to_filled_dict_factory(label_cols):
     logging.info(f'label cols: {label_cols}')
     # might be a little slow, but very safe
