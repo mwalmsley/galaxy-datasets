@@ -291,9 +291,9 @@ class GalaxyDataModule(pl.LightningDataModule):
 
 def do_transform(img, transforms_to_apply):
     # albumentations expects np array, and returns dict keyed by "image"
-    # transpose changes from BHWC (numpy/TF style) to BCHW (torch style)
-    # cannot use a lambda or define here because must be pickleable for multi-gpu
-    # default returned image is now a tensor already, as default_transforms now uses to_tensor=True by default
+    # transforms_to_apply should return tensor in BCHW (torch style). 
+    # true by default since default_transforms now uses to_tensor=True
+    # Albumentations doesn't do this by default, so add transpose/to_tensor if using custom albumentations
     return transforms_to_apply(image=np.array(img))["image"]
 
 
