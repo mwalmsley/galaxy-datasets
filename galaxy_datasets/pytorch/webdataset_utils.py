@@ -18,7 +18,7 @@ from galaxy_datasets.transforms import default_transforms
 import webdataset as wds
 
 
-def catalogs_to_webdataset(dataset_name, wds_dir, label_cols, train_catalog, test_catalog, sparse_label_df=None, divisor=2048, overwrite=False):
+def catalogs_to_webdataset(dataset_name, wds_dir, label_cols, train_catalog, test_catalog, sparse_label_df=None, divisor=512, overwrite=False):
     for (catalog_name, catalog) in [('train', train_catalog), ('test', test_catalog)]:
         n_shards = len(catalog) // divisor
         logging.info(n_shards)

@@ -205,7 +205,7 @@ def default_transforms(
             A.CenterCrop(
                 height=initial_center_crop,  # initial crop
                 width=initial_center_crop,
-                always_apply=True
+                # always_apply=True
             )
         ]
 
@@ -215,12 +215,11 @@ def default_transforms(
         A.Rotate(limit=180, interpolation=1,
                     always_apply=True, border_mode=0, value=0),
         A.RandomResizedCrop(
-            height=resize_after_crop,  # after crop resize
-            width=resize_after_crop,
+            size=(resize_after_crop, resize_after_crop), # after crop resize
             scale=crop_scale_bounds,  # crop factor
             ratio=crop_ratio_bounds,  # crop aspect ratio
             interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
-            always_apply=True
+            # always_apply=True
         ),  # new aspect ratio
         A.VerticalFlip(p=0.5)
     ]
@@ -278,12 +277,12 @@ def base_transforms(pytorch_greyscale):
     if pytorch_greyscale:
         return [
             A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+                name="ToGray", image=ToGray(reduce_channels=True) #, always_apply=True
             )
         ]
     else:
        return [
-            A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+            A.Lambda(name="RemoveAlpha", image=RemoveAlpha()) #, always_apply=True)
         ]
         
 
