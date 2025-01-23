@@ -13,8 +13,8 @@ from galaxy_datasets.shared import internal_urls
 def gz_euclid(root, train, download):
     logging.info('Setting up gz_euclid dataset')
     resources = [
-        (internal_urls.gz_euclid_train_catalog, '350a71f59504b0a1b1400a6396d24531'),  # train catalog
-        (internal_urls.gz_euclid_test_catalog, 'd43c2b0ee74dd9a31a738f0929927078'),  # test catalog
+        (internal_urls.gz_euclid_train_catalog, 'fbadef2ca131e074d9681dbdf4c3ab1f'),  # train catalog
+        (internal_urls.gz_euclid_test_catalog, 'c774bb4ae57f82be629ac29a786d2691'),  # test catalog
         (internal_urls.gz_euclid_images, '84d7db3cf607e2c36fd35890f693b8bd')  # the images
     ]
     images_to_spotcheck = [
