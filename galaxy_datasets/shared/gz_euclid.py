@@ -15,7 +15,7 @@ def gz_euclid(root, train, download):
     resources = [
         (internal_urls.gz_euclid_train_catalog, 'e65040c6dcc3e490634120e8fa249c74'),  # train catalog
         (internal_urls.gz_euclid_test_catalog, '1986f944ddbe47d2ae94beeca99ae414'),  # test catalog
-        (internal_urls.gz_euclid_images, '84d7db3cf607e2c36fd35890f693b8bd')  # the images
+        (internal_urls.gz_euclid_images, 'ba0fd28c170fa6e39c7bdd1d6cee202a')  # the images
     ]
     images_to_spotcheck = [
         'F-006_102011288_NEG842787454598311005.jpg',
