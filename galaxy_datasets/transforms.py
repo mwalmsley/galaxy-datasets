@@ -70,7 +70,7 @@ class GalaxyViewTransform():
                                 antialias=antialias,
                                 **cfg.random_resized_crop  # scale only
                             ))
-                    transform.append(T.CenterCrop(cfg.output_size))  # T.RandomResizedCrop is also a touch imprecise e.g. (224, 227) after resizing.
+                    # transform.append(T.CenterCrop(cfg.output_size))  # T.RandomResizedCrop is also a touch imprecise e.g. (224, 227) after resizing.
 
             if cfg.rotation_prob > 0:
                     logging.info(f'Using RandomRotation, {cfg.rotation_prob}')
