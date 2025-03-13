@@ -60,11 +60,14 @@ class DatasetDownloader():
                 os.path.join(self.root, res_to_basename(res)),
                 md5)
             for res, md5 in self.resources]
-        # print([os.path.join(self.root, res_to_basename(res)) for res, _ in self.resources])
+        
+        # for debugging
+        expected_paths = [os.path.join(self.root, res_to_basename(res)) for res, _ in self.resources]
         # print(self.resources)
-        # print(integrity_by_resource)
+        logging.info('Resource status: {}'.format(zip(expected_paths, integrity_by_resource)))
+
         resources_downloaded = all(integrity_by_resource)
-        logging.info('Resources downloaded: {}'.format(resources_downloaded))
+        logging.info('All resources ready: {}'.format(resources_downloaded))
 
         images_unpacked = all([
             os.path.isfile(os.path.join(self.image_dir, image_loc)) for image_loc in self.images_to_spotcheck

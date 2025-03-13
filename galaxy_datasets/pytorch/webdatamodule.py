@@ -117,7 +117,7 @@ class WebDataModule(pl.LightningDataModule):
             decode_mode = 'rgb' # loads 0-1 np.array, for albumentations
             transform_image = self.make_image_transform(mode=mode)
         else:
-            logging.info('Ignoring hparams and using directly-passed transforms')
+            logging.info('Ignoring other arguments to WebDataModule and using directly-passed transforms')
             decode_mode = 'torchrgb'  # tensor, for torchvision
             transform_image = self.train_transform if mode == 'train' else self.inference_transform
 

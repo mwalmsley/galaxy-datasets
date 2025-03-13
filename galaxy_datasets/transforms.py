@@ -48,11 +48,14 @@ class GalaxyViewTransform():
                 **cfg.random_affine, interpolation=interpolation
             ))
             transform.append(T.Resize(cfg.output_size, interpolation=interpolation, antialias=antialias))
+            logging.info(f'Using RandomAffine with safety crop, {cfg.random_affine}')
             transform.append(T.CenterCrop(cfg.output_size))  # T.Resize is a touch imprecise e.g. (224, 227) after resizing. Do a final center crop for safety because torch requires exact shapes.
 
         else:  # maybe do perspective/crop, maybe do rotation, maybe both
+            logging.info('Not using RandomAffine')
 
             if cfg.random_perspective:
+                logging.info(f'Using RandomPerspective, {cfg.random_perspective}')
                 transform.append(T.RandomPerspective(**cfg.random_perspective, interpolation=interpolation))
                 transform.append(T.CenterCrop(size=cfg.output_size))
             else: # no affine transform, no perspective shift, so safe to apply simple center or random crops
@@ -67,8 +70,11 @@ class GalaxyViewTransform():
                                 antialias=antialias,
                                 **cfg.random_resized_crop  # scale only
                             ))
+                    # transform.append(T.CenterCrop(cfg.output_size))  # T.RandomResizedCrop is also a touch imprecise e.g. (224, 227) after resizing.
 
             if cfg.rotation_prob > 0:
+                    logging.info(f'Using RandomRotation, {cfg.rotation_prob}')
+                    # I ASSUME this doesn't change the shape?
                     transform.append(T.RandomRotation(degrees=90, interpolation=interpolation, p=cfg.rotation_prob))
 
 
