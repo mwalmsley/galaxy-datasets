@@ -199,7 +199,7 @@ hubble_pairs = {
     'smooth-or-featured': ['_smooth', '_features', '_artifact'],
     'how-rounded': ['_completely', '_in-between', '_cigar-shaped'],
     'clumpy-appearance': ['_yes', '_no'],
-    'clump-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
+    # 'clump-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
     # disable these for now as I don't support having several but not all answers leading to the same next question
     # 'clump-configuration': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
     # 'one-clump-brightest': ['_yes', '_no'],
@@ -222,7 +222,7 @@ hubble_ortho_dependencies = {
     'smooth-or-featured-hubble': None,
     'how-rounded-hubble': 'smooth-or-featured-hubble_smooth',
     'clumpy-appearance-hubble': 'smooth-or-featured-hubble_features',
-    'clump-count-hubble': 'clumpy-appearance-hubble_yes',
+    # 'clump-count-hubble': 'clumpy-appearance-hubble_yes',
     # 'clump-configuration-hubble': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
     # 'one-clump-brightest-hubble': ['_yes', '_no'],
     # 'brightest-clump-central-hubble': ['_yes', '_no'],
@@ -241,6 +241,37 @@ hubble_ortho_dependencies = {
 
 hubble_ortho_questions, hubble_ortho_label_cols = extract_questions_and_label_cols(hubble_ortho_pairs)
 
+
+
+# similar but simplified version avoiding the questionable clump questions
+# Courtesy David O'Ryan - thanks, David!
+hubble_v2_pairs = {
+    'smooth-or-featured': ['_smooth', '_features', '_artifact'],
+    'how-rounded': ['_completely', '_in-between', '_cigar-shaped'],
+    'disk-edge-on': ['_yes', '_no'],
+    'bulge-shape': ['_rounded', '_boxy', '_none'],
+    'bar': ['_yes', '_no'],
+    'has-spiral-arms': ['_yes', '_no'],
+    'spiral-winding': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
+    'bulge-size': ['_none', '_just-noticeable', '_obvious', '_dominant'],
+}
+hubble_v2_ortho_pairs = dict([(key + '-hubble', value) for key, value in hubble_v2_pairs.items()])
+
+hubble_v2_ortho_dependencies = {
+    'smooth-or-featured-hubble': None,
+    'how-rounded-hubble': 'smooth-or-featured-hubble_smooth',
+    'disk-edge-on-hubble': 'smooth-or-featured-hubble_features',
+    'bulge-shape-hubble': 'disk-edge-on-hubble_yes',
+    'edge-on-bulge-hubble': 'disk-edge-on-hubble_yes',
+    'bar-hubble': 'disk-edge-on-hubble_no',
+    'has-spiral-arms-hubble': 'disk-edge-on-hubble_no',
+    'spiral-winding-hubble': 'disk-edge-on-hubble_no',
+    'spiral-arm-count-hubble': 'disk-edge-on-hubble_no',
+    'bulge-size-hubble': 'disk-edge-on-hubble_no'
+}
+hubble_v2_ortho_questions, hubble_v2_ortho_label_cols = extract_questions_and_label_cols(hubble_v2_ortho_pairs)
+
 """
 Galaxy Zoo CANDELS
 """
@@ -251,7 +282,7 @@ candels_pairs = {
     'smooth-or-featured': ['_smooth', '_features', '_artifact'],
     'how-rounded': ['_completely', '_in-between', '_cigar-shaped'],
     'clumpy-appearance': ['_yes', '_no'],
-    'clump-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
+    # 'clump-count': ['_1', '_2', '_3', '_4', '_5-plus', '_cant-tell'],
     # disable these for now as I don't support having several but not all answers leading to the same next question
     # 'clump-configuration': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
     # 'one-clump-brightest': ['_yes', '_no'],
@@ -275,7 +306,7 @@ candels_ortho_dependencies = {
     'smooth-or-featured-candels': None,
     'how-rounded-candels': 'smooth-or-featured-candels_smooth',
     'clumpy-appearance-candels': 'smooth-or-featured-candels_features',
-    'clump-count-candels': 'clumpy-appearance-candels_yes',
+    # 'clump-count-candels': 'clumpy-appearance-candels_yes',
     # 'clump-configuration-candels': ['_straight-line', '_chain', '_cluster-or-irregular', '_spiral'],
     # 'one-clump-brightest-candels': ['_yes', '_no'],
     # 'brightest-clump-central-candels': ['_yes', '_no'],
@@ -393,71 +424,6 @@ ukidss_ortho_dependencies = {
 }
 
 
-
-
-def get_gz_evo_v1_metadata(internal):
-
-    question_answer_pairs = {}
-    question_answer_pairs.update(decals_all_campaigns_ortho_pairs)
-    question_answer_pairs.update(gz2_ortho_pairs)
-    question_answer_pairs.update(candels_ortho_pairs)
-    question_answer_pairs.update(hubble_ortho_pairs)
-    if internal:
-        question_answer_pairs.update(cosmic_dawn_ortho_pairs)
-
-    dependencies = {}
-    dependencies.update(decals_ortho_dependencies)
-    dependencies.update(gz2_ortho_dependencies)
-    dependencies.update(candels_ortho_dependencies)
-    dependencies.update(hubble_ortho_dependencies)
-    if internal:
-        dependencies.update(cosmic_dawn_ortho_dependencies)
-
-    label_cols = \
-        decals_all_campaigns_ortho_label_cols + \
-        gz2_ortho_label_cols + \
-        candels_ortho_label_cols + \
-        hubble_ortho_label_cols
-    if internal:
-        label_cols += cosmic_dawn_ortho_label_cols
-
-    return label_cols, question_answer_pairs, dependencies
-
-gz_evo_v1_label_cols, gz_evo_v1_pairs, gz_evo_v1_dependencies = get_gz_evo_v1_metadata(internal=True)
-gz_evo_v1_public_label_cols, gz_evo_v1_public_pairs, gz_evo_v1_public_dependencies = get_gz_evo_v1_metadata(internal=False)
-
-
-jwst_ortho_pairs = {
-    'smooth-or-featured-jwst': ['_smooth', '_featured-or-disk', '_star-artifact-zoom'],
-    'disk-edge-on-jwst': ['_yes', '_no'],
-    'has-spiral-arms-jwst': ['_yes', '_no'],
-    'bar-jwst': ['_strong', '_weak', '_no'],
-    'bulge-size-jwst': ['_dominant', '_large', '_moderate', '_small', '_none'],
-    'how-rounded-jwst': ['_round', '_in-between', '_cigar-shaped'],
-    'edge-on-bulge-jwst': ['_boxy', '_none', '_rounded'],
-    'spiral-winding-jwst': ['_tight', '_medium', '_loose'],
-    'spiral-arm-count-jwst': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell'],
-    'clumps-jwst': ['_yes', '_no'],
-    'merging-jwst': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
-    'problem-jwst': ['_star', '_artifact', '_bad-zoom']
-}
-jwst_ortho_questions, jwst_ortho_label_cols = extract_questions_and_label_cols(jwst_ortho_pairs)
-
-jwst_ortho_dependencies = {
-    'smooth-or-featured-jwst': None,  # always asked
-    'disk-edge-on-jwst': 'smooth-or-featured-jwst_featured-or-disk',
-    'has-spiral-arms-jwst': 'disk-edge-on-jwst_no',
-    'bar-jwst': 'disk-edge-on-jwst_no',
-    'bulge-size-jwst': 'disk-edge-on-jwst_no',
-    'how-rounded-jwst': 'smooth-or-featured-jwst_smooth',
-    'edge-on-bulge-jwst': 'disk-edge-on-jwst_yes',
-    'spiral-winding-jwst': 'has-spiral-arms-jwst_yes',
-    'spiral-arm-count-jwst': 'has-spiral-arms-jwst_yes', # bad naming...
-    'merging-jwst': None,  # ignores artifact,
-    'clumps-jwst': None,  # ignores artifact
-    'problem-jwst': 'smooth-or-featured-jwst_star-artifact-zoom'
-}
-
 # same as cosmic dawn (except ghosts) for now
 euclid_ortho_pairs = {
     'smooth-or-featured-euclid': ['_smooth', '_featured-or-disk', '_problem'],  # renamed from artifact
@@ -492,4 +458,109 @@ euclid_ortho_dependencies = {
 }
 
 euclid_ortho_questions, euclid_ortho_label_cols = extract_questions_and_label_cols(euclid_ortho_pairs)
+
 euclid_pairs, euclid_dependencies = change_suffix(euclid_ortho_pairs, euclid_ortho_dependencies, old_suffix='-euclid', new_suffix='')
+euclid_questions, euclid_label_cols = extract_questions_and_label_cols(euclid_pairs)
+
+
+
+
+def get_gz_evo_v1_metadata(internal):
+
+    question_answer_pairs = {}
+    question_answer_pairs.update(decals_all_campaigns_ortho_pairs)
+    question_answer_pairs.update(gz2_ortho_pairs)
+    question_answer_pairs.update(candels_ortho_pairs)
+    question_answer_pairs.update(hubble_ortho_pairs)
+    if internal:
+        question_answer_pairs.update(cosmic_dawn_ortho_pairs)
+
+    dependencies = {}
+    dependencies.update(decals_ortho_dependencies)
+    dependencies.update(gz2_ortho_dependencies)
+    dependencies.update(candels_ortho_dependencies)
+    dependencies.update(hubble_ortho_dependencies)
+    if internal:
+        dependencies.update(cosmic_dawn_ortho_dependencies)
+
+    label_cols = \
+        decals_all_campaigns_ortho_label_cols + \
+        gz2_ortho_label_cols + \
+        candels_ortho_label_cols + \
+        hubble_ortho_label_cols
+    if internal:
+        label_cols += cosmic_dawn_ortho_label_cols
+
+    return label_cols, question_answer_pairs, dependencies
+
+gz_evo_v1_label_cols, gz_evo_v1_pairs, gz_evo_v1_dependencies = get_gz_evo_v1_metadata(internal=True)
+gz_evo_v1_public_label_cols, gz_evo_v1_public_pairs, gz_evo_v1_public_dependencies = get_gz_evo_v1_metadata(internal=False)
+
+
+""" same again for V2, adding Hubble V2 and Euclid"""
+def get_gz_evo_v2_metadata(internal):
+
+    question_answer_pairs = {}
+    question_answer_pairs.update(decals_all_campaigns_ortho_pairs)
+    question_answer_pairs.update(gz2_ortho_pairs)
+    question_answer_pairs.update(candels_ortho_pairs)
+    question_answer_pairs.update(hubble_v2_ortho_pairs)
+    if internal:
+        question_answer_pairs.update(cosmic_dawn_ortho_pairs)
+        question_answer_pairs.update(euclid_ortho_pairs)
+
+    dependencies = {}
+    dependencies.update(decals_ortho_dependencies)
+    dependencies.update(gz2_ortho_dependencies)
+    dependencies.update(candels_ortho_dependencies)
+    dependencies.update(hubble_v2_ortho_dependencies)
+    if internal:
+        dependencies.update(cosmic_dawn_ortho_dependencies)
+        dependencies.update(euclid_ortho_dependencies)
+
+    label_cols = \
+        decals_all_campaigns_ortho_label_cols + \
+        gz2_ortho_label_cols + \
+        candels_ortho_label_cols + \
+        hubble_v2_ortho_label_cols
+    if internal:
+        label_cols += cosmic_dawn_ortho_label_cols
+        label_cols += euclid_ortho_label_cols
+
+    return label_cols, question_answer_pairs, dependencies
+
+gz_evo_v2_label_cols, gz_evo_v2_pairs, gz_evo_v2_dependencies = get_gz_evo_v2_metadata(internal=True)
+gz_evo_v2_public_label_cols, gz_evo_v2_public_pairs, gz_evo_v2_public_dependencies = get_gz_evo_v2_metadata(internal=False)
+
+
+jwst_ortho_pairs = {
+    'smooth-or-featured-jwst': ['_smooth', '_featured-or-disk', '_star-artifact-zoom'],
+    'disk-edge-on-jwst': ['_yes', '_no'],
+    'has-spiral-arms-jwst': ['_yes', '_no'],
+    'bar-jwst': ['_strong', '_weak', '_no'],
+    'bulge-size-jwst': ['_dominant', '_large', '_moderate', '_small', '_none'],
+    'how-rounded-jwst': ['_round', '_in-between', '_cigar-shaped'],
+    'edge-on-bulge-jwst': ['_boxy', '_none', '_rounded'],
+    'spiral-winding-jwst': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count-jwst': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell'],
+    'clumps-jwst': ['_yes', '_no'],
+    'merging-jwst': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
+    'problem-jwst': ['_star', '_artifact', '_bad-zoom']
+}
+jwst_ortho_questions, jwst_ortho_label_cols = extract_questions_and_label_cols(jwst_ortho_pairs)
+
+jwst_ortho_dependencies = {
+    'smooth-or-featured-jwst': None,  # always asked
+    'disk-edge-on-jwst': 'smooth-or-featured-jwst_featured-or-disk',
+    'has-spiral-arms-jwst': 'disk-edge-on-jwst_no',
+    'bar-jwst': 'disk-edge-on-jwst_no',
+    'bulge-size-jwst': 'disk-edge-on-jwst_no',
+    'how-rounded-jwst': 'smooth-or-featured-jwst_smooth',
+    'edge-on-bulge-jwst': 'disk-edge-on-jwst_yes',
+    'spiral-winding-jwst': 'has-spiral-arms-jwst_yes',
+    'spiral-arm-count-jwst': 'has-spiral-arms-jwst_yes', # bad naming...
+    'merging-jwst': None,  # ignores artifact,
+    'clumps-jwst': None,  # ignores artifact
+    'problem-jwst': 'smooth-or-featured-jwst_star-artifact-zoom'
+}
+

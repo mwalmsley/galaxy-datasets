@@ -37,7 +37,7 @@ def gz_desi(root, train, download) -> Tuple[pd.DataFrame, List]:
         (internal_urls.gz_desi_images_chunk_07, 'feef448b45eeb3d5edc3f44d936f386a'),
         (internal_urls.gz_desi_images_chunk_08, 'c8be005044f94046a7080617815a3d00')
     ]
-    images_to_spotcheck = []  # TODO
+    images_to_spotcheck = ['331000/331000_345.jpg']  # newly added
 
     downloader = download_utils.DatasetDownloader(root, resources, images_to_spotcheck, archive_includes_subdir=False)
     if download is True:

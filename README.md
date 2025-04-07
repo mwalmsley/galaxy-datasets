@@ -16,6 +16,8 @@ ML-friendly datasets for major Galaxy Zoo citizen science campaigns.
 | GZ DECaLS GZD-5 | gz_decals_5 | GZDecals5 | &#x2611; | &#x2611; | ~230k (GZD-5 only)|
 | GZ Rings | gz_rings | GZRings | &#x2612; | &#x2611; | ~93k |
 | GZ DESI  | gz_desi | GZDesi | &#x2611;| No* (500GB) | 8.7M |
+| GZ UKIDSS | gz_ukidss | - | &#x2611; | &#x2611; | ~70k |
+| GZ Euclid | gz_euclid | - | &#x2612; | &#x2611; | ~100k |
 | GZ H2O (deep HSC) | gz_h2o | GZH2O| &#x2612; | &#x2611; | ~48k |
 | GZ JWST (CEERS) | gz_JWST | GZJWST| &#x2612; | &#x2611; | ~7k |
 | CFHT Tidal* | tidal | Tidal | &#x2611; | &#x2611; | 1760 (expert) |

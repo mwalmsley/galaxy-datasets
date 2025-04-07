@@ -4,8 +4,11 @@ from omegaconf import DictConfig
 import torch
 import numpy as np
 import albumentations as A
+from albumentations.pytorch import ToTensorV2
 import torchvision.transforms.v2 as T
 import PIL
+
+from torchvision.transforms import InterpolationMode
 
 
 class GalaxyViewTransform():
@@ -26,11 +29,14 @@ class GalaxyViewTransform():
         """
         logging.info(f'Using view transform config: {cfg}')
         
-        interpolation = interpolation_lookup(cfg.interpolation_method)
+        interpolation = InterpolationMode[cfg.interpolation_method.upper()]
         antialias = True
         
         transform = []
         
+        if cfg.greyscale:
+            transform.append(T.Grayscale(num_output_channels=1))
+
         # transform += [T.ToImage()]  # explicit but not needed, just tells torchvision it's an image (assumed anway)
         # disabled for beluga
         # 'torchvision.transforms.v2' has no attribute 'ToImage'
@@ -42,10 +48,14 @@ class GalaxyViewTransform():
                 **cfg.random_affine, interpolation=interpolation
             ))
             transform.append(T.Resize(cfg.output_size, interpolation=interpolation, antialias=antialias))
+            logging.info(f'Using RandomAffine with safety crop, {cfg.random_affine}')
+            transform.append(T.CenterCrop(cfg.output_size))  # T.Resize is a touch imprecise e.g. (224, 227) after resizing. Do a final center crop for safety because torch requires exact shapes.
 
         else:  # maybe do perspective/crop, maybe do rotation, maybe both
+            logging.info('Not using RandomAffine')
 
             if cfg.random_perspective:
+                logging.info(f'Using RandomPerspective, {cfg.random_perspective}')
                 transform.append(T.RandomPerspective(**cfg.random_perspective, interpolation=interpolation))
                 transform.append(T.CenterCrop(size=cfg.output_size))
             else: # no affine transform, no perspective shift, so safe to apply simple center or random crops
@@ -60,8 +70,11 @@ class GalaxyViewTransform():
                                 antialias=antialias,
                                 **cfg.random_resized_crop  # scale only
                             ))
+                    # transform.append(T.CenterCrop(cfg.output_size))  # T.RandomResizedCrop is also a touch imprecise e.g. (224, 227) after resizing.
 
             if cfg.rotation_prob > 0:
+                    logging.info(f'Using RandomRotation, {cfg.rotation_prob}')
+                    # I ASSUME this doesn't change the shape?
                     transform.append(T.RandomRotation(degrees=90, interpolation=interpolation, p=cfg.rotation_prob))
 
 
@@ -102,13 +115,9 @@ class GalaxyViewTransform():
                 p=cfg.elastic_prob)
             )
 
-
-        # if cfg.normalize:
-        #     transform.append([T.Normalize(mean=normalize["mean"], std=normalize["std"])]
-        
         # finally, shift to 0-1 float32 before hitting model etc
         # transform.append(T.ToDtype(torch.float32, scale=True))
-        transform.append(T.ConvertImageDtype(torch.float32)) # TEMP use this 0.15 equivalent version
+        # transform.append(T.ConvertImageDtype(torch.float32))
 
         self.transform = T.Compose(transform)
 
@@ -122,6 +131,7 @@ def default_view_config():
     # for debugging
      return DictConfig(dict(
         output_size=224,
+        greyscale=False,
         interpolation_method='bilinear',
         random_affine=dict(degrees=90, translate=(0.1, 0.1), scale=(1.2, 1.4), shear=(0,20,0,20)),
         random_perspective=False,
@@ -146,11 +156,28 @@ def default_view_config():
 def minimal_view_config():
     return DictConfig(dict(
         output_size=224,
+        greyscale=False,
         interpolation_method='bilinear',
         # no rotation, no translate, less aggressive crop, no shear
         random_affine=dict(degrees=0, translate=None, scale=(1.2, 1.2), shear=None),
         random_perspective=False,
         center_crop=False,
+        random_resized_crop=False,
+        flip_prob=0.,
+        rotation_prob=0.,
+        color_jitter_prob=0.,
+        erase_iterations=0,
+        posterize=False,
+        elastic_prob=0.
+    ))
+
+def fast_view_config():
+    return DictConfig(dict(
+        output_size=224,
+        interpolation_method='bilinear',
+        random_affine=False,
+        random_perspective=False,
+        center_crop=True,  # only transform
         random_resized_crop=False,
         flip_prob=0.,
         rotation_prob=0.,
@@ -167,12 +194,23 @@ def minimal_view_config():
 def default_transforms(
     crop_scale_bounds=(0.7, 0.8),
     crop_ratio_bounds=(0.9, 1.1),
+    initial_center_crop=None,
     resize_after_crop=224, 
     pytorch_greyscale=False,
-    to_float=True  # set to True when loading images directly, False via webdatasets (which normalizes to 0-1 on decode)
+    to_float=True,  # set to True when loading images directly, False via webdatasets (which normalizes to 0-1 on decode)
+    to_tensor=True
     ) -> A.Compose:
 
     transforms_to_apply = base_transforms(pytorch_greyscale)
+
+    if initial_center_crop:
+        transforms_to_apply += [
+            A.CenterCrop(
+                height=initial_center_crop,  # initial crop
+                width=initial_center_crop,
+                # always_apply=True
+            )
+        ]
 
     transforms_to_apply += [
         # A.ToFloat(),
@@ -180,17 +218,19 @@ def default_transforms(
         A.Rotate(limit=180, interpolation=1,
                     always_apply=True, border_mode=0, value=0),
         A.RandomResizedCrop(
-            height=resize_after_crop,  # after crop resize
-            width=resize_after_crop,
+            size=(resize_after_crop, resize_after_crop), # after crop resize
             scale=crop_scale_bounds,  # crop factor
             ratio=crop_ratio_bounds,  # crop aspect ratio
             interpolation=1,  # This is "INTER_LINEAR" == BILINEAR interpolation. See: https://docs.opencv.org/3.4/da/d54/group__imgproc__transform.html
-            always_apply=True
+            # always_apply=True
         ),  # new aspect ratio
         A.VerticalFlip(p=0.5)
     ]
     if to_float:
         transforms_to_apply += [A.ToFloat(max_value=255.0, always_apply=True)]
+
+    if to_tensor:
+        transforms_to_apply += [ToTensorV2(always_apply=True)]
 
     return A.Compose(transforms_to_apply)
 
@@ -240,12 +280,12 @@ def base_transforms(pytorch_greyscale):
     if pytorch_greyscale:
         return [
             A.Lambda(
-                name="ToGray", image=ToGray(reduce_channels=True), always_apply=True
+                name="ToGray", image=ToGray(reduce_channels=True) #, always_apply=True
             )
         ]
     else:
        return [
-            A.Lambda(name="RemoveAlpha", image=RemoveAlpha(), always_apply=True)
+            A.Lambda(name="RemoveAlpha", image=RemoveAlpha()) #, always_apply=True)
         ]
         
 
@@ -377,13 +417,15 @@ class RemoveAlpha():
         pass
 
     def forward(self, img):
-        return img[:, :, :3]
+        if img.shape[2] == 4:
+            return img[:, :, :3]
+        return img
 
     def __call__(self, image, **kwargs):
         return self.forward(image)
 
 
 
-def interpolation_lookup(interpolation_str='bilinear'):
-        # PIL.Image.bilinear
-        return getattr(PIL.Image, interpolation_str.upper())
+# def interpolation_lookup(interpolation_str='bilinear'):
+#         # PIL.Image.bilinear
+#         return getattr(PIL.Image, interpolation_str.upper())
