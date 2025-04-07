@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="galaxy-datasets",
-    version="0.0.21",
+    version="0.0.22",
     author="Mike Walmsley",
     author_email="walmsleymk1@gmail.com",
     description="Galaxy Zoo datasets for PyTorch/TensorFlow",
@@ -36,7 +36,7 @@ setuptools.setup(
             'torchvision >= 0.11.2',
             'torchaudio >= 0.10.1',
             'pytorch-lightning >=2.0',
-            'albumentations'  # torchvision now preferred
+            'albumentations <= 2.0'  # torchvision now preferred
         ],
         'tensorflow': [ # will be deprecated
             'tensorflow >= 2.10.0',
