@@ -42,6 +42,10 @@ class GalaxyDataModule(pl.LightningDataModule):
         resize_after_crop=224,
         custom_albumentation_transform=None,  # will override the settings above. If tuple, assume (train, test) transforms
         custom_torchvision_transform=None,  # similarly
+        # the above will soon be replaced with
+        # transform_cfg=None,
+        # train_transform_cfg=None,
+        # inference_transform_cfg=None,
         # hardware params
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
@@ -129,6 +133,7 @@ class GalaxyDataModule(pl.LightningDataModule):
         import albumentations as A
 
         if self.custom_albumentation_transform is not None:
+            logging.warning('Custom albumentation transforms will be deprecated in future versions. Use torchvision transforms instead.')
             if isinstance(self.custom_albumentation_transform, tuple):
                 logging.info("Using different albumentations transforms for train and test")
                 assert len(self.custom_albumentation_transform) == 2

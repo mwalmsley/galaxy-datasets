@@ -23,10 +23,6 @@ class WebDataModule(pl.LightningDataModule):
             num_workers=4,
             prefetch_factor=4,
             cache_dir=None,
-            greyscale=False,
-            crop_scale_bounds=(0.7, 0.8),
-            crop_ratio_bounds=(0.9, 1.1),
-            resize_after_crop=224,
             train_transform: Callable=None,
             inference_transform: Callable=None
             ):
@@ -46,12 +42,6 @@ class WebDataModule(pl.LightningDataModule):
         self.prefetch_factor = prefetch_factor
 
         self.cache_dir = cache_dir
-
-        # could use mixin
-        self.greyscale = greyscale
-        self.resize_after_crop = resize_after_crop
-        self.crop_scale_bounds = crop_scale_bounds
-        self.crop_ratio_bounds = crop_ratio_bounds
 
         self.train_transform = train_transform
         self.inference_transform = inference_transform
@@ -74,32 +64,34 @@ class WebDataModule(pl.LightningDataModule):
         if predict_urls is not None:
             self.predict_size = interpret_dataset_size_from_urls(predict_urls)
 
-    def make_image_transform(self, mode="train"):
+    # def make_image_transform(self, mode="train"):
+    #     # only used if you don't explicitly pass a transform to the datamodule
+    # NOW DEPRECATED because we don't use albumentations
 
-        augmentation_transform = transforms.default_transforms(
-            crop_scale_bounds=self.crop_scale_bounds,
-            crop_ratio_bounds=self.crop_ratio_bounds,
-            resize_after_crop=self.resize_after_crop,
-            pytorch_greyscale=self.greyscale,
-            to_float=False,  # True was wrong, webdataset rgb decoder already converts to 0-1 float
-            # TODO now changed on dev branch will be different for new model training runs
-            # this compose will now return a Tensor object, default transform was updated
-            to_tensor=True
-        )  # A.Compose object
+    #     augmentation_transform = transforms.default_transforms(
+    #         crop_scale_bounds=self.crop_scale_bounds,
+    #         crop_ratio_bounds=self.crop_ratio_bounds,
+    #         resize_after_crop=self.resize_after_crop,
+    #         pytorch_greyscale=self.greyscale,
+    #         to_float=False,  # True was wrong, webdataset rgb decoder already converts to 0-1 float
+    #         # TODO now changed on dev branch will be different for new model training runs
+    #         # this compose will now return a Tensor object, default transform was updated
+    #         to_tensor=True
+    #     )  # A.Compose object
 
-        # logging.warning('Minimal augmentations for speed test')
-        # augmentation_transform = transforms.fast_transforms(
-        #     resize_after_crop=self.resize_after_crop,
-        #     pytorch_greyscale=not self.color
-        # )  # A.Compose object
+    #     # logging.warning('Minimal augmentations for speed test')
+    #     # augmentation_transform = transforms.fast_transforms(
+    #     #     resize_after_crop=self.resize_after_crop,
+    #     #     pytorch_greyscale=not self.color
+    #     # )  # A.Compose object
 
-        def do_transform(img):
-            # img is 0-1 np array, intended for albumentations
-            assert img.shape[2] < 4  # 1 or 3 channels in shape[2] dim, i.e. numpy/pil HWC convention
-            # if not, check decode mode is 'rgb' not 'torchrgb'
-            # default augmentation now returns CHW tensor
-            return augmentation_transform(image=np.array(img))["image"]
-        return do_transform
+    #     def do_transform(img):
+    #         # img is 0-1 np array, intended for albumentations
+    #         assert img.shape[2] < 4  # 1 or 3 channels in shape[2] dim, i.e. numpy/pil HWC convention
+    #         # if not, check decode mode is 'rgb' not 'torchrgb'
+    #         # default augmentation now returns CHW tensor
+    #         return augmentation_transform(image=np.array(img))["image"]
+    #     return do_transform
 
 
     def make_loader(self, urls, mode="train"):
@@ -114,24 +106,29 @@ class WebDataModule(pl.LightningDataModule):
 
         if self.train_transform is None:
             logging.info('Using default transform')
-            decode_mode = 'rgb' # loads 0-1 np.array, for albumentations
-            transform_image = self.make_image_transform(mode=mode)
-        else:
-            logging.info('Ignoring other arguments to WebDataModule and using directly-passed transforms')
-            decode_mode = 'torchrgb'  # tensor, for torchvision
-            transform_image = self.train_transform if mode == 'train' else self.inference_transform
+            raise NotImplementedError('Deprecated')
+            # transform_image = self.make_image_transform()
+        # else:
+            # logging.info('Ignoring other arguments to WebDataModule and using directly-passed transforms')
 
+        transform_image = self.train_transform if mode == 'train' else self.inference_transform
 
         transform_label = dict_to_label_cols_factory(self.label_cols)
 
         dataset =  wds.WebDataset(urls, cache_dir=self.cache_dir, shardshuffle=shuffle>0, nodesplitter=nodesplitter_func)
-            # https://webdataset.github.io/webdataset/multinode/ 
-            # WDS 'knows' which worker it is running on and selects a subset of urls accordingly
+        # https://webdataset.github.io/webdataset/multinode/ 
+        # WDS 'knows' which worker it is running on and selects a subset of urls accordingly
            
         if shuffle > 0:
             dataset = dataset.shuffle(shuffle)
 
+        # this controls how webdataset decodes the images, either rgb or torch tensors, see above
+        decode_mode = 'torchrgb'  # tensor, for torchvision. Set pil_to_tensor=False in torchvision transforms, already tensor
+        # decode_mode = 'rgb' # loads 0-1 np.array, for albumentations
         dataset = dataset.decode(decode_mode)
+
+        # now the webdataset needs to be unpacked (into tensor image, or tensor image, tensor label)
+        # and transformed with whatever you passed to transform_image
     
         if mode == 'predict':
             if self.label_cols != ['id_str']:
