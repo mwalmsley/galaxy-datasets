@@ -533,7 +533,7 @@ gz_evo_v2_label_cols, gz_evo_v2_pairs, gz_evo_v2_dependencies = get_gz_evo_v2_me
 gz_evo_v2_public_label_cols, gz_evo_v2_public_pairs, gz_evo_v2_public_dependencies = get_gz_evo_v2_metadata(internal=False)
 
 
-jwst_ortho_pairs = {
+jwst_ceers_ortho_pairs = {
     'smooth-or-featured-jwst': ['_smooth', '_featured-or-disk', '_star-artifact-zoom'],
     'disk-edge-on-jwst': ['_yes', '_no'],
     'has-spiral-arms-jwst': ['_yes', '_no'],
@@ -547,9 +547,9 @@ jwst_ortho_pairs = {
     'merging-jwst': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
     'problem-jwst': ['_star', '_artifact', '_bad-zoom']
 }
-jwst_ortho_questions, jwst_ortho_label_cols = extract_questions_and_label_cols(jwst_ortho_pairs)
+jwst_ceers_ortho_questions, jwst_ceers_ortho_label_cols = extract_questions_and_label_cols(jwst_ceers_ortho_pairs)
 
-jwst_ortho_dependencies = {
+jwst_ceers_ortho_dependencies = {
     'smooth-or-featured-jwst': None,  # always asked
     'disk-edge-on-jwst': 'smooth-or-featured-jwst_featured-or-disk',
     'has-spiral-arms-jwst': 'disk-edge-on-jwst_no',
@@ -564,3 +564,31 @@ jwst_ortho_dependencies = {
     'problem-jwst': 'smooth-or-featured-jwst_star-artifact-zoom'
 }
 
+jwst_cosmos_ortho_pairs = {
+    'smooth-or-featured-jwst': ['_smooth', '_featured-or-disk', '_star-artifact-zoom'],
+    'disk-edge-on-jwst': ['_yes', '_no'],
+    'has-spiral-arms-jwst': ['_yes', '_no'],
+    'bar-jwst': ['_strong', '_weak', '_no'],
+    'bulge-size-jwst': ['_dominant', '_large', '_moderate', '_small', '_none'],
+    'edge-on-bulge-jwst': ['_boxy', '_none', '_rounded'],
+    'spiral-winding-jwst': ['_tight', '_medium', '_loose'],
+    'spiral-arm-count-jwst': ['_1', '_2', '_3', '_4', '_more-than-4', '_cant-tell'],
+    'clumps-jwst': ['_yes', '_no'],
+    'merging-jwst': ['_none', '_minor-disturbance', '_major-disturbance', '_merger'],
+    'problem-jwst': ['_star', '_artifact', '_bad-zoom']
+}
+jwst_cosmos_ortho_questions, jwst_cosmos_ortho_label_cols = extract_questions_and_label_cols(jwst_cosmos_ortho_pairs)
+
+jwst_cosmos_ortho_dependencies = {
+    'smooth-or-featured-jwst': None,  # always asked
+    'disk-edge-on-jwst': 'smooth-or-featured-jwst_featured-or-disk',
+    'has-spiral-arms-jwst': 'disk-edge-on-jwst_no',
+    'bar-jwst': 'disk-edge-on-jwst_no',
+    'bulge-size-jwst': 'disk-edge-on-jwst_no',
+    'edge-on-bulge-jwst': 'disk-edge-on-jwst_yes',
+    'spiral-winding-jwst': 'has-spiral-arms-jwst_yes',
+    'spiral-arm-count-jwst': 'has-spiral-arms-jwst_yes',
+    'merging-jwst': None,  # ignores artifact,
+    'clumps-jwst': None,  # ignores artifact
+    'problem-jwst': 'smooth-or-featured-jwst_star-artifact-zoom'
+}
