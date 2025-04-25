@@ -353,6 +353,10 @@ class HF_GalaxyDataModule(GalaxyDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
+
+        # https://huggingface.co/docs/datasets/en/use_with_pytorch
+        self.dataset = self.dataset.with_format("torch")
+
         if stage == "fit" or stage is None:
             if "val" in self.dataset.keys():
                 # life is good, we have all the splits we need

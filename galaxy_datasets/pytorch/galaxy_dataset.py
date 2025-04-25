@@ -99,7 +99,7 @@ class HF_GalaxyDataset(Dataset):
     def __init__(
         self,
         dataset: hf_datasets.Dataset,  # HF Dataset
-        label_cols=['label'],
+        label_cols=['label'],  # assumed to be columns in the dataset which can be stacked in order
         transform=None,
         target_transform=None,
     ):
