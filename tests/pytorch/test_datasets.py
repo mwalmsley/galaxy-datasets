@@ -2,7 +2,7 @@ import pytest
 
 import os
 
-from galaxy_datasets.pytorch import datasets, galaxy_datamodule
+from galaxy_datasets.pytorch import galaxy_datamodule, our_datasets
 
 
 def base_root_dir():
@@ -16,7 +16,7 @@ def base_root_dir():
 
 
 def tidal_dataset():
-    return datasets.Tidal(
+    return our_datasets.Tidal(
         root=os.path.join(base_root_dir(), 'tidal'),
         train=True,
         download=False
@@ -24,14 +24,14 @@ def tidal_dataset():
 
 
 def gz_decals_dataset():
-    return datasets.GZDecals5(
+    return our_datasets.GZDecals5(
         root=os.path.join(base_root_dir(), 'gz_decals'),
         train=True,
         download=False
     )
 
 def gz_desi_dataset():
-    return datasets.GZDesi(
+    return our_datasets.GZDesi(
         root=os.path.join(base_root_dir(), 'gz_desi'),
         train=True,
         download=False
@@ -39,14 +39,14 @@ def gz_desi_dataset():
 
 
 def gz2_dataset():
-    return datasets.GZ2(
+    return our_datasets.GZ2(
         root=os.path.join(base_root_dir(), 'gz2'),
         download=False
     )
 
 
 def gz_rings_dataset():
-    return datasets.GZRings(
+    return our_datasets.GZRings(
         root=os.path.join(base_root_dir(), 'gz_rings'),
         train=True,
         download=False
@@ -54,20 +54,20 @@ def gz_rings_dataset():
 
 
 def gz_hubble_dataset():
-    return datasets.GZHubble(
+    return our_datasets.GZHubble(
         root=os.path.join(base_root_dir(), 'gz_hubble'),
         download=False
     )
 
 
 def gz_candels_dataset():
-    return datasets.GZCandels(
+    return our_datasets.GZCandels(
         root=os.path.join(base_root_dir(), 'gz_candels'),
         download=False
     )
 
 def demo_rings_dataset():
-    return datasets.DemoRings(
+    return our_datasets.DemoRings(
         root=os.path.join(base_root_dir(), 'demo_rings'),
         download=True  # tests can download, it's small
     )
