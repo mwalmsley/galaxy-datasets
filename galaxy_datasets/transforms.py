@@ -126,6 +126,10 @@ class GalaxyViewTransform():
         transform.append(T.ToDtype(torch.float32, scale=True))
         # transform.append(T.ConvertImageDtype(torch.float32))
 
+        # and optionally use timm cfg to normalize
+        if cfg.normalize:
+            transform.append(T.Normalize(**cfg.normalize))
+
         self.transform = T.Compose(transform)
 
 
@@ -135,7 +139,6 @@ class GalaxyViewTransform():
 
 
 def default_view_config():
-    # for debugging
      return DictConfig(dict(
         pil_to_tensor=True,
         fixed_crop=False,
@@ -158,7 +161,8 @@ def default_view_config():
         erase_iterations=5,
         random_erasing=dict(p=1., scale=[0.002, 0.007], ratio=[0.5, 2.]),
         posterize=False,
-        elastic_prob=0.
+        elastic_prob=0.,
+        normalize=False  # {mean, std} from timm cfg 'mean' and 'std'
         # elastic=dict(alpha=100, sigma=10.)
     ))
 
@@ -179,7 +183,8 @@ def minimal_view_config():
         color_jitter_prob=0.,
         erase_iterations=0,
         posterize=False,
-        elastic_prob=0.
+        elastic_prob=0.,
+        normalize=False  # {mean, std} from timm cfg 'mean' and 'std'
     ))
 
 def fast_view_config():
