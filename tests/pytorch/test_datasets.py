@@ -85,17 +85,25 @@ def test_dataset(dataset):
     catalog = dataset.catalog
     label_cols = dataset.label_cols
 
-    adjusted_catalog = catalog.sample(100)
+    adjusted_catalog = catalog.sample(256)
 
     # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
     # (which makes its own generic datasets internally)
     datamodule = galaxy_datamodule.GalaxyDataModule(
         label_cols=label_cols,
-        catalog=adjusted_catalog
+        catalog=adjusted_catalog,
+        batch_size=32  # need at least one batch
     )
 
     datamodule.prepare_data()
     datamodule.setup()
+
+    any_batches = False
     for images, labels in datamodule.train_dataloader():
+        any_batches = True
         print(images.shape, labels.shape)
+        assert images.max() > (1.01 / 255.), "Image values should be in range [0, 1.], max is {}, suspected /255 twice".format(images.max())
+        assert images.max() < 1.01, "Image values should be in range [0, 1. ], max is {}".format(images.max())
+        assert images.min() > -0.01, "Image values should be in range [0, 1.], min is {}".format(images.min())
         break
+    assert any_batches, "No batches were returned from the dataloader"
