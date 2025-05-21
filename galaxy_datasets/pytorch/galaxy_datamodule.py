@@ -13,8 +13,9 @@ from torch.utils.data import DataLoader
 import datasets as hf_datasets
 
 from galaxy_datasets.pytorch import galaxy_dataset
-from galaxy_datasets.transforms import default_transforms
-
+# from galaxy_datasets.transforms import default_transforms
+# for type checking
+from torchvision.transforms.v2 import Compose
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
 class GalaxyDataModule(pl.LightningDataModule):
@@ -23,7 +24,8 @@ class GalaxyDataModule(pl.LightningDataModule):
     # easy to make dataset-specific default transforms if desired
     def __init__(
         self,
-        label_cols,
+        label_cols: list,
+        requested_transform,  # torchvision transform composed object, or tuple of two (train, test) transforms
         # provide full catalog for automatic split, or...
         catalog=None,
         train_fraction=0.7,
@@ -35,17 +37,18 @@ class GalaxyDataModule(pl.LightningDataModule):
         test_catalog: Optional[pd.DataFrame] = None,
         predict_catalog: Optional[pd.DataFrame] = None,
         # augmentation params (sensible supervised defaults)
-        greyscale=False,
+        # greyscale=False,
         # album=False,  # now True always
-        crop_scale_bounds=(0.7, 0.8),
-        crop_ratio_bounds=(0.9, 1.1),
-        resize_after_crop=224,
-        custom_albumentation_transform=None,  # will override the settings above. If tuple, assume (train, test) transforms
-        custom_torchvision_transform=None,  # similarly
+        # crop_scale_bounds=(0.7, 0.8),
+        # crop_ratio_bounds=(0.9, 1.1),
+        # resize_after_crop=224,
+        # custom_albumentation_transform=None,  # will override the settings above. If tuple, assume (train, test) transforms
+        # custom_torchvision_transform=None,  # similarly
         # the above will soon be replaced with
         # transform_cfg=None,
         # train_transform_cfg=None,
         # inference_transform_cfg=None,
+
         # hardware params
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
@@ -69,6 +72,8 @@ class GalaxyDataModule(pl.LightningDataModule):
             # see setup() for how having only some explicit catalogs is handled
 
         self.label_cols = label_cols
+
+        self.requested_transform = requested_transform
 
         self.catalog = catalog
         self.train_catalog = train_catalog
@@ -103,70 +108,34 @@ class GalaxyDataModule(pl.LightningDataModule):
         logging.info("Num workers: {}".format(self.num_workers))
         logging.info("Prefetch factor: {}".format(self.prefetch_factor))
 
-        self.custom_albumentation_transform = custom_albumentation_transform
-        self.custom_torchvision_transform = custom_torchvision_transform
-        self.resize_after_crop = resize_after_crop
-        self.crop_scale_bounds = crop_scale_bounds
-        self.crop_ratio_bounds = crop_ratio_bounds
-        self.greyscale = greyscale
+        # self.custom_albumentation_transform = custom_albumentation_transform
+        # self.custom_torchvision_transform = custom_torchvision_transform
+        # self.resize_after_crop = resize_after_crop
+        # self.crop_scale_bounds = crop_scale_bounds
+        # self.crop_ratio_bounds = crop_ratio_bounds
+        # self.greyscale = greyscale
 
-        if custom_torchvision_transform is not None:
-            logging.info("Using custom torchvision transform for augmentations")
-            self.transform_with_torchvision()
-        else:
-            logging.info("Using albumentations transform for augmentations")
-            self.transform_with_albumentations()
+        # if custom_torchvision_transform is not None:
+        #     logging.info("Using custom torchvision transform for augmentations")
+        self.transform_with_torchvision()  # now required
+        # else:
+        #     logging.info("Using albumentations transform for augmentations")
+        #     self.transform_with_albumentations()
 
     def transform_with_torchvision(self):
-        # TODO
-        # galaxy_datasets loads PIL images, likely need PILToTensor() in any custom torchvision transform. review.
-        if isinstance(self.custom_torchvision_transform, tuple):
+        if isinstance(self.requested_transform, tuple) or isinstance(self.requested_transform, list):
             logging.info("Using different torchvision transforms for train and test")
-            assert len(self.custom_torchvision_transform) == 2
-            self.train_transform = self.custom_torchvision_transform[0]
-            self.test_transform = self.custom_torchvision_transform[1]
+            assert len(self.requested_transform) == 2
+            self.train_transform = self.requested_transform[0]
+            self.test_transform = self.requested_transform[1]
         else:
-            self.train_transform = self.custom_torchvision_transform
-            self.test_transform = self.custom_torchvision_transform
+            self.train_transform = self.requested_transform
+            self.test_transform = self.requested_transform
 
-    def transform_with_albumentations(self):
-        import albumentations as A
-
-        if self.custom_albumentation_transform is not None:
-            logging.warning('Custom albumentation transforms will be deprecated in future versions. Use torchvision transforms instead.')
-            if isinstance(self.custom_albumentation_transform, tuple):
-                logging.info("Using different albumentations transforms for train and test")
-                assert len(self.custom_albumentation_transform) == 2
-                assert isinstance(self.custom_albumentation_transform[0], A.Compose)
-                self.train_transform = partial(
-                    do_transform,
-                    transforms_to_apply=self.custom_albumentation_transform[0],
-                )
-                self.test_transform = partial(
-                    do_transform,
-                    transforms_to_apply=self.custom_albumentation_transform[1],
-                )
-            else:
-                logging.info("Using the same custom albumentations transforms for train and test")
-                self.train_transform = partial(
-                    do_transform,
-                    transforms_to_apply=self.custom_albumentation_transform,
-                )
-                self.test_transform = partial(
-                    do_transform,
-                    transforms_to_apply=self.custom_albumentation_transform,
-                )
-        else:
-            logging.info("Using basic albumentations transforms for augmentations")
-            # gives a transforms = Compose() object
-            transforms_to_apply = default_transforms(
-                crop_scale_bounds=self.crop_scale_bounds,
-                crop_ratio_bounds=self.crop_ratio_bounds,
-                resize_after_crop=self.resize_after_crop,
-                pytorch_greyscale=self.greyscale,
-            )
-            self.train_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
-            self.test_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
+        # check that user correctly passed torchvision transform or tuple thereof
+        # easy to accidentally pass the cfg objects, or to use GalaxyViewTransform without .transform for the Compose
+        assert isinstance(self.train_transform, Compose), type(self.train_transform)
+        assert isinstance(self.test_transform, Compose), type(self.test_transform)
 
     # only called on main process
     def prepare_data(self):
@@ -294,12 +263,12 @@ class GalaxyDataModule(pl.LightningDataModule):
             # (could write this shorter but this is clearest)
 
 
-def do_transform(img, transforms_to_apply):
-    # albumentations expects np array, and returns dict keyed by "image"
-    # transforms_to_apply should return tensor in BCHW (torch style). 
-    # true by default since default_transforms now uses to_tensor=True
-    # Albumentations doesn't do this by default, so add transpose/to_tensor if using custom albumentations
-    return transforms_to_apply(image=np.array(img))["image"]
+# def do_transform(img, transforms_to_apply):
+#     # albumentations expects np array, and returns dict keyed by "image"
+#     # transforms_to_apply should return tensor in BCHW (torch style). 
+#     # true by default since default_transforms now uses to_tensor=True
+#     # Albumentations doesn't do this by default, so add transpose/to_tensor if using custom albumentations
+#     return transforms_to_apply(image=np.array(img))["image"]
 
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
@@ -399,3 +368,42 @@ class HF_GalaxyDataModule(GalaxyDataModule):
                 target_transform=self.target_transform,
             )
 
+
+    # def transform_with_albumentations(self):
+    #     import albumentations as A
+
+    #     if self.custom_albumentation_transform is not None:
+    #         logging.warning('Custom albumentation transforms will be deprecated in future versions. Use torchvision transforms instead.')
+    #         if isinstance(self.custom_albumentation_transform, tuple):
+    #             logging.info("Using different albumentations transforms for train and test")
+    #             assert len(self.custom_albumentation_transform) == 2
+    #             assert isinstance(self.custom_albumentation_transform[0], A.Compose)
+    #             self.train_transform = partial(
+    #                 do_transform,
+    #                 transforms_to_apply=self.custom_albumentation_transform[0],
+    #             )
+    #             self.test_transform = partial(
+    #                 do_transform,
+    #                 transforms_to_apply=self.custom_albumentation_transform[1],
+    #             )
+    #         else:
+    #             logging.info("Using the same custom albumentations transforms for train and test")
+    #             self.train_transform = partial(
+    #                 do_transform,
+    #                 transforms_to_apply=self.custom_albumentation_transform,
+    #             )
+    #             self.test_transform = partial(
+    #                 do_transform,
+    #                 transforms_to_apply=self.custom_albumentation_transform,
+    #             )
+    #     else:
+    #         logging.info("Using basic albumentations transforms for augmentations")
+    #         # gives a transforms = Compose() object
+    #         transforms_to_apply = default_transforms(
+    #             crop_scale_bounds=self.crop_scale_bounds,
+    #             crop_ratio_bounds=self.crop_ratio_bounds,
+    #             resize_after_crop=self.resize_after_crop,
+    #             pytorch_greyscale=self.greyscale,
+    #         )
+    #         self.train_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
+    #         self.test_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
