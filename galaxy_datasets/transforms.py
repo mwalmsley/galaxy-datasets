@@ -203,7 +203,8 @@ def fast_view_config():
         color_jitter_prob=0.,
         erase_iterations=0,
         posterize=False,
-        elastic_prob=0.
+        elastic_prob=0.,
+        normalize=False 
     ))
 
 # for now, will deprecate

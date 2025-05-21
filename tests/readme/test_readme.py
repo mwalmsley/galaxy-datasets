@@ -4,18 +4,22 @@ import pytest
 import os
 
 @pytest.fixture()
-def example_root():
-    if os.path.isdir('/share/nas2'):
-        return '/share/nas2/walml/repos/_data/gz2'
+def base_root_dir():
+    if os.path.isdir('/nvme1/scratch'):
+        return '/nvme1/scratch/walml/repos/galaxy-datasets/roots'
+    elif os.path.isdir('/share/nas2'):
+        return '/share/nas2/walml/repos/_data'
     else:
-        return '/nvme1/scratch/walml/repos/galaxy-datasets/roots/gz2'
+        return 'roots'
+    # TODO should really be relative to this file, not assuming repo root
+
 
 @pytest.fixture()  # also a test
-def get_catalog(example_root):
+def get_catalog(base_root_dir):
     from galaxy_datasets import gz2  # or gz_hubble, gz_candels, ...
 
     catalog, label_cols = gz2(
-        root=example_root,
+        root=base_root_dir,
         train=True,
         download=True
     )
@@ -31,12 +35,12 @@ def test_pytorch_dataset_custom(get_catalog):
         label_cols=['smooth-or-featured-gz2_smooth']
     )
 
-def test_pytorch_dataset_canonical(example_root):
+def test_pytorch_dataset_canonical(base_root_dir):
 
     from galaxy_datasets.pytorch import GZ2
 
     gz2_dataset = GZ2(
-        root=example_root,
+        root=base_root_dir,
         train=True,
         download=False
     )

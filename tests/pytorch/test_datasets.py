@@ -4,6 +4,8 @@ import os
 
 from galaxy_datasets.pytorch import galaxy_datamodule, our_datasets
 
+# when download=False, will fail unless already downloaded
+# check roots first for e.g. gz_decals, large datasets
 
 def base_root_dir():
     if os.path.isdir('/nvme1/scratch'):

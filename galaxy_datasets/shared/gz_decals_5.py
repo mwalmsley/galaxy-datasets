@@ -33,3 +33,10 @@ def gz_decals_5(root, train, download):
 
     return catalog, label_cols
 
+if __name__ == '__main__':
+    
+    gz_decals_5(
+        root='/home/walml/repos/galaxy-datasets/roots/gz_decals_5',
+        train=True,
+        download=True
+    )
