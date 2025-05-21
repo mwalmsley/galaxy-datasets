@@ -353,9 +353,7 @@ class HF_GalaxyDataModule(GalaxyDataModule):
     def setup(self, stage: Optional[str] = None):
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
-
-        # https://huggingface.co/docs/datasets/en/use_with_pytorch
-        self.dataset = self.dataset.with_format("torch")
+        # assumes dataset is torch format
 
         if stage == "fit" or stage is None:
             if "val" in self.dataset.keys():
@@ -388,6 +386,14 @@ class HF_GalaxyDataModule(GalaxyDataModule):
         if stage == "test" or stage is None:
             self.test_dataset = galaxy_dataset.HF_GalaxyDataset(
                 dataset=self.dataset['test'],
+                label_cols=self.label_cols,
+                transform=self.test_transform,
+                target_transform=self.target_transform,
+            )
+
+        elif stage == "predict":
+            self.predict_dataset = galaxy_dataset.HF_GalaxyDataset(
+                dataset=self.dataset['predict'],
                 label_cols=self.label_cols,
                 transform=self.test_transform,
                 target_transform=self.target_transform,

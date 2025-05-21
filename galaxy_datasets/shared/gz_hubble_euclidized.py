@@ -3,8 +3,6 @@ import logging
 
 import pandas as pd
 
-from zoobot.shared import label_metadata
-
 from galaxy_datasets.shared import download_utils, label_metadata
 from galaxy_datasets.check_internal_urls import INTERNAL_URLS_EXIST
 if not INTERNAL_URLS_EXIST:

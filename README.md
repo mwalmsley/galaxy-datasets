@@ -3,9 +3,9 @@
 ML-friendly datasets for major Galaxy Zoo citizen science campaigns.
 
 - PyTorch Datasets and PyTorch Lightning DataModules
-- TensorFlow tf.data.Dataset's
-- Framework-independent (i.e. TensorFlow-friendly) download and augmentation code
+- Framework-independent download and augmentation code
 
+See also our [HuggingFace datasets](https://huggingface.co/mwalmsley), which offer faster downloads and more flexible use. This repo was created earlier and may ultimately be replaced by HuggingFace.
 
 | Name      | Method | PyTorch Dataset | Published | Downloadable | Galaxies
 | ----------- | ----- | ----------- | --- | ---- | ---- |
@@ -48,9 +48,7 @@ Installing [zoobot](www.github/mwalmsley/zoobot) will automatically install this
 
 To install directly:
 
-- `pip install galaxy-datasets[pytorch]` for PyTorch dependencies
-- `pip install galaxy-datasets[tensorflow]` for TensorFlow dependencies
-- `pip install galaxy-datasets[pytorch,tensorflow]` for both
+- `pip install galaxy-datasets` (includes PyTorch dependencies)
 
 For local development (e.g. adding a new dataset), you can install this by cloning from github, then running `pip install -e .` in the cloned repo root. This makes changing the code easier than if you don't use the -e, in which case the package is installed under sitepackages.
 
@@ -133,6 +131,8 @@ You might also find the PyTorch Lightning DataModule under `galaxy_datasets/pyto
         break
 
 ### TensorFlow
+
+*TensorFlow support has now been deprecated. The ML research community has broadly converged on PyTorch. We suggest using PyTorch or, for framework-indepedent data loading, our HuggingFace datasets. However, for now, the code below shold work.*
 
 To create a tf.data.Dataset from a catalog:
 

@@ -1,6 +1,6 @@
 import os
 
-from galaxy_datasets.pytorch.datasets import GZDesiDataset
+from galaxy_datasets.pytorch.our_datasets import GZDesiDataset
 
 if __name__ == '__main__':
 

@@ -4,7 +4,7 @@ from typing import List
 import numpy as np
 import pandas as pd
 from PIL import Image
-from torch.utils.data import Dataset
+from torch.utils.data import Dataset as torch_Dataset
 import torch
 import datasets as hf_datasets  # HuggingFace datasets
 
@@ -16,7 +16,7 @@ except ImportError:
 
 
 # https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
-class GalaxyDataset(Dataset):
+class GalaxyDataset(torch_Dataset):
     def __init__(
         self,
         catalog: pd.DataFrame,
@@ -95,10 +95,10 @@ class GalaxyDataset(Dataset):
 
 # https://huggingface.co/docs/datasets/en/use_with_pytorch
 # https://huggingface.co/docs/datasets/en/image_process
-class HF_GalaxyDataset(Dataset):
+class HF_GalaxyDataset(torch_Dataset):
     def __init__(
         self,
-        dataset: hf_datasets.Dataset,  # HF Dataset
+        dataset,#: hf_datasets.Dataset,  # HF Dataset
         label_cols=['label'],  # assumed to be columns in the dataset which can be stacked in order
         transform=None,
         target_transform=None,
@@ -112,7 +112,8 @@ class HF_GalaxyDataset(Dataset):
             transform (callable, optional): See Pytorch Datasets. Defaults to None.
             target_transform (callable, optional): See Pytorch Datasets. Defaults to None.
         """
-        self.dataset = dataset
+        # https://huggingface.co/docs/datasets/en/use_with_pytorch
+        self.dataset = dataset.with_format("torch")
         self.label_cols = label_cols
         self.transform = transform
         self.target_transform = target_transform
@@ -129,9 +130,28 @@ class HF_GalaxyDataset(Dataset):
         if self.target_transform:
             example = self.target_transform(example)  # slightly generalised: target_transform to expect and yield example, changing the targets (labels)
 
-        return (example['image'], torch.stack([example[label] for label in self.label_cols]).squeeze())
+        if self.label_cols is None: 
+            return example['image']  # predict mode
+        else:
+            return (example['image'], torch.stack([example[label] for label in self.label_cols]).squeeze())
         # ultimately I would prefer to migrate to 
         # return example  # dict like {'image': image, 'label_a': label_a, ...}
+
+    def get_catalogs(self) -> dict[pd.DataFrame]:
+        # return the original dataset
+        dataset = self.dataset.copy()
+
+        # has splits
+        if isinstance(dataset, hf_datasets.DatasetDict) or isinstance(dataset, dict):
+            for key in dataset.keys():
+                dataset_pd = dataset[key].with_format(type="pandas")
+                dataset[key] = dataset_pd[:]
+        else:  # single split
+            print(type(dataset))
+            dataset_pd = dataset.with_format(type="pandas")
+            dataset = dataset_pd[:]
+    
+        return dataset
 
 
 
@@ -191,18 +211,27 @@ def get_galaxy_label(galaxy: pd.Series, label_cols: List) -> np.ndarray:
 if __name__ == "__main__":
 
     # lazy test/example
-    import glob
+    # import glob
 
-    mixed_file_paths = glob.glob("tests/test_data/png_jpg_mix/*")
-    assert len(mixed_file_paths) > 0
-    data = {
-        "file_loc": mixed_file_paths,
-        "id_str": [str(x) for x in np.arange(len(mixed_file_paths))],
-    }
-    df = pd.DataFrame(data)
+    # mixed_file_paths = glob.glob("tests/data/jwst_grid/*")
+    # assert len(mixed_file_paths) > 0
+    # data = {
+    #     "file_loc": mixed_file_paths,
+    #     "id_str": [str(x) for x in np.arange(len(mixed_file_paths))],
+    # }
+    # df = pd.DataFrame(data)
 
-    dataset = GalaxyDataset(catalog=df)
-    for im in dataset:
-        im = np.array(im)  # returns PIL.Image, if not given label_cols or transform
-        print(im.shape)
-        print(im.mean(), im.min(), im.max())
+    # dataset = GalaxyDataset(catalog=df)
+    # for im in dataset:
+    #     im = np.array(im)  # returns PIL.Image, if not given label_cols or transform
+    #     print(im.shape)
+    #     print(im.mean(), im.min(), im.max())
+
+
+    # test hf
+    import datasets as hf_datasets
+    ds = hf_datasets.load_dataset("mwalmsley/euclid_strong_lens_expert_judges", "classification")
+    dataset = HF_GalaxyDataset(ds)
+    # print(dataset['train'][0])
+    # print(dataset)
+    print(dataset.get_catalogs())

@@ -2,8 +2,10 @@ import pytest
 
 import os
 
-from galaxy_datasets.pytorch import datasets, galaxy_datamodule
+from galaxy_datasets.pytorch import galaxy_datamodule, our_datasets
 
+# when download=False, will fail unless already downloaded
+# check roots first for e.g. gz_decals, large datasets
 
 def base_root_dir():
     if os.path.isdir('/nvme1/scratch'):
@@ -16,7 +18,7 @@ def base_root_dir():
 
 
 def tidal_dataset():
-    return datasets.Tidal(
+    return our_datasets.Tidal(
         root=os.path.join(base_root_dir(), 'tidal'),
         train=True,
         download=False
@@ -24,14 +26,14 @@ def tidal_dataset():
 
 
 def gz_decals_dataset():
-    return datasets.GZDecals5(
+    return our_datasets.GZDecals5(
         root=os.path.join(base_root_dir(), 'gz_decals'),
         train=True,
         download=False
     )
 
 def gz_desi_dataset():
-    return datasets.GZDesi(
+    return our_datasets.GZDesi(
         root=os.path.join(base_root_dir(), 'gz_desi'),
         train=True,
         download=False
@@ -39,14 +41,14 @@ def gz_desi_dataset():
 
 
 def gz2_dataset():
-    return datasets.GZ2(
+    return our_datasets.GZ2(
         root=os.path.join(base_root_dir(), 'gz2'),
         download=False
     )
 
 
 def gz_rings_dataset():
-    return datasets.GZRings(
+    return our_datasets.GZRings(
         root=os.path.join(base_root_dir(), 'gz_rings'),
         train=True,
         download=False
@@ -54,20 +56,20 @@ def gz_rings_dataset():
 
 
 def gz_hubble_dataset():
-    return datasets.GZHubble(
+    return our_datasets.GZHubble(
         root=os.path.join(base_root_dir(), 'gz_hubble'),
         download=False
     )
 
 
 def gz_candels_dataset():
-    return datasets.GZCandels(
+    return our_datasets.GZCandels(
         root=os.path.join(base_root_dir(), 'gz_candels'),
         download=False
     )
 
 def demo_rings_dataset():
-    return datasets.DemoRings(
+    return our_datasets.DemoRings(
         root=os.path.join(base_root_dir(), 'demo_rings'),
         download=True  # tests can download, it's small
     )
@@ -85,17 +87,25 @@ def test_dataset(dataset):
     catalog = dataset.catalog
     label_cols = dataset.label_cols
 
-    adjusted_catalog = catalog.sample(100)
+    adjusted_catalog = catalog.sample(256)
 
     # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
     # (which makes its own generic datasets internally)
     datamodule = galaxy_datamodule.GalaxyDataModule(
         label_cols=label_cols,
-        catalog=adjusted_catalog
+        catalog=adjusted_catalog,
+        batch_size=32  # need at least one batch
     )
 
     datamodule.prepare_data()
     datamodule.setup()
+
+    any_batches = False
     for images, labels in datamodule.train_dataloader():
+        any_batches = True
         print(images.shape, labels.shape)
+        assert images.max() > (1.01 / 255.), "Image values should be in range [0, 1.], max is {}, suspected /255 twice".format(images.max())
+        assert images.max() < 1.01, "Image values should be in range [0, 1. ], max is {}".format(images.max())
+        assert images.min() > -0.01, "Image values should be in range [0, 1.], min is {}".format(images.min())
         break
+    assert any_batches, "No batches were returned from the dataloader"
