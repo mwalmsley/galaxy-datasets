@@ -30,9 +30,6 @@ class GalaxyViewTransform():
         antialias = True
         
         transform = []
-
-        if cfg.pil_to_tensor:  # galaxydataset loads as PIL image, tensor is faster to work with
-            transform.append(T.PILToTensor())
         
         if cfg.greyscale:
             transform.append(T.Grayscale(num_output_channels=1))
@@ -121,6 +118,10 @@ class GalaxyViewTransform():
                     )],
                 p=cfg.elastic_prob)
             )
+
+        # tests show this is actually faster to do at the end, when using affine transform
+        if cfg.pil_to_tensor:  # galaxydataset loads as PIL image, tensor is faster to work with
+            transform.append(T.PILToTensor())
 
         # finally, shift to 0-1 float32 before hitting model etc
         transform.append(T.ToDtype(torch.float32, scale=True))
