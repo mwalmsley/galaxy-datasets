@@ -79,7 +79,7 @@ class GalaxyViewTransform():
             if cfg.rotation_prob > 0:
                     logging.info(f'Using RandomRotation, {cfg.rotation_prob}')
                     # I ASSUME this doesn't change the shape?
-                    transform.append(T.RandomRotation(degrees=90, interpolation=interpolation, p=cfg.rotation_prob))
+                    transform.append(T.RandomRotation(degrees=90, interpolation=interpolation))
 
 
         # flip and rotate. safe after any geometric transforms.

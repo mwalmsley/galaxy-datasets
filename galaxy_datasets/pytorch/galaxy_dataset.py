@@ -16,7 +16,7 @@ except ImportError:
 
 
 # https://pytorch.org/tutorials/beginner/basics/data_tutorial.html
-class GalaxyDataset(torch_Dataset):
+class CatalogDataset(torch_Dataset):
     def __init__(
         self,
         catalog: pd.DataFrame,
@@ -64,9 +64,13 @@ class GalaxyDataset(torch_Dataset):
         return len(self.catalog)
 
     def __getitem__(self, idx: int):
+
         # the index is id_str so can use that for quick search on 1M+ catalo
         # galaxy = self._catalog.loc[idx]
         galaxy = self.catalog.iloc[idx]
+
+
+        result = {'id_str': galaxy['id_str']}  # required key for all catalogs
 
         # load the image into memory
         image_loc = galaxy["file_loc"]
@@ -81,16 +85,18 @@ class GalaxyDataset(torch_Dataset):
         if self.transform:
             image = self.transform(image)
 
-        if self.label_cols is None:
-            return image
-        else:
+        result["image"] = image
+
+        if self.label_cols is not None:
             # load the labels. If no self.label_cols, will
             label = get_galaxy_label(galaxy, self.label_cols)
 
             if self.target_transform:
                 label = self.target_transform(label)
 
-            return image, label
+            result["label"] = label
+
+        return result
 
 
 # https://huggingface.co/docs/datasets/en/use_with_pytorch
