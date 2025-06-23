@@ -370,7 +370,7 @@ class HuggingFaceDataModule(CatalogDataModule):
             test_dataset_hf = self.dataset_dict['test']
             # not shuffled, so no need to flatten indices
             # never iterable, for now
-            test_dataset_hf = test_dataset_hf.with_transform(self.train_transform_wrapped_batch)
+            test_dataset_hf = test_dataset_hf.with_transform(self.test_transform_wrapped_batch)
             self.test_dataset = test_dataset_hf
 
 
@@ -378,7 +378,7 @@ class HuggingFaceDataModule(CatalogDataModule):
 
     def train_dataloader(self):
         return DataLoader(
-            self.train_dataset,
+            self.train_dataset,  # type: ignore
             batch_size=self.batch_size,
             shuffle=False,  # assume preshuffled
             num_workers=self.num_workers,
@@ -391,7 +391,7 @@ class HuggingFaceDataModule(CatalogDataModule):
 
     def val_dataloader(self):
         return DataLoader(
-            self.val_dataset,
+            self.val_dataset,  # type: ignore
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
@@ -404,7 +404,7 @@ class HuggingFaceDataModule(CatalogDataModule):
 
     def test_dataloader(self):
         return DataLoader(
-            self.test_dataset,
+            self.test_dataset,  # type: ignore
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
@@ -415,3 +415,20 @@ class HuggingFaceDataModule(CatalogDataModule):
             drop_last=False
         )
 
+    # not used within lightning, but helpful
+    def get_predict_dataloader(self, split: str):
+
+        # never iterable and always with test transform
+        predict_dataset = self.dataset_dict[split].with_transform(self.test_transform_wrapped_batch)
+
+        return DataLoader(
+            predict_dataset,  # type: ignore
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=self.num_workers > 0,
+            prefetch_factor=self.prefetch_factor,
+            timeout=self.dataloader_timeout,
+            drop_last=False
+        )
