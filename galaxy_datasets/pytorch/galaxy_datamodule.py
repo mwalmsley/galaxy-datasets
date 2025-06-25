@@ -28,7 +28,8 @@ class CatalogDataModule(pl.LightningDataModule):
     def __init__(
         self,
         label_cols: Union[List, None],
-        requested_transform,  # torchvision transform composed object, or tuple of two (train, test) transforms
+        # torchvision transform composed object, or tuple of two (train, test) transforms.
+        requested_transform = None, # if None, uses defaults
         # provide full catalog for automatic split, or...
         catalog=None,
         train_fraction=0.7,
@@ -64,6 +65,10 @@ class CatalogDataModule(pl.LightningDataModule):
 
         self.label_cols = label_cols
 
+        if requested_transform is None:
+            logging.warning("No transform requested, using default galaxy transforms")
+            from galaxy_datasets.transforms import get_galaxy_transform, default_view_config, minimal_view_config
+            requested_transform = (get_galaxy_transform(default_view_config()), get_galaxy_transform(minimal_view_config()))
         self.requested_transform = requested_transform
 
         self.catalog = catalog
