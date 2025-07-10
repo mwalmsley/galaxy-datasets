@@ -4,7 +4,7 @@ from typing import Optional, Union, List
 
 import numpy as np
 import pandas as pd
-import pytorch_lightning as pl
+import lighting as L
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
@@ -21,7 +21,7 @@ from galaxy_datasets.pytorch import galaxy_dataset
 from torchvision.transforms.v2 import Compose
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
-class CatalogDataModule(pl.LightningDataModule):
+class CatalogDataModule(L.LightningDataModule):
     # takes generic catalogs (which are already downloaded and happy),
     # splits if needed, and creates generic datasets->dataloaders etc
     # easy to make dataset-specific default transforms if desired
@@ -264,7 +264,7 @@ class HuggingFaceDataModule(CatalogDataModule):
         dataset_kwargs={}
     ):
         # super().__init__()
-        pl.LightningDataModule.__init__(self)
+        L.LightningDataModule.__init__(self)
 
         logging.info("Initializing HuggingFaceDataModule")
 

@@ -6,7 +6,7 @@ import json
 from itertools import islice
 
 
-import albumentations as A
+# import albumentations as A
 
 import tqdm
 import numpy as np

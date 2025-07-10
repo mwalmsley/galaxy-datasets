@@ -41,9 +41,6 @@ class CatalogDataset(torch_Dataset):
         ```
 
         Reads a catalog of jpeg galaxy images
-        if transform is from albumentations, datamodule should know about the transform including
-        catalog should be split already
-        should have correct image locations under file_loc
 
         Args:
             catalog (pd.DataFrame): with images under 'file_loc' and labels under label_cols
