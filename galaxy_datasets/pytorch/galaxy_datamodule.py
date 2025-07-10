@@ -4,7 +4,8 @@ from typing import Optional, Union, List
 
 import numpy as np
 import pandas as pd
-import lighting as L
+import lightning as L
+from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
