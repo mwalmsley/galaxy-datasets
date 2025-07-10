@@ -5,7 +5,7 @@ from galaxy_datasets.pytorch import galaxy_dataset
 
 # TODO could refactor these into same class if needed
 
-class GZCandels(galaxy_dataset.GalaxyDataset):
+class GZCandels(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -14,7 +14,7 @@ class GZCandels(galaxy_dataset.GalaxyDataset):
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-class GZDecals5(galaxy_dataset.GalaxyDataset):
+class GZDecals5(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -24,7 +24,7 @@ class GZDecals5(galaxy_dataset.GalaxyDataset):
 
 
 
-class GZ2(galaxy_dataset.GalaxyDataset):
+class GZ2(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -33,7 +33,7 @@ class GZ2(galaxy_dataset.GalaxyDataset):
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-class GZHubble(galaxy_dataset.GalaxyDataset):
+class GZHubble(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -42,7 +42,7 @@ class GZHubble(galaxy_dataset.GalaxyDataset):
         super().__init__(catalog, label_cols, transform, target_transform)
 
 
-class DemoRings(galaxy_dataset.GalaxyDataset):
+class DemoRings(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -50,7 +50,7 @@ class DemoRings(galaxy_dataset.GalaxyDataset):
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
-class GalaxyMNIST(galaxy_dataset.GalaxyDataset):
+class GalaxyMNIST(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -58,7 +58,7 @@ class GalaxyMNIST(galaxy_dataset.GalaxyDataset):
 
         super().__init__(catalog, label_cols, transform, target_transform)
 
-class Tidal(galaxy_dataset.GalaxyDataset):
+class Tidal(galaxy_dataset.CatalogDataset):
     
     def __init__(self, root, train=True, download=False, transform=None, target_transform=None, label_mode='coarse'):
 
@@ -72,7 +72,7 @@ from galaxy_datasets import check_internal_urls
 if check_internal_urls.INTERNAL_URLS_EXIST:
     from galaxy_datasets.shared import gz_desi, gz_rings, gz_h2o, gz_ukidss, gz_jwst
 
-    class GZDesi(galaxy_dataset.GalaxyDataset):
+    class GZDesi(galaxy_dataset.CatalogDataset):
         
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -80,7 +80,7 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
 
             super().__init__(catalog, label_cols, transform, target_transform)
 
-    class GZRings(galaxy_dataset.GalaxyDataset):
+    class GZRings(galaxy_dataset.CatalogDataset):
         
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -88,7 +88,7 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
 
             super().__init__(catalog, label_cols, transform, target_transform)
 
-    class GZH2O(galaxy_dataset.GalaxyDataset):
+    class GZH2O(galaxy_dataset.CatalogDataset):
         
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -97,7 +97,7 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
             super().__init__(catalog, label_cols, transform, target_transform)
 
 
-    class GZUKIDSS(galaxy_dataset.GalaxyDataset):
+    class GZUKIDSS(galaxy_dataset.CatalogDataset):
         
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -106,7 +106,7 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
             super().__init__(catalog, label_cols, transform, target_transform)
 
 
-    class GZJWST(galaxy_dataset.GalaxyDataset):
+    class GZJWST(galaxy_dataset.CatalogDataset):
         
         def __init__(self, root, train=True, download=False, transform=None, target_transform=None):
 
@@ -117,7 +117,7 @@ if check_internal_urls.INTERNAL_URLS_EXIST:
 
 
 # temporarily deprecated
-# class Legs(galaxy_dataset.GalaxyDataset):
+# class Legs(galaxy_dataset.CatalogDataset):
     
 #     # based on https://pytorch.org/vision/stable/generated/torchvision.datasets.STL10.html
 #     def __init__(self, root=None, split='train', download=False, transform=None, target_transform=None, train=None):
