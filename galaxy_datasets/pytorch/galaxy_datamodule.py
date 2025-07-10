@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
-import pytorch_lightning as pl
+import lightning as L
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
 
@@ -18,7 +18,7 @@ from galaxy_datasets.pytorch import galaxy_dataset
 from torchvision.transforms.v2 import Compose
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
-class GalaxyDataModule(pl.LightningDataModule):
+class GalaxyDataModule(L.LightningDataModule):
     # takes generic catalogs (which are already downloaded and happy),
     # splits if needed, and creates generic datasets->dataloaders etc
     # easy to make dataset-specific default transforms if desired
@@ -287,7 +287,7 @@ class HF_GalaxyDataModule(GalaxyDataModule):
         seed=42,
     ):
         # super().__init__()
-        pl.LightningDataModule.__init__(self)
+        L.LightningDataModule.__init__(self)
 
         self.batch_size = batch_size
 

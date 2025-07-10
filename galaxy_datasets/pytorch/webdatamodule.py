@@ -2,7 +2,7 @@ from typing import Callable
 import logging
 import torch.utils.data
 import numpy as np
-import pytorch_lightning as pl
+import lightning as L
 from itertools import islice
 
 import webdataset as wds
@@ -10,7 +10,7 @@ import webdataset as wds
 from galaxy_datasets import transforms
 
 # https://github.com/webdataset/webdataset-lightning/blob/main/train.py
-class WebDataModule(pl.LightningDataModule):
+class WebDataModule(L.LightningDataModule):
     def __init__(
             self,
             train_urls=None,
