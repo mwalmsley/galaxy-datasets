@@ -29,6 +29,11 @@ def get_galaxy_transform(cfg: DictConfig) -> T.Compose:
     if cfg.greyscale:
         transform.append(T.Grayscale(num_output_channels=1))
 
+    if cfg.flux_to_jpg_like_dynamic_range:
+        # fits to jpg-like scaling, e.g. for JWST
+        transform.append(fits_to_jpg_like_scaling(**cfg.flux_to_jpg_like_dynamic_range))
+        logging.info(f'Using fits_to_jpg_like_scaling with {cfg.flux_to_jpg_like_dynamic_range}')
+
     # transform += [T.ToImage()]  # explicit but not needed, just tells torchvision it's an image (assumed anway)
     # disabled for beluga
     # 'torchvision.transforms.v2' has no attribute 'ToImage'
@@ -115,6 +120,7 @@ def get_galaxy_transform(cfg: DictConfig) -> T.Compose:
         )
 
     # tests show this is actually faster to do at the end, when using affine transform
+    # set False if loading fits as we make a tensor already (since PIL doesn't support fp32)
     if cfg.pil_to_tensor:  # galaxydataset loads as PIL image, tensor is faster to work with
         transform.append(T.PILToTensor())
 
@@ -132,6 +138,7 @@ def get_galaxy_transform(cfg: DictConfig) -> T.Compose:
 def default_view_config():
      return DictConfig(dict(
         pil_to_tensor=True,
+        flux_to_jpg_like_dynamic_range=False,
         fixed_crop=False,
         output_size=224,
         greyscale=False,
@@ -143,23 +150,17 @@ def default_view_config():
         flip_prob=0.5,
         rotation_prob=0.,
         color_jitter_prob=0.,
-        # color_jitter=dict(
-        #     brightness=.5,
-        #     contrast=.3,
-        #     saturation=.5,
-        #     hue=None
-        # ),
         erase_iterations=5,
         random_erasing=dict(p=1., scale=[0.002, 0.007], ratio=[0.5, 2.]),
         posterize=False,
         elastic_prob=0.,
         normalize=False  # {mean, std} from timm cfg 'mean' and 'std'
-        # elastic=dict(alpha=100, sigma=10.)
     ))
 
 def minimal_view_config():
     return DictConfig(dict(
         pil_to_tensor=True,
+        flux_to_jpg_like_dynamic_range=False,
         fixed_crop=False,
         output_size=224,
         greyscale=False,
@@ -181,6 +182,7 @@ def minimal_view_config():
 def fast_view_config():
     return DictConfig(dict(
         pil_to_tensor=True,
+        flux_to_jpg_like_dynamic_range=False,
         fixed_crop=False,
         output_size=224,
         greyscale=False,
@@ -200,3 +202,63 @@ def fast_view_config():
 
 # for now, will deprecate
 # from galaxy_datasets.transforms_albumentations import minimal_transforms, fast_transforms, default_transforms, base_transforms
+
+
+
+# fits dynamic range support
+# only supports single channel fits images for now
+class fits_to_jpg_like_scaling(torch.nn.Module):
+
+    def __init__(self, arcsinh_q=1.0, percentile_min=0, percentile_max=99.7):
+        super(fits_to_jpg_like_scaling, self).__init__()
+
+        self.arcsinh_q = arcsinh_q  # scaling factor for arcsinh
+        self.percentile_min = percentile_min
+        self.percentile_max = percentile_max
+
+    def forward(self, img):  # img must be tensor
+        assert img.ndim == 3, "fits_to_ expects a tensor with 3 dimensions (HWC)"
+        assert isinstance(img, torch.Tensor), "fits_to_ expects a torch tensor"
+        assert img.dtype == torch.float32, "fits_to_ expects a float32 tensor"
+
+        # clip 
+        p_min = torch.quantile(img, self.percentile_min / 100.0)
+        p_max = torch.quantile(img, self.percentile_max / 100.0)
+        img = torch.clamp(img, p_min, p_max)
+
+        # scale to 0-1
+        img = (img - p_min) / (p_max - p_min)
+
+        # apply arcsinh scaling
+        img = torch.asinh(img * self.arcsinh_q)
+
+        return img
+
+
+if __name__ == "__main__":
+
+    # test fits
+    from galaxy_datasets.pytorch.galaxy_dataset import load_fits_file
+    fits_loc = '/home/walml/repos/zoobot/tests/data/fits_test/images/MOSAIC-VIS_TILE102018668-CUTOUT_59.6094541_-50.9728624.fits'
+    im = load_fits_file(fits_loc)
+    print(im.shape, im.dtype, im.min(), im.max())
+
+    # test new transform
+    # transforms = T.Compose([
+    #     fits_to_jpg_like_scaling(arcsinh_q=1.0, percentile_min=0, percentile_max=99.7),
+    #     T.ToDtype(torch.float32, scale=True)
+    # ])
+    # transformed = transforms(im)
+    # print(transformed.shape, transformed.dtype, transformed.min(), transformed.max())
+    # import matplotlib.pyplot as plt
+    # plt.imshow(transformed[0, :, :], cmap='gray')  # CHW
+    # plt.colorbar()
+    # plt.show()
+
+    # test transform as part of other transforms
+    cfg = default_view_config()
+    cfg.flux_to_jpg_like_dynamic_range={'arcsinh_q': 1.0, 'percentile_min': 0, 'percentile_max': 99.7}
+    cfg.pil_to_tensor = False  # fits already load as a tensor
+    transform = get_galaxy_transform(cfg)
+    transformed = transform(im)
+    print(transformed.shape, transformed.dtype, transformed.min(), transformed.max())
