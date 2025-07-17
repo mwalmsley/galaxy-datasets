@@ -41,9 +41,6 @@ class CatalogDataset(torch_Dataset):
         ```
 
         Reads a catalog of jpeg galaxy images
-        if transform is from albumentations, datamodule should know about the transform including
-        catalog should be split already
-        should have correct image locations under file_loc
 
         Args:
             catalog (pd.DataFrame): with images under 'file_loc' and labels under label_cols
@@ -167,12 +164,15 @@ class CatalogDataset(torch_Dataset):
 def load_img_file(loc):
     # wrapper around specific loaders below
     # could be more performant with a dict of {format:loader} but doubt significant
+
+    # these load PIL images
     if loc.endswith("png"):
         return load_png_file(loc)
     elif loc.endswith("jpg"):
         return load_jpg_file(loc)
     elif loc.endswith("jpeg"):
         return load_jpg_file(loc)
+    # fits can't be PIL, loads tensor instead
     elif loc.endswith("fits"):
         return load_fits_file(
             loc
@@ -207,7 +207,7 @@ def load_png_file(loc):
 def load_fits_file(loc):
     x = fits.open(loc)[0].data.astype(np.float32)
     # assumes single channel - add channel dimension
-    return np.expand_dims(x, axis=2)  # HWC
+    return torch.tensor(np.expand_dims(x, axis=0))  # CHW, unlike PIL images, by convension
 
 
 # def get_galaxy_label(galaxy: pd.Series, label_cols: List) -> np.ndarray:
@@ -238,9 +238,15 @@ if __name__ == "__main__":
 
 
     # test hf
-    import datasets as hf_datasets
-    ds = hf_datasets.load_dataset("mwalmsley/euclid_strong_lens_expert_judges", "classification")
-    dataset = HF_GalaxyDataset(ds)
-    # print(dataset['train'][0])
-    # print(dataset)
-    print(dataset.get_catalogs())
+    # import datasets as hf_datasets
+    # ds = hf_datasets.load_dataset("mwalmsley/euclid_strong_lens_expert_judges", "classification")
+    # dataset = HF_GalaxyDataset(ds)
+    # # print(dataset['train'][0])
+    # # print(dataset)
+    # print(dataset.get_catalogs())
+
+
+    # test fits
+    fits_loc = '/home/walml/repos/zoobot/tests/data/fits_test/images/MOSAIC-VIS_TILE102018668-CUTOUT_59.6094541_-50.9728624.fits'
+    im = load_fits_file(fits_loc)
+    print(im.shape, im.dtype, im.min(), im.max())
