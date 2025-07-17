@@ -34,7 +34,11 @@ def distribute_dataset_with_lightning(dataset_dict: hf_datasets.DatasetDict):
     # use env variables from slurm instead
     # distribute_dataset_with_lightning()
     rank = int(os.environ.get("SLURM_PROCID", 0))  # index of slurm task
-    world_size = int(os.environ.get("SLURM_NTASKS_PER_NODE", 1))  # number of slurm tasks = world size for single node
+    world_size = int(os.environ.get("SLURM_NTASKS", 1))  # total number of slurm tasks
+
+    # requested_nodes = int(os.environ['SLURM_NNODES'])  # e.g. 4
+    # requested_tasks_per_node = int(os.environ['SLURM_TASKS_PER_NODE'].split('(')[0])  # e.g. 2(x4) -> 2
+
 
     logging.info('Beginning data loading on rank {}, world size {}'.format(rank, world_size))
 
