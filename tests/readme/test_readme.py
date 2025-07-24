@@ -26,11 +26,11 @@ def get_catalog(base_root_dir):
     return catalog, label_cols
 
 def test_pytorch_dataset_custom(get_catalog):
-    from galaxy_datasets.pytorch.galaxy_dataset import GalaxyDataset  # generic Dataset for galaxies
+    from galaxy_datasets.pytorch.galaxy_dataset import CatalogDataset  # generic Dataset for galaxies
 
     catalog, _ = get_catalog
 
-    dataset = GalaxyDataset(
+    dataset = CatalogDataset(
         catalog=catalog.sample(1000),  # from gz2(...) above
         label_cols=['smooth-or-featured-gz2_smooth']
     )
@@ -44,52 +44,29 @@ def test_pytorch_dataset_canonical(base_root_dir):
         train=True,
         download=False
     )
-    image, label = gz2_dataset[0]
+    batch = gz2_dataset[0]
+    image = batch['image']
+    label = batch['smooth-or-featured-gz2_smooth']
 
 
 def test_pytorch_datamodule_custom(get_catalog):
 
     catalog, _ = get_catalog
     
-    from galaxy_datasets.pytorch.galaxy_datamodule import GalaxyDataModule
+    from galaxy_datasets.pytorch.galaxy_datamodule import CatalogDataModule
+    from galaxy_datasets.transforms import get_galaxy_transform, default_view_config
 
-    datamodule = GalaxyDataModule(
+    datamodule = CatalogDataModule(
         label_cols=['smooth-or-featured-gz2_smooth'],
-        catalog=catalog
-        # optional args to specify augmentations
+        catalog=catalog,
+        train_transform=get_galaxy_transform(default_view_config()),
+        test_transform=get_galaxy_transform(default_view_config())
     )
 
     datamodule.prepare_data()
     datamodule.setup()
-    for images, labels in datamodule.train_dataloader():
-        print(images.shape, labels.shape)
-        break
-
-# currently has protobuf version error locally
-@pytest.mark.skip
-def test_tensorflow_dataset(get_catalog):
-
-    import tensorflow as tf
-    from galaxy_datasets.tensorflow.datasets import get_image_dataset, add_transforms_to_dataset
-    from galaxy_datasets.transforms import default_transforms  # same transforms as PyTorch
-
-    catalog, label_cols = get_catalog
-
-    train_dataset = get_image_dataset(
-        image_paths = catalog['file_loc'],
-        labels=catalog[label_cols].values,
-        requested_img_size=224
-    )
-
-    # specify augmentations
-    transforms = default_transforms()
-
-    # apply augmentations
-    train_dataset = add_transforms_to_dataset(train_dataset, transforms)
-
-    # batch, shuffle, prefetch for performance
-    train_dataset = train_dataset.shuffle(5000).batch(64).prefetch(tf.data.experimental.AUTOTUNE)
-
-    for images, labels in train_dataset.take(1):
+    for batch in datamodule.train_dataloader():
+        images = batch['image']
+        labels = batch['smooth-or-featured-gz2_smooth']
         print(images.shape, labels.shape)
         break

@@ -41,13 +41,13 @@ def transform_config(base_transform_config, grayscale, pil_to_tensor):
 
 def test_GalaxyViewTransform_tensor(image_batch_tensor, transform_config):
     transform_config.pil_to_tensor = False  # starting with a tensor
-    transform = transforms.GalaxyViewTransform(transform_config)
+    transform = transforms.get_galaxy_transform(transform_config)
     transformed_batch = transform(image_batch_tensor)
     standard_image_checks(transformed_batch, transform_config)
 
 def test_GalaxyViewTransform_pil(image_pil, transform_config):
     transform_config.pil_to_tensor = True  # starting with a list of PIL images
-    transform = transforms.GalaxyViewTransform(transform_config)
+    transform = transforms.get_galaxy_transform(transform_config)
     transformed_image = transform(image_pil)
     standard_image_checks(transformed_image, transform_config)
 

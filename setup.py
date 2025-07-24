@@ -28,7 +28,7 @@ setuptools.setup(
         'requests',
         'scikit-learn',
         'omegaconf',  # for config
-        'datasets',  # for HF typing
+        'datasets >= 3.6',  # for HF typing
         # 'albumentations < 2.0',  # for augmentations, will be deprecated, torchvision now preferred
         'torch >= 1.10.1',
         'torchvision >= 0.11.2',
