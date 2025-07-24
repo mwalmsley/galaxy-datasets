@@ -10,7 +10,7 @@ from sklearn.model_selection import train_test_split
 from torch.utils.data import DataLoader
 
 from galaxy_datasets.pytorch import dataset_utils
-
+from galaxy_datasets.transforms import get_galaxy_transform, default_view_config, minimal_view_config
 
 
 # import torch
@@ -29,8 +29,8 @@ class CatalogDataModule(L.LightningDataModule):
     def __init__(
         self,
         label_cols: Union[List, None],
-        # torchvision transform composed object, or tuple of two (train, test) transforms.
-        requested_transform = None, # if None, uses defaults
+        train_transform: Optional[Compose] = None,
+        test_transform: Optional[Compose] = None,
         # provide full catalog for automatic split, or...
         catalog=None,
         train_fraction=0.7,
@@ -66,11 +66,17 @@ class CatalogDataModule(L.LightningDataModule):
 
         self.label_cols = label_cols
 
-        if requested_transform is None:
-            logging.warning("No transform requested, using default galaxy transforms")
-            from galaxy_datasets.transforms import get_galaxy_transform, default_view_config, minimal_view_config
-            requested_transform = (get_galaxy_transform(default_view_config()), get_galaxy_transform(minimal_view_config()))
-        self.requested_transform = requested_transform
+        if train_transform is None:
+            logging.warning("No train transform requested, using default galaxy transforms")
+            self.train_transform = get_galaxy_transform(default_view_config())
+        else:
+            self.train_transform = train_transform
+            
+        if test_transform is None:
+            logging.warning("No test transform requested, using minimal galaxy transforms")
+            self.test_transform = get_galaxy_transform(minimal_view_config())
+        else:
+            self.test_transform = test_transform
 
         self.catalog = catalog
         self.train_catalog = train_catalog
@@ -108,17 +114,7 @@ class CatalogDataModule(L.LightningDataModule):
         self.transform_with_torchvision()
 
     def transform_with_torchvision(self):
-        if isinstance(self.requested_transform, tuple) or isinstance(self.requested_transform, list):
-            logging.info("Using different torchvision transforms for train and test")
-            assert len(self.requested_transform) == 2
-            self.train_transform = self.requested_transform[0]
-            self.test_transform = self.requested_transform[1]
-        else:
-            self.train_transform = self.requested_transform
-            self.test_transform = self.requested_transform
-
-        # check that user correctly passed torchvision transform or tuple thereof
-        # easy to accidentally pass the cfg objects, or to use GalaxyViewTransform without .transform for the Compose
+        # easy to accidentally pass the cfg objects
         assert isinstance(self.train_transform, Compose), type(self.train_transform)
         assert isinstance(self.test_transform, Compose), type(self.test_transform)
 
@@ -255,14 +251,14 @@ class HuggingFaceDataModule(CatalogDataModule):
         dataset_dict: hf_datasets.DatasetDict,  # must have train and test keys
         train_transform,
         test_transform,
-        target_transform=None,
+        # target_transform=None,
         # hardware params
         batch_size=256,
         num_workers=4,
         prefetch_factor=4,
         seed=42,
-        iterable=False,  # whether to use IterableDataset (faster, no indexed access)
-        dataset_kwargs={}
+        iterable=False  # whether to use IterableDataset (faster, no indexed access)
+        # dataset_kwargs={}
     ):
         # super().__init__()
         L.LightningDataModule.__init__(self)
@@ -279,9 +275,9 @@ class HuggingFaceDataModule(CatalogDataModule):
         self.train_transform = train_transform
         self.test_transform = test_transform
 
-        self.target_transform = target_transform
+        # self.target_transform = target_transform
 
-        self.dataset_kwargs = dataset_kwargs
+        # self.dataset_kwargs = dataset_kwargs
 
         self.iterable = iterable
 
