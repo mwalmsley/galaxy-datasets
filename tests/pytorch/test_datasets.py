@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 import os
@@ -91,7 +92,7 @@ def test_dataset(dataset):
 
     # user will probably tweak and use images/catalog directly for generic galaxy catalog datamodule
     # (which makes its own generic datasets internally)
-    datamodule = galaxy_datamodule.GalaxyDataModule(
+    datamodule = galaxy_datamodule.CatalogDataModule(
         label_cols=label_cols,
         catalog=adjusted_catalog,
         batch_size=32  # need at least one batch
@@ -101,7 +102,9 @@ def test_dataset(dataset):
     datamodule.setup()
 
     any_batches = False
-    for images, labels in datamodule.train_dataloader():
+    for batch in datamodule.train_dataloader():
+        images = batch['image']
+        labels = np.array([batch[col] for col in label_cols])
         any_batches = True
         print(images.shape, labels.shape)
         assert images.max() > (1.01 / 255.), "Image values should be in range [0, 1.], max is {}, suspected /255 twice".format(images.max())

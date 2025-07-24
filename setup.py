@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="galaxy-datasets",
-    version="0.0.24",
+    version="0.0.25",
     author="Mike Walmsley",
     author_email="walmsleymk1@gmail.com",
     description="Galaxy Zoo datasets for PyTorch/TensorFlow",
@@ -28,8 +28,8 @@ setuptools.setup(
         'requests',
         'scikit-learn',
         'omegaconf',  # for config
-        'datasets',  # for HF typing
-        'albumentations < 2.0',  # for augmentations, will be deprecated, torchvision now preferred
+        'datasets >= 3.6',  # for HF typing
+        # 'albumentations < 2.0',  # for augmentations, will be deprecated, torchvision now preferred
         'torch >= 1.10.1',
         'torchvision >= 0.11.2',
         'torchaudio >= 0.10.1',

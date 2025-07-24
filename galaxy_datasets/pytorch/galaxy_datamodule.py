@@ -1,31 +1,36 @@
 import logging
-from functools import partial
-from typing import Optional, Union
+import os
+from typing import Optional, Union, List
 
 import numpy as np
 import pandas as pd
-import pytorch_lightning as pl
+import lightning as L
 from datasets import load_dataset
 from sklearn.model_selection import train_test_split
+from torch.utils.data import DataLoader
+
+from galaxy_datasets.pytorch import dataset_utils
+from galaxy_datasets.transforms import get_galaxy_transform, default_view_config, minimal_view_config
+
 
 # import torch
 from torch.utils.data import DataLoader
 import datasets as hf_datasets
 
 from galaxy_datasets.pytorch import galaxy_dataset
-# from galaxy_datasets.transforms import default_transforms
 # for type checking
 from torchvision.transforms.v2 import Compose
 
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
-class GalaxyDataModule(pl.LightningDataModule):
+class CatalogDataModule(L.LightningDataModule):
     # takes generic catalogs (which are already downloaded and happy),
     # splits if needed, and creates generic datasets->dataloaders etc
     # easy to make dataset-specific default transforms if desired
     def __init__(
         self,
-        label_cols: list,
-        requested_transform,  # torchvision transform composed object, or tuple of two (train, test) transforms
+        label_cols: Union[List, None],
+        train_transform: Optional[Compose] = None,
+        test_transform: Optional[Compose] = None,
         # provide full catalog for automatic split, or...
         catalog=None,
         train_fraction=0.7,
@@ -36,18 +41,6 @@ class GalaxyDataModule(pl.LightningDataModule):
         val_catalog: Optional[pd.DataFrame] = None,
         test_catalog: Optional[pd.DataFrame] = None,
         predict_catalog: Optional[pd.DataFrame] = None,
-        # augmentation params (sensible supervised defaults)
-        # greyscale=False,
-        # album=False,  # now True always
-        # crop_scale_bounds=(0.7, 0.8),
-        # crop_ratio_bounds=(0.9, 1.1),
-        # resize_after_crop=224,
-        # custom_albumentation_transform=None,  # will override the settings above. If tuple, assume (train, test) transforms
-        # custom_torchvision_transform=None,  # similarly
-        # the above will soon be replaced with
-        # transform_cfg=None,
-        # train_transform_cfg=None,
-        # inference_transform_cfg=None,
 
         # hardware params
         batch_size=256,  # careful - will affect final performance
@@ -73,7 +66,17 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         self.label_cols = label_cols
 
-        self.requested_transform = requested_transform
+        if train_transform is None:
+            logging.warning("No train transform requested, using default galaxy transforms")
+            self.train_transform = get_galaxy_transform(default_view_config())
+        else:
+            self.train_transform = train_transform
+            
+        if test_transform is None:
+            logging.warning("No test transform requested, using minimal galaxy transforms")
+            self.test_transform = get_galaxy_transform(minimal_view_config())
+        else:
+            self.test_transform = test_transform
 
         self.catalog = catalog
         self.train_catalog = train_catalog
@@ -108,32 +111,10 @@ class GalaxyDataModule(pl.LightningDataModule):
         logging.info("Num workers: {}".format(self.num_workers))
         logging.info("Prefetch factor: {}".format(self.prefetch_factor))
 
-        # self.custom_albumentation_transform = custom_albumentation_transform
-        # self.custom_torchvision_transform = custom_torchvision_transform
-        # self.resize_after_crop = resize_after_crop
-        # self.crop_scale_bounds = crop_scale_bounds
-        # self.crop_ratio_bounds = crop_ratio_bounds
-        # self.greyscale = greyscale
-
-        # if custom_torchvision_transform is not None:
-        #     logging.info("Using custom torchvision transform for augmentations")
-        self.transform_with_torchvision()  # now required
-        # else:
-        #     logging.info("Using albumentations transform for augmentations")
-        #     self.transform_with_albumentations()
+        self.transform_with_torchvision()
 
     def transform_with_torchvision(self):
-        if isinstance(self.requested_transform, tuple) or isinstance(self.requested_transform, list):
-            logging.info("Using different torchvision transforms for train and test")
-            assert len(self.requested_transform) == 2
-            self.train_transform = self.requested_transform[0]
-            self.test_transform = self.requested_transform[1]
-        else:
-            self.train_transform = self.requested_transform
-            self.test_transform = self.requested_transform
-
-        # check that user correctly passed torchvision transform or tuple thereof
-        # easy to accidentally pass the cfg objects, or to use GalaxyViewTransform without .transform for the Compose
+        # easy to accidentally pass the cfg objects
         assert isinstance(self.train_transform, Compose), type(self.train_transform)
         assert isinstance(self.test_transform, Compose), type(self.test_transform)
 
@@ -150,12 +131,12 @@ class GalaxyDataModule(pl.LightningDataModule):
         # Assign train/val datasets for use in dataloaders
         # assumes dataset_class has these standard args
         if stage == "fit" or stage is None:
-            self.train_dataset = galaxy_dataset.GalaxyDataset(
+            self.train_dataset = galaxy_dataset.CatalogDataset(
                 catalog=self.train_catalog,
                 label_cols=self.label_cols,
                 transform=self.train_transform,
             )
-            self.val_dataset = galaxy_dataset.GalaxyDataset(
+            self.val_dataset = galaxy_dataset.CatalogDataset(
                 catalog=self.val_catalog,
                 label_cols=self.label_cols,
                 transform=self.test_transform,
@@ -163,7 +144,7 @@ class GalaxyDataModule(pl.LightningDataModule):
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
-            self.test_dataset = galaxy_dataset.GalaxyDataset(
+            self.test_dataset = galaxy_dataset.CatalogDataset(
                 catalog=self.test_catalog,
                 label_cols=self.label_cols,
                 transform=self.test_transform,
@@ -176,7 +157,7 @@ class GalaxyDataModule(pl.LightningDataModule):
                 raise ValueError(
                     "Attempting to predict, but GalaxyDataModule was init without a predict_catalog arg. init with GalaxyDataModule(predict_catalog=some_catalog, ...)"
                 )
-            self.predict_dataset = galaxy_dataset.GalaxyDataset(
+            self.predict_dataset = galaxy_dataset.CatalogDataset(
                 catalog=self.predict_catalog,
                 label_cols=self.label_cols,
                 transform=self.test_transform,
@@ -262,42 +243,43 @@ class GalaxyDataModule(pl.LightningDataModule):
                 assert self.test_catalog is not None
             # (could write this shorter but this is clearest)
 
-
-# def do_transform(img, transforms_to_apply):
-#     # albumentations expects np array, and returns dict keyed by "image"
-#     # transforms_to_apply should return tensor in BCHW (torch style). 
-#     # true by default since default_transforms now uses to_tensor=True
-#     # Albumentations doesn't do this by default, so add transpose/to_tensor if using custom albumentations
-#     return transforms_to_apply(image=np.array(img))["image"]
-
-
+# moved from gz-evo to here
 # https://pytorch-lightning.readthedocs.io/en/stable/extensions/datamodules.html
-class HF_GalaxyDataModule(GalaxyDataModule):
+class HuggingFaceDataModule(CatalogDataModule):
     def __init__(
         self,
-        dataset: hf_datasets.Dataset,
-        label_cols: list,
+        dataset_dict: hf_datasets.DatasetDict,  # must have train and test keys
         train_transform,
         test_transform,
-        target_transform=None,
+        # target_transform=None,
         # hardware params
-        batch_size=256,  # careful - will affect final performance
+        batch_size=256,
         num_workers=4,
         prefetch_factor=4,
         seed=42,
+        iterable=False  # whether to use IterableDataset (faster, no indexed access)
+        # dataset_kwargs={}
     ):
         # super().__init__()
-        pl.LightningDataModule.__init__(self)
+        L.LightningDataModule.__init__(self)
+
+        logging.info("Initializing HuggingFaceDataModule")
 
         self.batch_size = batch_size
 
         self.num_workers = num_workers
         self.seed = seed
-        self.label_cols = label_cols
-        self.dataset = dataset
+
+        self.dataset_dict = dataset_dict
+
         self.train_transform = train_transform
         self.test_transform = test_transform
-        self.target_transform = target_transform
+
+        # self.target_transform = target_transform
+
+        # self.dataset_kwargs = dataset_kwargs
+
+        self.iterable = iterable
 
         if self.num_workers == 0:
             logging.warning(
@@ -318,92 +300,137 @@ class HF_GalaxyDataModule(GalaxyDataModule):
     def prepare_data(self):
         pass
 
+    # torchvision acts on image key but HF dataset returns dicts
+    def train_transform_wrapped(self, example: dict):
+        # REPLACES set_transform('torch') so we also need to make torch tensors
+        # https://huggingface.co/docs/datasets/v3.6.0/en/package_reference/main_classes#datasets.Dataset.with_transform
+        # best with pil_to_tensor=True
+        example['image'] = self.train_transform(example['image'])
+        return example
+    def test_transform_wrapped(self, example: dict):
+        example['image'] = self.test_transform(example['image'])
+        return example
+    # .map sends example as dict
+    # .set_transform sends example as dict of lists, i.e. a batched dict
+    # torch collate func will handle the final dict-of-lists-to-tensor, but image transforms only get applied to the first img
+    def train_transform_wrapped_batch(self, examples: dict):
+        # assert len(examples['image']) > 1
+        examples['image'] = [self.train_transform(im) for im in examples['image']]
+        # maybe it's batchwise compatible, but not sure?
+        # examples['image'] = self.train_transform(examples['image'])  # stack to tensor
+        return examples
+    def test_transform_wrapped_batch(self, examples: dict):
+        examples['image'] = [self.test_transform(im) for im in examples['image']]
+        # examples['image'] = self.test_transform(examples['image'])  # stack to tensor
+        return examples
+
     # called on every gpu
     def setup(self, stage: Optional[str] = None):
-        # Assign train/val datasets for use in dataloaders
-        # assumes dataset_class has these standard args
-        # assumes dataset is torch format
+
+        if 'validation' not in self.dataset_dict.keys():
+            # if no validation split, add it
+            logging.info('No validation split found, adding one')
+            self.dataset_dict = dataset_utils.add_validation_split(self.dataset_dict, seed=self.seed, num_workers=self.num_workers)
+
 
         if stage == "fit" or stage is None:
-            if "val" in self.dataset.keys():
-                # life is good, we have all the splits we need
-                train_dataset_hf = self.dataset['train']
-                val_dataset_hf = self.dataset['val']
-            else:
-                # life is less good, we need to make a val split from train
-                # (not from test, to avoid overfitting via early stopping)
-                logging.warning('No premade validation split, creating from 20%% of train dataset')
-                train_datasetdict = self.dataset["train"].train_test_split(test_size=0.2, shuffle=True)
-                train_dataset_hf = train_datasetdict["train"]
-                val_dataset_hf = train_datasetdict['test']  # actually used as val
-                del train_datasetdict
 
-            self.train_dataset = galaxy_dataset.HF_GalaxyDataset(
-                    dataset=train_dataset_hf,
-                    label_cols=self.label_cols,
-                    transform=self.train_transform,
-                    target_transform=self.target_transform,
-            )
-            self.val_dataset = galaxy_dataset.HF_GalaxyDataset(
-                dataset=val_dataset_hf,
-                label_cols=self.label_cols,
-                transform=self.test_transform,
-                target_transform=self.target_transform,
-            )
+            if self.iterable:
+                # convert to iterable datasets
+                logging.info('Converting to iterable datasets')
+                # these have been split above, is really train and val
+                train_dataset_hf = self.dataset_dict["train"].to_iterable_dataset(num_shards=64)
+                val_dataset_hf = self.dataset_dict["validation"].to_iterable_dataset(num_shards=64)
+
+                # apply transforms with map
+                # map passes each example through the transform function as a dict
+                # (while with_transform sends a list...)
+                train_dataset_hf = train_dataset_hf.map(self.train_transform_wrapped)
+                val_dataset_hf = val_dataset_hf.map(self.test_transform_wrapped)
+                # https://huggingface.co/docs/datasets/en/image_process
+                # for dataset, map is cached and intended for "do once" transforms
+                # with_format('torch') is (probably) a map
+                # set_transform is intended for "on-the-fly" transforms and so is not cached (less disk space, faster)
+                # for iterabledataset, map is applied on-the-fly (on every yield) and not cached
+                # so there's no need for set_transform: everything is a non-cached map
+    
+            else:  # leave as not iterable, fast reads, but list comprehension for transforms
+                train_dataset_hf = self.dataset_dict['train']
+                val_dataset_hf = self.dataset_dict['validation']
+
+                # set transforms to use on-the-fly
+                # with transform only works with dataset, not iterabledataset
+                train_dataset_hf = train_dataset_hf.with_transform(self.train_transform_wrapped_batch)
+                val_dataset_hf = val_dataset_hf.with_transform(self.train_transform_wrapped_batch)
+                # these act individually, dataloader will handle batching afterwards
+
+            self.train_dataset = train_dataset_hf
+            self.val_dataset = val_dataset_hf
 
         # Assign test dataset for use in dataloader(s)
         if stage == "test" or stage is None:
-            self.test_dataset = galaxy_dataset.HF_GalaxyDataset(
-                dataset=self.dataset['test'],
-                label_cols=self.label_cols,
-                transform=self.test_transform,
-                target_transform=self.target_transform,
-            )
-
-        elif stage == "predict":
-            self.predict_dataset = galaxy_dataset.HF_GalaxyDataset(
-                dataset=self.dataset['predict'],
-                label_cols=self.label_cols,
-                transform=self.test_transform,
-                target_transform=self.target_transform,
-            )
+            test_dataset_hf = self.dataset_dict['test']
+            # not shuffled, so no need to flatten indices
+            # never iterable, for now
+            test_dataset_hf = test_dataset_hf.with_transform(self.test_transform_wrapped_batch)
+            self.test_dataset = test_dataset_hf
 
 
-    # def transform_with_albumentations(self):
-    #     import albumentations as A
 
-    #     if self.custom_albumentation_transform is not None:
-    #         logging.warning('Custom albumentation transforms will be deprecated in future versions. Use torchvision transforms instead.')
-    #         if isinstance(self.custom_albumentation_transform, tuple):
-    #             logging.info("Using different albumentations transforms for train and test")
-    #             assert len(self.custom_albumentation_transform) == 2
-    #             assert isinstance(self.custom_albumentation_transform[0], A.Compose)
-    #             self.train_transform = partial(
-    #                 do_transform,
-    #                 transforms_to_apply=self.custom_albumentation_transform[0],
-    #             )
-    #             self.test_transform = partial(
-    #                 do_transform,
-    #                 transforms_to_apply=self.custom_albumentation_transform[1],
-    #             )
-    #         else:
-    #             logging.info("Using the same custom albumentations transforms for train and test")
-    #             self.train_transform = partial(
-    #                 do_transform,
-    #                 transforms_to_apply=self.custom_albumentation_transform,
-    #             )
-    #             self.test_transform = partial(
-    #                 do_transform,
-    #                 transforms_to_apply=self.custom_albumentation_transform,
-    #             )
-    #     else:
-    #         logging.info("Using basic albumentations transforms for augmentations")
-    #         # gives a transforms = Compose() object
-    #         transforms_to_apply = default_transforms(
-    #             crop_scale_bounds=self.crop_scale_bounds,
-    #             crop_ratio_bounds=self.crop_ratio_bounds,
-    #             resize_after_crop=self.resize_after_crop,
-    #             pytorch_greyscale=self.greyscale,
-    #         )
-    #         self.train_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
-    #         self.test_transform = partial(do_transform, transforms_to_apply=transforms_to_apply)
+
+    def train_dataloader(self):
+        return DataLoader(
+            self.train_dataset,  # type: ignore
+            batch_size=self.batch_size,
+            shuffle=False,  # assume preshuffled
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=self.num_workers > 0,
+            prefetch_factor=self.prefetch_factor,
+            timeout=self.dataloader_timeout,
+            drop_last=True
+        )
+
+    def val_dataloader(self):
+        return DataLoader(
+            self.val_dataset,  # type: ignore
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=self.num_workers > 0,
+            prefetch_factor=self.prefetch_factor,
+            timeout=self.dataloader_timeout,
+            drop_last=True
+        )
+
+    def test_dataloader(self):
+        return DataLoader(
+            self.test_dataset,  # type: ignore
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=self.num_workers > 0,
+            prefetch_factor=self.prefetch_factor,
+            timeout=self.dataloader_timeout,
+            drop_last=False
+        )
+
+    # not used within lightning, but helpful
+    def get_predict_dataloader(self, split: str):
+
+        # never iterable and always with test transform
+        predict_dataset = self.dataset_dict[split].with_transform(self.test_transform_wrapped_batch)
+
+        return DataLoader(
+            predict_dataset,  # type: ignore
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=True,
+            persistent_workers=self.num_workers > 0,
+            prefetch_factor=self.prefetch_factor,
+            timeout=self.dataloader_timeout,
+            drop_last=False
+        )
