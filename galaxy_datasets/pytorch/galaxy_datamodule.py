@@ -46,6 +46,7 @@ class CatalogDataModule(L.LightningDataModule):
         batch_size=256,  # careful - will affect final performance
         use_memory=False,  # deprecated
         num_workers=4,
+        pin_memory=True,
         prefetch_factor=4,
         seed=42,
     ):
@@ -91,6 +92,7 @@ class CatalogDataModule(L.LightningDataModule):
             raise NotImplementedError
 
         self.num_workers = num_workers
+        self.pin_memory = pin_memory
         self.seed = seed
 
         assert np.isclose(train_fraction + val_fraction + test_fraction, 1.0)
@@ -169,7 +171,7 @@ class CatalogDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=True,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -182,7 +184,7 @@ class CatalogDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -194,7 +196,7 @@ class CatalogDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -206,7 +208,7 @@ class CatalogDataModule(L.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -384,7 +386,7 @@ class HuggingFaceDataModule(CatalogDataModule):
             batch_size=self.batch_size,
             shuffle=False,  # assume preshuffled
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -397,7 +399,7 @@ class HuggingFaceDataModule(CatalogDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -410,7 +412,7 @@ class HuggingFaceDataModule(CatalogDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
@@ -428,7 +430,7 @@ class HuggingFaceDataModule(CatalogDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True,
+            pin_memory=self.pin_memory,
             persistent_workers=self.num_workers > 0,
             prefetch_factor=self.prefetch_factor,
             timeout=self.dataloader_timeout,
