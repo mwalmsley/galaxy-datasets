@@ -258,6 +258,7 @@ class HuggingFaceDataModule(CatalogDataModule):
         batch_size=256,
         num_workers=4,
         prefetch_factor=4,
+        pin_memory=True,
         seed=42,
         iterable=False  # whether to use IterableDataset (faster, no indexed access)
         # dataset_kwargs={}
@@ -268,7 +269,7 @@ class HuggingFaceDataModule(CatalogDataModule):
         logging.info("Initializing HuggingFaceDataModule")
 
         self.batch_size = batch_size
-
+        self.pin_memory = pin_memory
         self.num_workers = num_workers
         self.seed = seed
 
@@ -329,13 +330,16 @@ class HuggingFaceDataModule(CatalogDataModule):
     # called on every gpu
     def setup(self, stage: Optional[str] = None):
 
-        if 'validation' not in self.dataset_dict.keys():
-            # if no validation split, add it
-            logging.info('No validation split found, adding one')
-            self.dataset_dict = dataset_utils.add_validation_split(self.dataset_dict, seed=self.seed, num_workers=self.num_workers)
 
 
         if stage == "fit" or stage is None:
+            
+            # only need validation split in fit stage/unknown stage
+            if 'validation' not in self.dataset_dict.keys():
+                # if no validation split, add it
+                logging.info('No validation split found, adding one')
+                self.dataset_dict = dataset_utils.add_validation_split(self.dataset_dict, seed=self.seed, num_workers=self.num_workers)
+
 
             if self.iterable:
                 # convert to iterable datasets
@@ -377,7 +381,13 @@ class HuggingFaceDataModule(CatalogDataModule):
             test_dataset_hf = test_dataset_hf.with_transform(self.test_transform_wrapped_batch)
             self.test_dataset = test_dataset_hf
 
-
+        if stage == "predict":
+            if 'predict' not in self.dataset_dict.keys():
+                raise ValueError('Attempting to predict, but dataset_dict has no predict split')
+            predict_dataset_hf = self.dataset_dict['predict']
+            # never iterable, for now
+            predict_dataset_hf = predict_dataset_hf.with_transform(self.test_transform_wrapped_batch)
+            self.predict_dataset = predict_dataset_hf
 
 
     def train_dataloader(self):
@@ -409,6 +419,20 @@ class HuggingFaceDataModule(CatalogDataModule):
     def test_dataloader(self):
         return DataLoader(
             self.test_dataset,  # type: ignore
+            batch_size=self.batch_size,
+            shuffle=False,
+            num_workers=self.num_workers,
+            pin_memory=self.pin_memory,
+            persistent_workers=self.num_workers > 0,
+            prefetch_factor=self.prefetch_factor,
+            timeout=self.dataloader_timeout,
+            drop_last=False
+        )
+    
+    def predict_dataloader(self):
+        predict_dataset = self.dataset_dict['predict'].with_transform(self.test_transform_wrapped_batch)
+        return DataLoader(
+            predict_dataset,  # type: ignore
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
