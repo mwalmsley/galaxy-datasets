@@ -17,7 +17,8 @@ def add_validation_split(dataset_dict, seed=42, num_workers=4, shuffle=True, fla
     # https://huggingface.co/docs/datasets/en/about_mapstyle_vs_iterable#speed-differences
     if flatten_indices:
         logging.info('Flattening indices for train and val datasets, may take a while...')
-    train_and_val_dict = train_and_val_dict.flatten_indices(num_proc=num_workers, keep_in_memory=seed != 42)
+        # possibly does nothing without a shuffle, but it is way faster
+        train_and_val_dict = train_and_val_dict.flatten_indices(num_proc=num_workers, keep_in_memory=seed != 42)
     # don't cache for every random seed, or it will fill up disk space
     dataset_dict['train'] = train_and_val_dict["train"]
     dataset_dict['validation'] = train_and_val_dict["test"]
