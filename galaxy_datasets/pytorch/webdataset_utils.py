@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 from PIL import Image  # necessary to avoid PIL.Image error assumption in web_datasets
 
-from galaxy_datasets.transforms import default_transforms
+# from galaxy_datasets.transforms import default_transforms
 
 import webdataset as wds
 
@@ -155,21 +155,21 @@ def load_wds_directly(wds_loc, max_to_load=3):
         logging.info(type(sample['labels.json']))  # automatically decoded
 
 
-# just for debugging
-def load_wds_with_augmentation(wds_loc):
+# # just for debugging
+# def load_wds_with_augmentation(wds_loc):
 
-    augmentation_transform = default_transforms()  # A.Compose object
-    def do_transform(img):
-        return np.transpose(augmentation_transform(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
+#     augmentation_transform = default_transforms()  # A.Compose object
+#     def do_transform(img):
+#         return np.transpose(augmentation_transform(image=np.array(img))["image"], axes=[2, 0, 1]).astype(np.float32)
 
-    dataset = wds.WebDataset(wds_loc) \
-        .decode("rgb") \
-        .to_tuple('image.jpg', 'labels.json') \
-        .map_tuple(do_transform, identity)
+#     dataset = wds.WebDataset(wds_loc) \
+#         .decode("rgb") \
+#         .to_tuple('image.jpg', 'labels.json') \
+#         .map_tuple(do_transform, identity)
     
-    for sample in islice(dataset, 0, 3):
-        logging.info(sample[0].shape)
-        logging.info(sample[1])
+#     for sample in islice(dataset, 0, 3):
+#         logging.info(sample[0].shape)
+#         logging.info(sample[1])
 
 
 def identity(x):
