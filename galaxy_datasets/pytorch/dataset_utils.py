@@ -8,10 +8,10 @@ import datasets as hf_datasets
 
 # utility for adding a validation split to a huggingface dataset dictionary
 # can be used inside DataModule.setup(), but best done earlier if doing other operations that require flattening
-def add_validation_split(dataset_dict, seed=42, num_workers=4, flatten_indices=True):
+def add_validation_split(dataset_dict, seed=42, num_workers=4, shuffle=True, flatten_indices=True):
     num_workers = max(num_workers, 1)  # at least one worker (pytorch uses 0 to turn offf multiprocessing)
     logging.warning('Creating validation split from 20%% of train dataset, seed ={}'.format(seed))
-    train_and_val_dict = dataset_dict["train"].train_test_split(test_size=0.2, shuffle=True, seed=seed, keep_in_memory=seed != 42)
+    train_and_val_dict = dataset_dict["train"].train_test_split(test_size=0.2, shuffle=shuffle, seed=seed, keep_in_memory=seed != 42)
     # now shuffled, so flatten indices
     # breaks (silently hangs) if you have already done set_format
     # https://huggingface.co/docs/datasets/en/about_mapstyle_vs_iterable#speed-differences

@@ -260,7 +260,8 @@ class HuggingFaceDataModule(CatalogDataModule):
         prefetch_factor=4,
         pin_memory=True,
         seed=42,
-        flatten_indices=True,  # whether to flatten indices when adding validation split
+        shuffle_validation=True,
+        # flatten_indices=True,  # whether to flatten indices when adding validation split
         iterable=False  # whether to use IterableDataset (faster, no indexed access)
         # dataset_kwargs={}
     ):
@@ -274,7 +275,7 @@ class HuggingFaceDataModule(CatalogDataModule):
         self.num_workers = num_workers
         self.seed = seed
 
-        self.flatten_indices = flatten_indices
+        self.shuffle_validation = shuffle_validation
 
         self.dataset_dict = dataset_dict
 
@@ -341,7 +342,7 @@ class HuggingFaceDataModule(CatalogDataModule):
             if 'validation' not in self.dataset_dict.keys():
                 # if no validation split, add it
                 logging.info('No validation split found, adding one')
-                self.dataset_dict = dataset_utils.add_validation_split(self.dataset_dict, seed=self.seed, num_workers=self.num_workers, flatten_indices=self.flatten_indices)
+                self.dataset_dict = dataset_utils.add_validation_split(self.dataset_dict, seed=self.seed, num_workers=self.num_workers, shuffle=self.shuffle_validation, flatten_indices=self.shuffle_validation)
 
 
             if self.iterable:
